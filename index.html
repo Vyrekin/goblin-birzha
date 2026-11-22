@@ -154,6 +154,7 @@ details.more{margin-top:18px;border:1px solid var(--line);border-radius:10px;pad
 .mc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;transition:.2s}.mc:hover{border-color:var(--gold);transform:translateY(-3px)}
 .mc img{width:100%;aspect-ratio:1.25;object-fit:cover;display:block;background:#12181a}.mc .n{padding:9px 12px;font-weight:600}
 table.srt th{cursor:pointer}table.srt th.sd::after{content:" ▾";color:var(--gold)}table.srt th.su::after{content:" ▴";color:var(--gold)}
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);opacity:0;transition:.4s;background:linear-gradient(180deg,#f0cf78,#b98a2f);color:#1b1407;font-weight:700;padding:11px 22px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.6);z-index:900;pointer-events:none}#toast.on{transform:translate(-50%,0);opacity:1}
 .err{background:rgba(239,123,107,.12);border:1px solid var(--dn);border-radius:12px;padding:14px;margin:16px 0}
 .foot{color:var(--mut);font-size:12px;margin-top:22px;text-align:center}
 svg.sp{vertical-align:middle}
@@ -179,9 +180,9 @@ svg.sp{vertical-align:middle}
   </div>
   <div id="err"></div>
   <div id="view"></div>
-  <div class="foot">Дані: Blizzard API. Blizzard оновлює аукціон приблизно раз на годину; сайт підхоплює нові дані протягом двох хвилин. «Продано» — оцінка за лотами, що зникли між знімками. Прибуток рахується за ринковою ціною мінус 5% комісії аукціону.</div>
+  <div class="foot">Дані: Blizzard API. Blizzard оновлює аукціон приблизно раз на годину; сторінка перемальовується лише тоді, коли зайшли нові дані. «Продано» — оцінка за лотами, що зникли між знімками. Прибуток рахується за ринковою ціною мінус 5% комісії аукціону.</div>
 </div>
-<div id="tip"></div>
+<div id="tip"></div><div id="toast"></div>
 <div class="drawer" id="drawer"><div class="dr" id="dr"></div></div>
 <script>
 const SB='https://anmzbxgwxxudxwataqio.supabase.co', KEY='sb_publishable_ynsNKcOGrY4u8o_7gtHu2w_yI3lUCXr';
@@ -212,7 +213,7 @@ function build(){
 }
 const lvlOk=r=>S.lvl>=65||r.lvl==null||r.lvl<=S.lvl;
 function status(){const ov=S.ov;if(!ov.updated){$('#cUpd').textContent='даних ще немає';return}
-  const old=(Date.now()-new Date(ov.updated))>100*60000;$('#cUpd').innerHTML=`<span class="dot ${old?'old':''}"></span>дані Blizzard: <b>${ago(ov.updated)}</b>`;
+  const old=(Date.now()-new Date(ov.updated))>100*60000;$('#cUpd').innerHTML=`<span class="dot ${old?'old':''}"></span>нові дані зайшли о <b>${new Date(ov.updated).toLocaleTimeString('uk',{hour:'2-digit',minute:'2-digit'})}</b>`;
   $('#cHist').innerHTML=`історія: <b>${ov.hours} год</b>${ov.since?' · з '+new Date(ov.since).toLocaleString('uk',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}`}
 const waitBox=(what)=>{const H=S.ov.hours;return `<div class="wait">Тут з'являться ${what}. Щоб сказати «дешево» чи «дорого», гоблінам треба порівняти ціну із середньою, а для цього потрібно <b>${NEED} годин</b> спостережень. Зібрано <b>${Math.min(H,NEED)} із ${NEED}</b>.<div class="prog"><i style="width:${Math.min(100,H/NEED*100)}%"></i></div>Робити нічого не треба: дані підтягуються самі, щойно Blizzard їх оновлює.</div>`};
 
@@ -478,7 +479,8 @@ async function load(){try{$('#err').innerHTML='';S.ov=await rpc('wow_api_overvie
   try{if(localStorage.getItem('wowSimple')==='0')S.simple=false}catch(_){}
   setMode();loadMine();
   try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} · ${p.n} рецептів</option>`).join('')}catch(e){showErr(e)}
-  await load();setInterval(()=>{S.mk=null;S.arb=null;load()},3*60000);setInterval(()=>{if(S.ov)status()},30000)})();
+  await load();let stamp=null;const poll=async()=>{try{const j=await rpc('wow_api_stamp');const k=(j?.h||'')+'|'+(j?.n||'');if(stamp===null){stamp=k;return}if(k!==stamp){stamp=k;S.mk=null;S.arb=null;await load();const t=$('#toast');t.textContent='Зайшли нові дані аукціону: '+new Date(j.h||j.n).toLocaleTimeString('uk',{hour:'2-digit',minute:'2-digit'});t.classList.add('on');setTimeout(()=>t.classList.remove('on'),8000)}}catch(_){}};
+  poll();setInterval(poll,60000)})();
 </script>
 </body>
 </html>
