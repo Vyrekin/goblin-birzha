@@ -61,8 +61,7 @@ input[type=range]{accent-color:var(--gold);width:170px;vertical-align:middle}
 @media(max-width:1000px){.g3,.g4{grid-template-columns:1fr 1fr}.hero h1{font-size:32px}}
 @media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}.hero{height:300px}}
 .i{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;border:1px solid var(--line);color:var(--gold2);font:600 11px/1 Manrope,sans-serif;font-style:normal;cursor:help;margin-left:7px;vertical-align:middle;position:relative;letter-spacing:0;text-transform:none}
-.i:hover::after{content:attr(data-tip);position:absolute;z-index:50;top:24px;left:50%;transform:translateX(-50%);width:270px;background:#1d262a;color:var(--txt);border:1px solid var(--gold);border-radius:10px;padding:10px 12px;font:400 12.5px/1.45 Manrope,sans-serif;text-align:left;white-space:normal;box-shadow:0 10px 30px #000}
-.i.l:hover::after{left:auto;right:-6px;transform:none}.i.r:hover::after{left:-6px;transform:none}
+#tip{position:fixed;z-index:1000;display:none;width:280px;background:#1d262a;color:var(--txt);border:1px solid var(--gold);border-radius:10px;padding:10px 12px;font:400 12.5px/1.45 Manrope,sans-serif;box-shadow:0 10px 30px #000;pointer-events:none}
 .kpi{padding:14px 16px;transition:.2s}.kpi:hover{transform:translateY(-2px)}
 .kpi .l{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
 .kpi .v{font-size:24px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
@@ -142,6 +141,7 @@ svg.sp{vertical-align:middle}
   <div id="view"></div>
   <div class="foot">Дані: Blizzard API, знімок щогодини о :05. «Продано» — оцінка за лотами, що зникли між знімками. Прибуток рахується за ринковою ціною мінус 5% комісії аукціону.</div>
 </div>
+<div id="tip"></div>
 <div class="drawer" id="drawer"><div class="dr" id="dr"></div></div>
 <script>
 const SB='https://anmzbxgwxxudxwataqio.supabase.co', KEY='sb_publishable_ynsNKcOGrY4u8o_7gtHu2w_yI3lUCXr';
@@ -304,6 +304,7 @@ window.openItem=async id=>{
   if(dep.length){let cum=0;const cap=dep[0][0]*2.5;const pts=dep.filter(d=>d[0]<=cap).map(d=>{cum+=d[1];return {x:g(d[0]),y:cum}});
     charts.push(new Chart($('#c3'),{type:'line',data:{datasets:[{label:'Штук не дорожче цієї ціни',data:pts,borderColor:'#3fb6a8',backgroundColor:'rgba(63,182,168,.18)',fill:true,stepped:true,pointRadius:0,borderWidth:1.6}]},options:copt({scales:{x:{type:'linear',title:{display:true,text:'ціна, золото',color:'#8b9897'},ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}}}})}))}
 };
+const tip=$('#tip');document.addEventListener('mouseover',e=>{const i=e.target.closest('.i');if(!i){tip.style.display='none';return}tip.textContent=i.dataset.tip;tip.style.display='block';const r=i.getBoundingClientRect(),w=280,h=tip.offsetHeight;let x=Math.min(Math.max(8,r.left+r.width/2-w/2),innerWidth-w-8),y=r.bottom+8;if(y+h>innerHeight-8)y=r.top-h-8;tip.style.left=x+'px';tip.style.top=y+'px'});document.addEventListener('scroll',()=>tip.style.display='none',true);
 window.closeDr=()=>$('#drawer').classList.remove('on');
 $('#drawer').addEventListener('click',e=>{if(e.target.id==='drawer')closeDr()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDr()});
@@ -315,7 +316,7 @@ $('#lvl').addEventListener('input',e=>{S.lvl=+e.target.value;$('#lvlV').textCont
 async function load(){try{$('#err').innerHTML='';S.ov=await rpc('wow_api_overview',{p_prof:S.prof});build();status();render()}catch(e){showErr(e)}}
 (async()=>{try{const p=+localStorage.getItem('wowProf');if(p)S.prof=p;const l=+localStorage.getItem('wowLvl');if(l){S.lvl=l;$('#lvl').value=l;$('#lvlV').textContent=l>=65?'усі':l}}catch(_){}
   loadMine();
-  try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} (${p.n})</option>`).join('')}catch(e){showErr(e)}
+  try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} · ${p.n} рецептів</option>`).join('')}catch(e){showErr(e)}
   await load();setInterval(()=>{S.mk=null;load()},10*60000)})();
 </script>
 </body>
