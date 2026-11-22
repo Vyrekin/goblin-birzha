@@ -178,7 +178,7 @@ svg.sp{vertical-align:middle}
   </div>
   <div id="err"></div>
   <div id="view"></div>
-  <div class="foot">Дані: Blizzard API, знімок щогодини о :05. «Продано» — оцінка за лотами, що зникли між знімками. Прибуток рахується за ринковою ціною мінус 5% комісії аукціону.</div>
+  <div class="foot">Дані: Blizzard API. Blizzard оновлює аукціон приблизно раз на годину; сайт підхоплює нові дані протягом двох хвилин. «Продано» — оцінка за лотами, що зникли між знімками. Прибуток рахується за ринковою ціною мінус 5% комісії аукціону.</div>
 </div>
 <div id="tip"></div>
 <div class="drawer" id="drawer"><div class="dr" id="dr"></div></div>
@@ -211,9 +211,9 @@ function build(){
 }
 const lvlOk=r=>S.lvl>=65||r.lvl==null||r.lvl<=S.lvl;
 function status(){const ov=S.ov;if(!ov.updated){$('#cUpd').textContent='даних ще немає';return}
-  const old=(Date.now()-new Date(ov.updated))>100*60000;$('#cUpd').innerHTML=`<span class="dot ${old?'old':''}"></span>знімок <b>${ago(ov.updated)}</b>`;
+  const old=(Date.now()-new Date(ov.updated))>100*60000;$('#cUpd').innerHTML=`<span class="dot ${old?'old':''}"></span>дані Blizzard: <b>${ago(ov.updated)}</b>`;
   $('#cHist').innerHTML=`історія: <b>${ov.hours} год</b>${ov.since?' · з '+new Date(ov.since).toLocaleString('uk',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}`}
-const waitBox=(what)=>{const H=S.ov.hours;return `<div class="wait">Тут з'являться ${what}. Щоб сказати «дешево» чи «дорого», гоблінам треба порівняти ціну із середньою, а для цього потрібно <b>${NEED} годин</b> спостережень. Зібрано <b>${Math.min(H,NEED)} із ${NEED}</b>.<div class="prog"><i style="width:${Math.min(100,H/NEED*100)}%"></i></div>Робити нічого не треба: знімок робиться сам щогодини.</div>`};
+const waitBox=(what)=>{const H=S.ov.hours;return `<div class="wait">Тут з'являться ${what}. Щоб сказати «дешево» чи «дорого», гоблінам треба порівняти ціну із середньою, а для цього потрібно <b>${NEED} годин</b> спостережень. Зібрано <b>${Math.min(H,NEED)} із ${NEED}</b>.<div class="prog"><i style="width:${Math.min(100,H/NEED*100)}%"></i></div>Робити нічого не треба: дані підтягуються самі, щойно Blizzard їх оновлює.</div>`};
 
 function vSig(){
   const cov=S.ov.cov||0,hasD=cov>=2;
@@ -297,7 +297,7 @@ function vMkt(){
   <div class="panel kpi"><div class="l">Найбільша категорія${inf('Категорія товарів, у якій зараз лежить найбільше золота.','l')}</div><div class="v" style="font-size:19px">${esc(cats[0]?.[0]||'—')}</div><div class="n">${cats[0]?coin(cats[0][1]):''}</div></div></div>
   <div class="grid ${S.simple?'':'g2'}" style="margin-bottom:14px">
     <div class="panel"><h2>Де лежить золото${inf('Сумарна вартість товару на аукціоні за категоріями. Клік по стовпчику фільтрує таблицю внизу за цією категорією.','r')}</h2><div class="sub">Вартість товару за категоріями, золото. Клік по стовпчику — фільтр.</div><div class="ch" style="height:330px"><canvas id="cCat"></canvas></div></div>
-    <div class="panel adv"><h2>Пульс ринку${inf('Стовпчики — на яку суму продано за кожну годину (оцінка). Лінія — скільки всього штук товару виставлено. Якщо лінія падає, а стовпчики ростуть — товар розкуповують швидше, ніж виставляють.','l')}</h2><div class="sub">Оборот і кількість товару по годинах</div>${tot.length>1?'<div class="ch" style="height:330px"><canvas id="cTot"></canvas></div>':`<div class="nochart" style="margin-top:60px">Графік малюється з другого знімка.<br>Знімки робляться щогодини о :05, зараз їх ${tot.length}.</div>`}</div>
+    <div class="panel adv"><h2>Пульс ринку${inf('Стовпчики — на яку суму продано за кожну годину (оцінка). Лінія — скільки всього штук товару виставлено. Якщо лінія падає, а стовпчики ростуть — товар розкуповують швидше, ніж виставляють.','l')}</h2><div class="sub">Оборот і кількість товару по годинах</div>${tot.length>1?'<div class="ch" style="height:330px"><canvas id="cTot"></canvas></div>':`<div class="nochart" style="margin-top:60px">Графік малюється з другого знімка.<br>Blizzard оновлює дані раз на годину, зараз знімків ${tot.length}.</div>`}</div>
   </div>
   <div class="grid g3" style="margin-bottom:14px">
     <div class="panel"><h2>Найбільші запаси${inf('Товари, яких на аукціоні лежить на найбільшу суму. Зазвичай це найходовіші матеріали.','r')}</h2><div class="sub">За сумарною вартістю</div>${topList(byCap,r=>coin(r[12]))}</div>
@@ -323,7 +323,7 @@ function vArb(){
   <div class="panel" style="margin-bottom:14px"><h2>Купити на Черноводье — продати в Орді${inf('Товари, які на нейтральному аукціоні (Пиратская Бухта, Прибамбасск, Круговзор) дешевші, ніж в Оргриммаре. Прибуток уже після 5% комісії ординського аукціону. Депозит за виставлення не враховано. Показано лише те, де маржа від 10% і товар справді купують: кількість обмежена 30% добових продажів, а перенасичені товари опущені вниз.','r')}</h2><div class="sub">Купуєш у гоблінів, виставляєш в Оргриммаре. Клік по рядку відкриває картку товару.</div>
   <div class="tw"><table><thead>${head('Купити на Черноводье','Продати в Орді')}</thead><tbody>${nh.map(o=>tr(o)).join('')||'<tr><td colspan="9" class="empty">Зараз вигідних товарів немає.</td></tr>'}</tbody></table></div></div>
   <div class="panel"><h2>Купити в Орді — продати на Черноводье${inf('Зворотний напрям. Нейтральний аукціон забирає 15% з продажу, тому тут показано лише товари з маржею від 15%, які на Черноводье справді купують. Продаж там повільніший і ризикованіший.','r')}</h2><div class="sub">Комісія нейтрального аукціону 15%, покупців менше</div>
-  ${(S.arb.hours_n||0)<2?`<div class="wait">Щоб радити цей напрям, треба знати, що на Черноводье справді купують. Дані про продажі там з'являться після другого знімка (щогодини о :09). Робити нічого не треба.</div>`:`<div class="tw"><table><thead>${head('Купити в Орді','Продати на Черноводье')}</thead><tbody>${hn.map(o=>tr(o)).join('')||'<tr><td colspan="8" class="empty">Зараз вигідних товарів немає.</td></tr>'}</tbody></table></div>`}</div>`}
+  ${(S.arb.hours_n||0)<2?`<div class="wait">Щоб радити цей напрям, треба знати, що на Черноводье справді купують. Дані про продажі там з'являться після другого знімка (Blizzard оновлює дані раз на годину). Робити нічого не треба.</div>`:`<div class="tw"><table><thead>${head('Купити в Орді','Продати на Черноводье')}</thead><tbody>${hn.map(o=>tr(o)).join('')||'<tr><td colspan="8" class="empty">Зараз вигідних товарів немає.</td></tr>'}</tbody></table></div>`}</div>`}
 let charts=[];
 window.openItem=async id=>{
   $('#drawer').classList.add('on');$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div class="empty">Завантаження…</div>';
@@ -353,7 +353,7 @@ window.openItem=async id=>{
   ${recs.length?`<h3>Розрахунок крафту${inf('Що треба купити, за скільки продати і скільки залишиться. Ціни реагентів — ринкові на аукціоні зараз. Клік по реагенту відкриває його картку.','r')}</h3>${recs.map(calc).join('<br>')}`:''}
   <details class="more" ${S.simple?'':'open'}><summary>Графіки ціни, попит і стіна цін</summary>
   <h3>Ціна в часі${inf('Золота лінія — ринкова ціна, бірюзова — найдешевший лот, пунктир — медіана (ціна «посередині» всіх лотів). Якщо мінімум сильно нижче ринкової, хтось демпінгує.','r')}</h3>
-  ${s.length>1?`<div class="ch"><canvas id="c1"></canvas></div><p class="how">Ціна росте — вигідніше продавати, падає — вигідніше купувати. Діапазон за період: ${coin(lo)} – ${coin(hi)}.</p>`:`<div class="nochart">Графік малюється з другого знімка. Знімки робляться щогодини о :05, зараз для цього товару є ${s.length}.</div>`}
+  ${s.length>1?`<div class="ch"><canvas id="c1"></canvas></div><p class="how">Ціна росте — вигідніше продавати, падає — вигідніше купувати. Діапазон за період: ${coin(lo)} – ${coin(hi)}.</p>`:`<div class="nochart">Графік малюється з другого знімка. Blizzard оновлює дані раз на годину, зараз для цього товару знімків: ${s.length}.</div>`}
   <h3>Попит і пропозиція${inf('Сіра лінія — скільки штук лежить на аукціоні. Золоті стовпчики — скільки продано за годину (оцінка), бірюзові — скільки нового виставили. Продають більше, ніж виставляють, — ціна, найімовірніше, ростиме.','r')}</h3>
   ${s.length>1?`<div class="ch"><canvas id="c2"></canvas></div><p class="how">Золоті стовпчики вищі за бірюзові — товар розкуповують; навпаки — ринок заливають товаром.</p>`:`<div class="nochart">З'явиться разом із графіком ціни.</div>`}
   ${dep.length?`<h3>Стіна цін${inf('Скільки штук треба викупити, щоб ціна піднялася до певного рівня. Пологий початок — біля мінімуму багато товару, ціну важко зрушити. Крута сходинка — товару мало, ціна легко стрибне.','r')}</h3><div class="ch"><canvas id="c3"></canvas></div><p class="how">По горизонталі ціна, по вертикалі — скільки штук продається не дорожче цієї ціни.</p>`:''}
@@ -465,7 +465,7 @@ async function load(){try{$('#err').innerHTML='';S.ov=await rpc('wow_api_overvie
   try{if(localStorage.getItem('wowSimple')==='0')S.simple=false}catch(_){}
   setMode();loadMine();
   try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} · ${p.n} рецептів</option>`).join('')}catch(e){showErr(e)}
-  await load();setInterval(()=>{S.mk=null;S.arb=null;load()},10*60000)})();
+  await load();setInterval(()=>{S.mk=null;S.arb=null;load()},3*60000);setInterval(()=>{if(S.ov)status()},30000)})();
 </script>
 </body>
 </html>
