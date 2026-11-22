@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Гоблінська біржа — аукціон WoW Forever</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Forum&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>__CHART__</script>
+<style>
+:root{--bg:#0b1216;--panel:rgba(15,20,22,.93);--panel2:rgba(26,32,34,.96);--line:rgba(214,170,84,.38);--gold:#e2b657;--gold2:#f6d98a;--txt:#e9e4d6;--mut:#9aa7a6;--up:#6fd08c;--dn:#ef7b6b;--teal:#3fb6a8;--sil:#c9d1d6;--cop:#d08a55}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Manrope,system-ui,sans-serif;color:var(--txt);background:var(--bg);font-size:14px;line-height:1.45;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;background:linear-gradient(rgba(12,8,6,.52),rgba(10,8,7,.80)),url(__BG__) center/cover no-repeat;z-index:-1}
+h1,h2,h3{font-family:Forum,Georgia,serif;font-weight:400;margin:0;letter-spacing:.02em}
+.wrap{max-width:1380px;margin:0 auto;padding:0 18px 60px}
+.hero{position:relative;height:250px;border-radius:0 0 18px 18px;overflow:hidden;border:1px solid var(--line);border-top:0;background:url(__HERO__) center 38%/cover}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,14,18,.92) 0%,rgba(8,14,18,.55) 42%,rgba(8,14,18,.05) 75%),linear-gradient(0deg,rgba(8,14,18,.85),transparent 45%)}
+.hero-in{position:absolute;z-index:2;left:28px;bottom:22px;right:28px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.hero h1{font-size:44px;color:var(--gold2);text-shadow:0 2px 14px #000}
+.hero p{margin:4px 0 0;color:#d9d2bd;max-width:520px;text-shadow:0 1px 6px #000}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{background:rgba(10,16,20,.78);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12.5px;color:#d9d2bd;backdrop-filter:blur(4px)}
+.chip b{color:var(--gold2);font-weight:600}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--up);margin-right:6px;box-shadow:0 0 8px var(--up);animation:pulse 2s infinite}
+.dot.old{background:var(--dn);box-shadow:0 0 8px var(--dn)}
+@keyframes pulse{50%{opacity:.45}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#view>*{animation:rise .45s ease both}#view>*:nth-child(2){animation-delay:.06s}#view>*:nth-child(3){animation-delay:.12s}#view>*:nth-child(4){animation-delay:.18s}
+select,input[type=search]{font:inherit;color:var(--txt);background:rgba(10,16,20,.85);border:1px solid var(--line);border-radius:10px;padding:7px 10px;outline:none}
+select:focus,input:focus{border-color:var(--gold)}
+input[type=range]{accent-color:var(--gold);width:170px;vertical-align:middle}
+.bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:16px 0 14px}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tab{border:0;background:none;color:var(--mut);font:inherit;font-weight:600;padding:8px 16px;border-radius:9px;cursor:pointer;transition:.2s}
+.tab:hover{color:var(--txt)}
+.tab.on{background:linear-gradient(180deg,#e9c46a,#b98a2f);color:#1b1407}
+.ctl{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 14px}
+.ctl label{color:var(--mut);font-size:13px;display:flex;gap:8px;align-items:center}
+.ctl b{color:var(--gold2);min-width:22px;display:inline-block}
+.panel{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;backdrop-filter:blur(6px);box-shadow:inset 0 0 0 3px rgba(0,0,0,.35),inset 0 0 0 4px rgba(214,170,84,.12),0 10px 30px rgba(0,0,0,.45)}
+.panel h2{font-size:22px;color:var(--gold2);margin-bottom:2px}
+.sub{color:var(--mut);font-size:12.5px;margin-bottom:12px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1000px){.g3,.g4{grid-template-columns:1fr 1fr}.hero h1{font-size:32px}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}.hero{height:300px}}
+.i{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;border:1px solid var(--line);color:var(--gold2);font:600 11px/1 Manrope,sans-serif;font-style:normal;cursor:help;margin-left:7px;vertical-align:middle;position:relative;letter-spacing:0;text-transform:none}
+.i:hover::after{content:attr(data-tip);position:absolute;z-index:50;top:24px;left:50%;transform:translateX(-50%);width:270px;background:#1d262a;color:var(--txt);border:1px solid var(--gold);border-radius:10px;padding:10px 12px;font:400 12.5px/1.45 Manrope,sans-serif;text-align:left;white-space:normal;box-shadow:0 10px 30px #000}
+.i.l:hover::after{left:auto;right:-6px;transform:none}.i.r:hover::after{left:-6px;transform:none}
+.kpi{padding:14px 16px;transition:.2s}.kpi:hover{transform:translateY(-2px)}
+.kpi .l{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.kpi .v{font-size:24px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .n{color:var(--mut);font-size:12.5px;margin-top:2px}
+.gob{display:flex;gap:16px;align-items:center;margin-bottom:14px}
+.gob img{width:108px;height:108px;border-radius:50%;object-fit:cover;object-position:50% 30%;border:2px solid var(--gold);box-shadow:0 0 0 4px rgba(226,182,87,.15),0 8px 24px #000;flex:none}
+.say{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 18px;font-size:15px;flex:1}
+.say::before{content:"";position:absolute;left:-8px;top:50%;width:14px;height:14px;background:var(--panel2);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:translateY(-50%) rotate(45deg)}
+.say b{color:var(--gold2)}
+.card{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);margin-top:8px;cursor:pointer;transition:.18s}
+.card:hover{border-color:var(--gold);background:rgba(226,182,87,.07);transform:translateX(3px)}
+.card .t{font-weight:600}.card .d{color:var(--mut);font-size:12.5px}
+.card .r{text-align:right;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--gold2);margin-left:6px;vertical-align:1px}
+.empty{color:var(--mut);padding:10px 4px;font-size:13px}
+.wait{border:1px dashed var(--line);border-radius:10px;padding:14px;margin-top:8px;color:#cfc8b4;font-size:13px}
+.wait b{color:var(--gold2)}.prog{height:8px;border-radius:99px;background:rgba(255,255,255,.07);margin:10px 0 4px;overflow:hidden}.prog i{display:block;height:100%;background:linear-gradient(90deg,#b98a2f,#f6d98a);border-radius:99px;transition:width 1s}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{position:sticky;top:0;background:#111c21;color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;text-align:right;padding:9px 10px;cursor:pointer;white-space:nowrap;border-bottom:1px solid var(--line);z-index:1}
+th:first-child,td:first-child{text-align:left}
+th.s::after{content:" ▾";color:var(--gold)}th.s.a::after{content:" ▴"}
+td{padding:8px 10px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);white-space:nowrap}
+tbody tr{cursor:pointer;transition:.15s}tbody tr:hover{background:rgba(226,182,87,.07)}
+.tw{overflow:auto;max-height:70vh;border-radius:10px;border:1px solid rgba(255,255,255,.06)}
+.nm{font-weight:600;white-space:normal}.cat{color:var(--mut);font-size:12px;font-weight:400;white-space:normal}
+.up{color:var(--up)}.dn{color:var(--dn)}.mut{color:var(--mut)}
+.coin{font-weight:600;white-space:nowrap}.coin i{font-style:normal;font-size:.82em;margin:0 3px 0 1px}
+.coin .g{color:var(--gold)}.coin .s{color:var(--sil)}.coin .c{color:var(--cop)}
+.q-UNCOMMON{color:#5fd35f}.q-RARE{color:#4c9cf0}.q-EPIC{color:#b06cf0}.q-POOR{color:#9d9d9d}
+.fl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.pill{border:1px solid var(--line);background:none;color:var(--mut);font:inherit;font-size:12.5px;border-radius:999px;padding:5px 11px;cursor:pointer;transition:.15s}
+.pill:hover{color:var(--txt)}.pill.on{background:rgba(226,182,87,.16);color:var(--gold2);border-color:var(--gold)}
+label.ck{color:var(--mut);font-size:13px;display:flex;gap:6px;align-items:center;cursor:pointer}
+.star{cursor:pointer;color:#55615f;font-size:17px;margin-right:8px;transition:.15s}.star.on{color:var(--gold)}.star:hover{transform:scale(1.25)}
+.drawer{position:fixed;inset:0;background:rgba(4,8,10,.72);display:none;z-index:20;justify-content:flex-end}
+.drawer.on{display:flex}
+@keyframes slide{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+.dr{width:min(780px,100%);height:100%;overflow:auto;background:#0f191e;border-left:1px solid var(--line);padding:22px;animation:slide .3s ease}
+.dr h2{font-size:30px}.x{float:right;border:1px solid var(--line);background:none;color:var(--txt);border-radius:8px;padding:5px 11px;cursor:pointer;font:inherit}
+.verdict{display:flex;gap:14px;align-items:center;background:linear-gradient(90deg,rgba(226,182,87,.16),rgba(226,182,87,.04));border:1px solid var(--gold);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:15px}
+.verdict img{width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:50% 30%;border:2px solid var(--gold);flex:none}
+.verdict b{color:var(--gold2)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+@media(max-width:640px){.stats{grid-template-columns:1fr 1fr}}
+.st{background:rgba(255,255,255,.03);border-radius:10px;padding:9px 11px}.st .l{color:var(--mut);font-size:11.5px}.st .v{font-weight:700;font-size:15px}
+.ch{height:210px;margin:6px 0 6px;position:relative}
+.how{color:var(--mut);font-size:12.5px;margin:0 0 18px}
+.dr h3{font-size:20px;color:var(--gold2);margin-top:20px}
+.calc td,.calc th{position:static;background:none;cursor:default}.calc tr{cursor:default}.calc tr.tot td{border-top:1px solid var(--line);font-weight:700}
+.calc a{color:#9fd8cf;text-decoration:none}.calc a:hover{text-decoration:underline}
+.chiprow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.chiprow span{background:rgba(255,255,255,.04);border-radius:999px;padding:4px 10px;font-size:12.5px}
+.nochart{border:1px dashed var(--line);border-radius:10px;padding:18px;margin:8px 0 18px;color:#cfc8b4;font-size:13px;text-align:center}
+.top{display:flex;justify-content:space-between;gap:10px;padding:7px 4px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer}.top:hover{background:rgba(226,182,87,.07)}
+.top .n{color:var(--mut);width:20px;flex:none}.top .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.err{background:rgba(239,123,107,.12);border:1px solid var(--dn);border-radius:12px;padding:14px;margin:16px 0}
+.foot{color:var(--mut);font-size:12px;margin-top:22px;text-align:center}
+svg.sp{vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero"><div class="hero-in">
+    <div><h1>Гоблінська біржа</h1><p>Аукціон Орди · WoW Forever · PvP EU. Ціни, обсяги й тренди: що варити, що купувати, що продавати.</p></div>
+    <div class="chips"><span class="chip" id="cUpd">завантаження…</span><span class="chip" id="cHist"></span></div>
+  </div></div>
+  <div class="bar">
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-t="sig">Сигнали</button><button class="tab" data-t="rec">Рецепти</button>
+      <button class="tab" data-t="itm">Товари професії</button><button class="tab" data-t="mkt">Весь ринок</button>
+    </div>
+    <div class="ctl">
+      <label>Професія <select id="prof"></select></label>
+      <label>Рівень предметів до <input type="range" id="lvl" min="5" max="65" step="5" value="65"><b id="lvlV">усі</b><i class="i l" data-tip="Blizzard не віддає, який навик професії потрібен для рецепта. Тому фільтр іде за рівнем предмета, що виходить: посунь повзунок, щоб сховати рецепти вищого рівня. Точніше — познач зірочкою рецепти, які ти вмієш, на вкладці «Рецепти» й увімкни «лише мої».">i</i></label>
+    </div>
+  </div>
+  <div id="err"></div>
+  <div id="view"></div>
+  <div class="foot">Дані: Blizzard API, знімок щогодини о :05. «Продано» — оцінка за лотами, що зникли між знімками. Прибуток рахується за ринковою ціною мінус 5% комісії аукціону.</div>
+</div>
+<div class="drawer" id="drawer"><div class="dr" id="dr"></div></div>
+<script>
+const SB='https://anmzbxgwxxudxwataqio.supabase.co', KEY='sb_publishable_ynsNKcOGrY4u8o_7gtHu2w_yI3lUCXr';
+const GOB='__GOB__', NEED=12;
+const S={tab:'sig',prof:171,lvl:65,ov:null,mk:null,items:new Map(),recs:[],sort:{rec:['profit',-1],itm:['qty',-1],mkt:[12,-1]},cat:'',q:'',onlyPos:true,onlyMine:false,mine:new Set(),mq:'',mcat:''};
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inf=(t,c='')=>`<i class="i ${c}" data-tip="${esc(t)}">i</i>`;
+const T={mkt:'Ринкова ціна — середня ціна найдешевших 15% товару. Вона стійкіша за мінімальну: один випадковий дешевий лот її не збиває.',min:'Найдешевший лот на аукціоні просто зараз.',sold:'Оцінка: скільки штук зникло з аукціону за останні 24 години за ціною, близькою до мінімальної. Blizzard не показує справжні продажі, тому сюди можуть потрапити й зняті лоти.',qty:'Скільки штук цього товару зараз виставлено на аукціоні.',near:'Скільки штук стоїть у межах +5% від мінімальної ціни. Це твої прямі конкуренти: щоб продати швидко, треба ставити дешевше за них.',d24:'Зміна ринкової ціни порівняно з учорашньою о цій самій порі.',d7:'Наскільки поточна ціна відрізняється від середньої за 7 днів. Мінус — зараз дешево, плюс — дорого.',cost:'Скільки коштують усі реагенти на один крафт, якщо купити їх на аукціоні за ринковою ціною.',profit:'Ціна продажу мінус 5% комісії аукціону мінус собівартість. Це прибуток з одного крафту.',margin:'Прибуток у відсотках від собівартості. Показує, наскільки «жирний» рецепт відносно вкладених грошей.',spark:'Мініграфік ринкової ціни за останні 72 години. Зелений — ціна росте, червоний — падає.',val:'Оцінка: на яку суму цього товару продано за добу.'};
+async function rpc(fn,args={}){const r=await fetch(`${SB}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(args)});if(!r.ok)throw new Error(fn+': '+r.status+' '+(await r.text()).slice(0,200));return r.json()}
+function coin(c,sign){if(c==null||isNaN(c))return '<span class="mut">—</span>';const neg=c<0;c=Math.round(Math.abs(c));const g=Math.floor(c/10000),s=Math.floor(c%10000/100),k=c%100;let h='';if(g)h+=`<span class="g">${g.toLocaleString('uk')}<i>з</i></span>`;if(g||s)h+=`<span class="s">${g?String(s).padStart(2,'0'):s}<i>с</i></span>`;if(!g)h+=`<span class="c">${s?String(k).padStart(2,'0'):k}<i>м</i></span>`;return `<span class="coin ${sign?(neg?'dn':'up'):''}">${neg?'−':(sign?'+':'')}${h}</span>`}
+const num=n=>n==null?'<span class="mut">—</span>':Number(n).toLocaleString('uk');
+const pct=(a,b)=>(a==null||!b)?null:(a/b-1)*100;
+const pctH=p=>p==null?'<span class="mut">—</span>':`<span class="${p>0.5?'up':p<-0.5?'dn':'mut'}">${p>0?'+':''}${p.toFixed(1)}%</span>`;
+function spark(a){a=(a||[]).filter(v=>v!=null);if(a.length<2)return '<span class="mut" title="замало знімків">·</span>';const w=84,h=24,mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1;const p=a.map((v,i)=>`${(i/(a.length-1)*w).toFixed(1)},${(h-2-(v-mn)/r*(h-4)).toFixed(1)}`).join(' ');const up=a[a.length-1]>=a[0];return `<svg class="sp" width="${w}" height="${h}"><polyline fill="none" stroke="${up?'#6fd08c':'#ef7b6b'}" stroke-width="1.6" points="${p}"/></svg>`}
+const px=it=>it?(it.mkt??it.min??null):null;
+function ago(ts){const m=Math.round((Date.now()-new Date(ts))/60000);return m<1?'щойно':m<60?m+' хв тому':Math.floor(m/60)+' год '+(m%60)+' хв тому'}
+const mineKey=()=>'wowMine'+S.prof;
+function loadMine(){try{S.mine=new Set(JSON.parse(localStorage.getItem(mineKey())||'[]'))}catch(_){S.mine=new Set()}}
+window.star=(id,e)=>{e.stopPropagation();S.mine.has(id)?S.mine.delete(id):S.mine.add(id);try{localStorage.setItem(mineKey(),JSON.stringify([...S.mine]))}catch(_){}render()};
+
+function build(){
+  const ov=S.ov;S.items=new Map(ov.items.map(i=>[i.id,i]));
+  S.recs=ov.recipes.map(r=>{const prod=S.items.get(r.item);let cost=0,miss=[];for(const g of r.reag||[]){const p=px(S.items.get(g.item));if(p==null)miss.push(g.name);else cost+=p*g.qty}
+    const sell=px(prod);const known=!miss.length&&(r.reag||[]).length>0;const rev=sell!=null?sell*r.n*0.95:null;
+    return {...r,prod,lvl:prod?.lvl??null,cost:known?cost:null,miss,sell,profit:(known&&rev!=null)?rev-cost:null,margin:(known&&rev!=null&&cost>0)?(rev-cost)/cost*100:null,sold24:prod?.sold24??null,qty:prod?.qty??0,cd:/трансмутац/i.test(r.cat||'')||/трансмутац/i.test(r.name)}});
+  S.reagIds=new Set(ov.recipes.flatMap(r=>(r.reag||[]).map(g=>g.item)));S.prodIds=new Set(ov.recipes.map(r=>r.item));
+}
+const lvlOk=r=>S.lvl>=65||r.lvl==null||r.lvl<=S.lvl;
+function status(){const ov=S.ov;if(!ov.updated){$('#cUpd').textContent='даних ще немає';return}
+  const old=(Date.now()-new Date(ov.updated))>100*60000;$('#cUpd').innerHTML=`<span class="dot ${old?'old':''}"></span>знімок <b>${ago(ov.updated)}</b>`;
+  $('#cHist').innerHTML=`історія: <b>${ov.hours} год</b>${ov.since?' · з '+new Date(ov.since).toLocaleString('uk',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}`}
+const waitBox=(what)=>{const H=S.ov.hours;return `<div class="wait">Тут з'являться ${what}. Щоб сказати «дешево» чи «дорого», гоблінам треба порівняти ціну із середньою, а для цього потрібно <b>${NEED} годин</b> спостережень. Зібрано <b>${Math.min(H,NEED)} із ${NEED}</b>.<div class="prog"><i style="width:${Math.min(100,H/NEED*100)}%"></i></div>Робити нічого не треба: знімок робиться сам щогодини.</div>`};
+
+function vSig(){
+  const ok=S.recs.filter(r=>r.profit!=null&&r.qty>0&&lvlOk(r)), pos=ok.filter(r=>r.profit>0).sort((a,b)=>b.profit-a.profit);
+  const best=pos[0], bestNoCd=pos.find(r=>!r.cd), H=S.ov.hours;
+  const its=[...S.items.values()];
+  const buy=its.filter(i=>S.reagIds.has(i.id)&&i.pts>=NEED&&i.avg7&&px(i)!=null&&px(i)<=i.avg7*0.9).sort((a,b)=>px(a)/a.avg7-px(b)/b.avg7).slice(0,6);
+  const sell=its.filter(i=>S.prodIds.has(i.id)&&i.pts>=NEED&&i.avg7&&px(i)!=null&&px(i)>=i.avg7*1.1&&i.qty>0).sort((a,b)=>px(b)/b.avg7-px(a)/a.avg7).slice(0,6);
+  const turn=its.reduce((s,i)=>s+(i.val24||0),0), hasSold=its.some(i=>i.sold24>0);
+  let say;if(!best)say='Поки що жоден рецепт не дає прибутку за поточними цінами. Зазирни пізніше, ринок рухається.';
+  else{say=`Найжирніший шматок зараз — <b>${esc(best.name)}</b>: ${coin(best.profit,1)} з одного крафту${best.cd?' (але це кулдаун, раз на добу-дві)':''}.`;
+    if(bestNoCd&&bestNoCd!==best)say+=` Без кулдауну найкраще варити <b>${esc(bestNoCd.name)}</b>: ${coin(bestNoCd.profit,1)} за штуку${bestNoCd.sold24>0?`, за добу пішло ~${num(bestNoCd.sold24)} шт`:''}.`;
+    if(H<NEED)say+=` Історії поки ${H} год, тож про «дешево» й «дорого» скажу пізніше.`}
+  const crow=r=>`<div class="card" onclick="openItem(${r.item})"><div><div class="t">${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div><div class="d">реагенти ${coin(r.cost)} → продаж ${coin(r.sell)}${r.n>1?' ×'+r.n:''} · на аукціоні ${num(r.qty)} шт${r.sold24>0?' · продано за добу ~'+num(r.sold24):''}</div></div><div class="r">${coin(r.profit,1)}<div class="d">${r.margin!=null?'+'+r.margin.toFixed(0)+'%':''}</div></div></div>`;
+  const irow=i=>`<div class="card" onclick="openItem(${i.id})"><div><div class="t q-${i.q||''}">${esc(i.name)}</div><div class="d">зараз ${coin(px(i))} · середня за 7 днів ${coin(i.avg7)}</div></div><div class="r">${pctH(pct(px(i),i.avg7))}<div class="d">${num(i.qty)} шт</div></div></div>`;
+  return `<div class="gob"><img src="${GOB}" alt=""><div class="say">${say}</div></div>
+  <div class="grid g4" style="margin-bottom:14px">
+    <div class="panel kpi"><div class="l">Найкращий крафт${inf('Рецепт із найбільшим прибутком з одного крафту просто зараз, серед усіх рецептів обраної професії та рівня.','r')}</div><div class="v">${best?coin(best.profit,1):'—'}</div><div class="n">${best?esc(best.name):''}</div></div>
+    <div class="panel kpi"><div class="l">Найкращий без кулдауну${inf('Те саме, але без трансмутацій: те, що можна варити скільки завгодно разів поспіль.')}</div><div class="v">${bestNoCd?coin(bestNoCd.profit,1):'—'}</div><div class="n">${bestNoCd?esc(bestNoCd.name):''}</div></div>
+    <div class="panel kpi"><div class="l">Прибуткових рецептів${inf('Скільки рецептів зараз дають плюс після комісії. Рахуються лише ті, де всі реагенти й сам продукт є на аукціоні.')}</div><div class="v">${pos.length} <span class="mut" style="font-size:14px">із ${ok.length}</span></div><div class="n">де відомі всі ціни</div></div>
+    <div class="panel kpi"><div class="l">Оборот професії за добу${inf('На яку суму за добу продано реагентів і продуктів цієї професії. Оцінка за лотами, що зникли з аукціону.','l')}</div><div class="v">${hasSold?coin(turn):'—'}</div><div class="n">${hasSold?'оцінка за зниклими лотами':'рахується, зайди за годину-дві'}</div></div>
+  </div>
+  <div class="grid g3">
+    <div class="panel"><h2>Варити й продавати${inf('Рецепти, відсортовані за прибутком з одного крафту. Натисни на рядок, щоб побачити розрахунок: що купити, за скільки продати і скільки залишиться.','r')}</h2><div class="sub">Купи реагенти, звари, вистав на аукціон</div>${pos.slice(0,8).map(crow).join('')||'<div class="empty">Немає прибуткових рецептів на цьому рівні.</div>'}</div>
+    <div class="panel"><h2>Купувати реагенти${inf('Реагенти, які зараз щонайменше на 10% дешевші за свою середню ціну за 7 днів. Вдалий момент закупитися про запас.')}</h2><div class="sub">Зараз дешевше, ніж зазвичай</div>${H<NEED?waitBox('реагенти, які подешевшали'):(buy.map(irow).join('')||'<div class="empty">Зараз жоден реагент не просів більш ніж на 10%. Закуповуватися про запас не час.</div>')}</div>
+    <div class="panel"><h2>Продавати запаси${inf('Продукти професії, які зараз щонайменше на 10% дорожчі за свою середню ціну за 7 днів. Якщо вони лежать у тебе в банку, вдалий момент виставити.','l')}</h2><div class="sub">Зараз дорожче, ніж зазвичай</div>${H<NEED?waitBox('зілля й товари, які подорожчали'):(sell.map(irow).join('')||'<div class="empty">Зараз нічого не подорожчало більш ніж на 10%. Запаси можна притримати.</div>')}</div>
+  </div>`}
+
+function sortBy(arr,k,d){return arr.slice().sort((a,b)=>{const x=typeof k==='function'?k(a):a[k],y=typeof k==='function'?k(b):b[k];if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return typeof x==='string'?d*x.localeCompare(y,'ru'):d*(x-y)})}
+function th(tab,cols){const [k,d]=S.sort[tab];return '<tr>'+cols.map(c=>`<th title="${esc(c[2]||'')}" class="${c[0]===k?'s'+(d>0?' a':''):''}" onclick="setSort('${tab}',${typeof c[0]==='number'?c[0]:`'${c[0]}'`})">${c[1]}</th>`).join('')+'</tr>'}
+window.setSort=(tab,k)=>{const s=S.sort[tab];S.sort[tab]=s[0]===k?[k,-s[1]]:[k,(k==='name'||k===1)?1:-1];render()};
+
+function vRec(){
+  const cats=[...new Set(S.recs.map(r=>r.cat))];const q=S.q.toLowerCase();
+  let rows=S.recs.filter(r=>lvlOk(r)&&(!S.cat||r.cat===S.cat)&&(!q||r.name.toLowerCase().includes(q))&&(!S.onlyPos||(r.profit!=null&&r.profit>0&&r.qty>0))&&(!S.onlyMine||S.mine.has(r.id)));
+  const [k,d]=S.sort.rec;rows=sortBy(rows,k,d);
+  return `<div class="panel"><h2>Рецепти${inf('Усі рецепти професії з розрахунком прибутку. Наведи на заголовок колонки, щоб побачити, що вона означає; клік по заголовку сортує. Зірочка зліва — «я це вмію»: познач свої рецепти й увімкни «лише мої».','r')}</h2><div class="sub">Клік по рядку відкриває розрахунок і графіки. Показано ${rows.length} із ${S.recs.length}.</div>
+  <div class="fl"><input type="search" id="q" placeholder="Пошук рецепта" value="${esc(S.q)}" oninput="S.q=this.value;render(1)">
+  <label class="ck"><input type="checkbox" ${S.onlyPos?'checked':''} onchange="S.onlyPos=this.checked;render()">лише прибуткові</label>
+  <label class="ck"><input type="checkbox" ${S.onlyMine?'checked':''} onchange="S.onlyMine=this.checked;render()">лише мої ★ (${S.mine.size})</label></div>
+  <div class="fl"><button class="pill ${!S.cat?'on':''}" onclick="S.cat='';render()">Усі</button>${cats.map(c=>`<button class="pill ${S.cat===c?'on':''}" onclick="S.cat=this.dataset.c;render()" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+  <div class="tw"><table><thead>${th('rec',[['name','Рецепт'],['lvl','Рів.','Рівень предмета, що виходить'],['cost','Собівартість',T.cost],['sell','Ціна продажу',T.mkt],['profit','Прибуток',T.profit],['margin','Маржа',T.margin],['sold24','Продано/добу',T.sold],['qty','На аукціоні',T.qty],['x','Тренд',T.spark]])}</thead><tbody>
+  ${rows.map(r=>`<tr onclick="openItem(${r.item})"><td><div class="nm"><span class="star ${S.mine.has(r.id)?'on':''}" title="Я це вмію" onclick="star(${r.id},event)">★</span>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div><div class="cat">${esc(r.cat||'')} · ${(r.reag||[]).map(g=>g.qty+'× '+esc(g.name)).join(', ')}</div></td>
+  <td>${r.lvl??'<span class="mut">—</span>'}</td><td>${r.cost!=null?coin(r.cost):`<span class="mut" title="Немає на аукціоні: ${esc(r.miss.join(', '))}">немає ціни</span>`}</td><td>${coin(r.sell)}${r.n>1?` <span class="mut">×${r.n}</span>`:''}</td><td>${coin(r.profit,1)}</td><td>${r.margin!=null?pctH(r.margin):'<span class="mut">—</span>'}</td><td>${num(r.sold24)}</td><td>${num(r.qty)}</td><td>${spark(r.prod?.spark)}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Нічого не знайдено. Спробуй зняти фільтри або підняти рівень предметів.</td></tr>'}
+  </tbody></table></div></div>`}
+
+function vItm(){
+  const q=S.q.toLowerCase();let rows=[...S.items.values()].filter(i=>i.min!=null&&(!q||i.name.toLowerCase().includes(q))).map(i=>({...i,px:px(i),d24:pct(px(i),i.p24),d7:i.pts>=NEED?pct(px(i),i.avg7):null,role:(S.prodIds.has(i.id)?'продукт':'')+(S.prodIds.has(i.id)&&S.reagIds.has(i.id)?' · ':'')+(S.reagIds.has(i.id)?'реагент':'')}));
+  const [k,d]=S.sort.itm;rows=sortBy(rows,k,d);
+  return `<div class="panel"><h2>Товари професії${inf('Усе, з чим працює обрана професія: реагенти, які ти купуєш, і продукти, які продаєш. Наведи на заголовок колонки, щоб побачити пояснення.','r')}</h2><div class="sub">Реагенти і продукти на аукціоні. Клік по рядку відкриває картку товару.</div>
+  <div class="fl"><input type="search" id="q" placeholder="Пошук товару" value="${esc(S.q)}" oninput="S.q=this.value;render(1)"></div>
+  <div class="tw"><table><thead>${th('itm',[['name','Товар'],['min','Мінімум',T.min],['px','Ринкова',T.mkt],['d24','Δ 24 год',T.d24],['d7','до середньої 7 дн',T.d7],['qty','Обсяг',T.qty],['near','Біля мінімуму',T.near],['sold24','Продано/добу',T.sold],['val24','Оборот/добу',T.val],['x','Тренд',T.spark]])}</thead><tbody>
+  ${rows.map(i=>`<tr onclick="openItem(${i.id})"><td><div class="nm q-${i.q||''}">${esc(i.name)}</div><div class="cat">${i.role}</div></td><td>${coin(i.min)}</td><td>${coin(i.px)}</td><td>${pctH(i.d24)}</td><td>${pctH(i.d7)}</td><td>${num(i.qty)}</td><td>${num(i.near)}</td><td>${num(i.sold24)}</td><td>${coin(i.val24)}</td><td>${spark(i.spark)}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Нічого не знайдено.</td></tr>'}
+  </tbody></table></div></div>`}
+
+const tl=e=>new Date(e*1000).toLocaleString('uk',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+function copt(extra={}){return Object.assign({responsive:true,maintainAspectRatio:false,animation:{duration:800,easing:'easeOutQuart'},interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#c9c3b0',boxWidth:12,font:{size:11}}}},scales:{x:{ticks:{color:'#8b9897',maxTicksLimit:8,maxRotation:0,font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}}}},extra)}
+let mcharts=[];
+function vMkt(){
+  if(!S.mk){rpc('wow_api_market').then(j=>{S.mk=j;render()}).catch(showErr);return '<div class="panel"><div class="empty">Завантажую весь ринок…</div></div>'}
+  const all=(S.mk.rows||[]).map(r=>{const c=r.slice();c[11]=pct(r[5]??r[4],r[10]);c[12]=(r[5]??r[4]??0)*(r[6]||0);return c});
+  const q=S.mq.toLowerCase();let rows=all.filter(r=>(!q||String(r[1]).toLowerCase().includes(q))&&(!S.mcat||(r[3]||'Інше')===S.mcat));
+  const [k,d]=S.sort.mkt;rows=sortBy(rows,r=>r[k],d).slice(0,300);
+  const tot=(S.mk.totals||[]);const turn=tot.slice(-24).reduce((s,t)=>s+(t[1]||0),0);const hasTurn=turn>0;
+  const cap=all.reduce((s,r)=>s+r[12],0);
+  const byCat={};all.forEach(r=>{const c=r[3]||'Інше';byCat[c]=(byCat[c]||0)+r[12]});const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);const topC=cats.slice(0,12);
+  const topList=(arr,val)=>arr.slice(0,10).map((r,n)=>`<div class="top" onclick="openItem(${r[0]})"><span class="n">${n+1}</span><span class="t q-${r[2]||''}">${esc(r[1])}</span><span>${val(r)}</span></div>`).join('');
+  const byCap=all.slice().sort((a,b)=>b[12]-a[12]), byPrice=all.slice().sort((a,b)=>(b[5]||0)-(a[5]||0)), bySold=all.filter(r=>r[9]>0).sort((a,b)=>b[9]-a[9]);
+  const movers=all.filter(r=>r[11]!=null&&r[6]>20).sort((a,b)=>Math.abs(b[11])-Math.abs(a[11]));
+  setTimeout(()=>{mcharts.forEach(c=>c.destroy());mcharts=[];
+    const e1=$('#cCat');if(e1)mcharts.push(new Chart(e1,{type:'bar',data:{labels:topC.map(c=>c[0]),datasets:[{label:'Вартість товару на аукціоні, з',data:topC.map(c=>Math.round(c[1]/10000)),backgroundColor:topC.map((_,i)=>`hsla(${42-i*2},70%,${62-i*2.5}%,.9)`),borderRadius:5}]},options:copt({indexAxis:'y',plugins:{legend:{display:false}},onClick:(ev,els)=>{if(els[0]){S.mcat=topC[els[0].index][0];render()}}})}));
+    const e2=$('#cTot');if(e2&&tot.length>1)mcharts.push(new Chart(e2,{data:{labels:tot.map(t=>tl(t[0])),datasets:[{type:'bar',label:'Оборот за годину, з',data:tot.map(t=>t[1]!=null?Math.round(t[1]/10000):null),backgroundColor:'#e2b657',borderRadius:4,yAxisID:'y'},{type:'line',label:'Штук у продажу',data:tot.map(t=>t[2]),borderColor:'#3fb6a8',pointRadius:tot.length<12?3:0,borderWidth:1.8,tension:.3,yAxisID:'y1'}]},options:copt({scales:{x:{ticks:{color:'#8b9897',maxTicksLimit:8,maxRotation:0,font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{position:'left',ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}},y1:{position:'right',ticks:{color:'#8b9897',font:{size:10}},grid:{display:false}}}})}))},0);
+  return `<div class="grid g4" style="margin-bottom:14px">
+  <div class="panel kpi"><div class="l">Товарів на аукціоні${inf('Скільки різних стакових товарів (трави, руда, зілля, тканина тощо) зараз у продажу. Шмот сюди поки не входить.','r')}</div><div class="v">${num(all.length)}</div><div class="n">різних найменувань</div></div>
+  <div class="panel kpi"><div class="l">Вартість усього товару${inf('Якщо викупити весь аукціон за ринковими цінами — стільки золота це коштуватиме. Показує розмір ринку.')}</div><div class="v">${coin(cap)}</div><div class="n">${num(tot.length?tot[tot.length-1][2]:null)} шт у ${num(tot.length?tot[tot.length-1][3]:null)} лотах</div></div>
+  <div class="panel kpi"><div class="l">Оборот ринку за добу${inf('На яку суму за добу продано товарів на всьому аукціоні. Оцінка за лотами, що зникли.')}</div><div class="v">${hasTurn?coin(turn):'—'}</div><div class="n">${hasTurn?'оцінка за зниклими лотами':'рахується, зайди за годину-дві'}</div></div>
+  <div class="panel kpi"><div class="l">Найбільша категорія${inf('Категорія товарів, у якій зараз лежить найбільше золота.','l')}</div><div class="v" style="font-size:19px">${esc(cats[0]?.[0]||'—')}</div><div class="n">${cats[0]?coin(cats[0][1]):''}</div></div></div>
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="panel"><h2>Де лежить золото${inf('Сумарна вартість товару на аукціоні за категоріями. Клік по стовпчику фільтрує таблицю внизу за цією категорією.','r')}</h2><div class="sub">Вартість товару за категоріями, золото. Клік по стовпчику — фільтр.</div><div class="ch" style="height:330px"><canvas id="cCat"></canvas></div></div>
+    <div class="panel"><h2>Пульс ринку${inf('Стовпчики — на яку суму продано за кожну годину (оцінка). Лінія — скільки всього штук товару виставлено. Якщо лінія падає, а стовпчики ростуть — товар розкуповують швидше, ніж виставляють.','l')}</h2><div class="sub">Оборот і кількість товару по годинах</div>${tot.length>1?'<div class="ch" style="height:330px"><canvas id="cTot"></canvas></div>':`<div class="nochart" style="margin-top:60px">Графік малюється з другого знімка.<br>Знімки робляться щогодини о :05, зараз їх ${tot.length}.</div>`}</div>
+  </div>
+  <div class="grid g3" style="margin-bottom:14px">
+    <div class="panel"><h2>Найбільші запаси${inf('Товари, яких на аукціоні лежить на найбільшу суму. Зазвичай це найходовіші матеріали.','r')}</h2><div class="sub">За сумарною вартістю</div>${topList(byCap,r=>coin(r[12]))}</div>
+    <div class="panel"><h2>${bySold.length?'Найходовіші':'Найдорожчі'}${inf(bySold.length?'Товари з найбільшим оборотом за добу (оцінка). Тут найлегше швидко продати.':'Товари з найвищою ринковою ціною за штуку. Коли накопичаться дані про продажі, тут буде рейтинг найходовіших.')}</h2><div class="sub">${bySold.length?'За оборотом за добу':'За ціною за штуку'}</div>${bySold.length?topList(bySold,r=>coin(r[9])):topList(byPrice,r=>coin(r[5]))}</div>
+    <div class="panel"><h2>Найбільші зміни ціни${inf('Товари, ціна яких найсильніше змінилася за 24 години (серед тих, де в продажу більше 20 штук).','l')}</h2><div class="sub">За 24 години</div>${movers.length?topList(movers,r=>pctH(r[11])):`<div class="wait">Потрібна ціна «вчора о цій порі». Рейтинг з'явиться через добу після старту збору.</div>`}</div>
+  </div>
+  <div class="panel"><h2>Весь ринок${inf('Повний список стакових товарів аукціону. Шукай за назвою, фільтруй за категорією, сортуй кліком по заголовку. Показано до 300 рядків.','r')}</h2><div class="sub">${S.mcat?`Категорія: <b>${esc(S.mcat)}</b> · `:''}показано ${rows.length} рядків</div>
+  <div class="fl"><input type="search" id="q" placeholder="Пошук по всьому аукціону" value="${esc(S.mq)}" oninput="S.mq=this.value;render(1)"><select onchange="S.mcat=this.value;render()"><option value="">Усі категорії</option>${cats.map(c=>`<option ${S.mcat===c[0]?'selected':''}>${esc(c[0])}</option>`).join('')}</select></div>
+  <div class="tw"><table><thead>${th('mkt',[[1,'Товар'],[4,'Мінімум',T.min],[5,'Ринкова',T.mkt],[11,'Δ 24 год',T.d24],[6,'Обсяг',T.qty],[12,'Вартість запасу','Ринкова ціна × кількість на аукціоні'],[8,'Продано/добу',T.sold],[9,'Оборот/добу',T.val]])}</thead><tbody>
+  ${rows.map(r=>`<tr onclick="openItem(${r[0]})"><td><div class="nm q-${r[2]||''}">${esc(r[1])}</div><div class="cat">${esc(r[3]||'')}</div></td><td>${coin(r[4])}</td><td>${coin(r[5])}</td><td>${pctH(r[11])}</td><td>${num(r[6])}</td><td>${coin(r[12])}</td><td>${num(r[8])}</td><td>${coin(r[9])}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Нічого не знайдено.</td></tr>'}
+  </tbody></table></div></div>`}
+
+let charts=[];
+window.openItem=async id=>{
+  $('#drawer').classList.add('on');$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div class="empty">Завантаження…</div>';
+  let j;try{j=await rpc('wow_api_item',{p_item:id})}catch(e){$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div class="err">'+esc(e.message)+'</div>';return}
+  const it=j.item||{},loc=S.items.get(id),name=it.name||loc?.name||('#'+id),s=j.series||[],last=s[s.length-1]||[],dep=j.depth||[];
+  const sold24=s.slice(-24).reduce((a,r)=>a+(r[6]||0),0),mk=last[2]??last[1],vals=s.map(r=>r[2]).filter(v=>v!=null),lo=Math.min(...vals),hi=Math.max(...vals);
+  const recs=S.recs.filter(r=>r.item===id),r0=recs.slice().sort((a,b)=>(b.profit??-1e12)-(a.profit??-1e12))[0];
+  const isReag=S.reagIds?.has(id),avg=loc?.pts>=NEED?loc.avg7:null,dv=avg?pct(mk,avg):null;
+  let v=[];
+  if(r0&&r0.profit!=null){v.push(r0.profit>0?`<b>Варити вигідно.</b> Купи реагенти на ${coin(r0.cost)}, звари й вистав по ~${coin(last[1]!=null?last[1]-1:mk)} за штуку: після комісії залишиться ${coin(r0.profit,1)} з крафту${r0.cd?' (рецепт має кулдаун)':''}.`:`<b>Варити невигідно.</b> Реагенти коштують ${coin(r0.cost)}, а продаж після комісії дає менше: ${coin(r0.profit,1)} з крафту. Краще продати реагенти сирими.`);
+    if(last[8]!=null&&last[4])v.push(`Біля мінімальної ціни стоїть ${num(last[8])} шт із ${num(last[4])}${sold24>0?`, за добу розходиться ~${num(sold24)}`:''}.`)}
+  else if(r0)v.push(`Рецепт є, але порахувати прибуток не можу: на аукціоні немає ${esc((r0.miss||[]).join(', ')||'ціни продукту')}.`);
+  if(isReag&&!r0)v.push(`Це реагент: використовується у ${(j.used||[]).length} рецептах.`);
+  if(dv!=null)v.push(dv<=-10?`Зараз <b>дешево</b>: на ${Math.abs(dv).toFixed(0)}% нижче за середню за 7 днів. ${isReag?'Вдалий момент купити про запас.':'Продавати краще пізніше.'}`:dv>=10?`Зараз <b>дорого</b>: на ${dv.toFixed(0)}% вище за середню за 7 днів. ${isReag?'З купівлею краще зачекати.':'Вдалий момент продати запаси.'}`:`Ціна близька до звичайної (${dv>0?'+':''}${dv.toFixed(0)}% до середньої за 7 днів).`);
+  else if(!r0||r0.profit==null)v.push('Історії ще замало, щоб сказати, дешево зараз чи дорого.');
+  const calc=r=>`<table class="calc"><thead><tr><th>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</th><th>Кількість</th><th>Ціна за шт</th><th>Сума</th></tr></thead><tbody>
+    ${(r.reag||[]).map(g=>{const p=px(S.items.get(g.item));return `<tr><td><a href="#" onclick="openItem(${g.item});return false">${esc(g.name)}</a></td><td>${g.qty}</td><td>${coin(p)}</td><td>${p!=null?coin(-p*g.qty):'<span class="mut">немає на аукціоні</span>'}</td></tr>`}).join('')}
+    <tr class="tot"><td>Усього реагенти</td><td></td><td></td><td>${r.cost!=null?coin(-r.cost):'—'}</td></tr>
+    <tr><td>Продаж: ${esc(name)}</td><td>${r.n}</td><td>${coin(r.sell)}</td><td>${r.sell!=null?coin(r.sell*r.n):'—'}</td></tr>
+    <tr><td>Комісія аукціону 5%</td><td></td><td></td><td>${r.sell!=null?coin(-r.sell*r.n*0.05):'—'}</td></tr>
+    <tr class="tot"><td>Прибуток з одного крафту</td><td></td><td></td><td>${coin(r.profit,1)}</td></tr></tbody></table>`;
+  const used=(j.used||[]);
+  $('#dr').innerHTML=`<button class="x" onclick="closeDr()">Закрити ✕</button><h2 class="q-${it.q||loc?.q||''}">${esc(name)}</h2><div class="sub">${esc(it.cls||'')}${it.level?` · рівень предмета ${it.level}`:''}${it.vendor?` · торговець платить ${coin(it.vendor)}`:''}</div>
+  <div class="verdict"><img src="${GOB}" alt=""><div>${v.join(' ')}</div></div>
+  <div class="stats"><div class="st"><div class="l">Мінімум${inf(T.min,'r')}</div><div class="v">${coin(last[1])}</div></div><div class="st"><div class="l">Ринкова${inf(T.mkt)}</div><div class="v">${coin(mk)}</div></div><div class="st"><div class="l">На аукціоні${inf(T.qty)}</div><div class="v">${num(last[4])} шт</div></div><div class="st"><div class="l">Продано за добу${inf(T.sold,'l')}</div><div class="v">${sold24>0?num(sold24):'—'}</div></div></div>
+  ${recs.length?`<h3>Розрахунок крафту${inf('Що треба купити, за скільки продати і скільки залишиться. Ціни реагентів — ринкові на аукціоні зараз. Клік по реагенту відкриває його картку.','r')}</h3>${recs.map(calc).join('<br>')}`:''}
+  <h3>Ціна в часі${inf('Золота лінія — ринкова ціна, бірюзова — найдешевший лот, пунктир — медіана (ціна «посередині» всіх лотів). Якщо мінімум сильно нижче ринкової, хтось демпінгує.','r')}</h3>
+  ${s.length>1?`<div class="ch"><canvas id="c1"></canvas></div><p class="how">Ціна росте — вигідніше продавати, падає — вигідніше купувати. Діапазон за період: ${coin(lo)} – ${coin(hi)}.</p>`:`<div class="nochart">Графік малюється з другого знімка. Знімки робляться щогодини о :05, зараз для цього товару є ${s.length}.</div>`}
+  <h3>Попит і пропозиція${inf('Сіра лінія — скільки штук лежить на аукціоні. Золоті стовпчики — скільки продано за годину (оцінка), бірюзові — скільки нового виставили. Продають більше, ніж виставляють, — ціна, найімовірніше, ростиме.','r')}</h3>
+  ${s.length>1?`<div class="ch"><canvas id="c2"></canvas></div><p class="how">Золоті стовпчики вищі за бірюзові — товар розкуповують; навпаки — ринок заливають товаром.</p>`:`<div class="nochart">З'явиться разом із графіком ціни.</div>`}
+  ${dep.length?`<h3>Стіна цін${inf('Скільки штук треба викупити, щоб ціна піднялася до певного рівня. Пологий початок — біля мінімуму багато товару, ціну важко зрушити. Крута сходинка — товару мало, ціна легко стрибне.','r')}</h3><div class="ch"><canvas id="c3"></canvas></div><p class="how">По горизонталі ціна, по вертикалі — скільки штук продається не дорожче цієї ціни.</p>`:''}
+  ${used.length?`<h3>Де використовується${inf('Рецепти всіх професій, яким потрібен цей товар. Що їх більше, то стабільніший попит.','r')}</h3><div class="chiprow">${used.slice(0,14).map(u=>`<span>${esc(u.name)} <span class="mut">· ${esc(u.prof)} ×${u.qty}</span></span>`).join('')}${used.length>14?`<span class="mut">і ще ${used.length-14}</span>`:''}</div>`:''}`;
+  charts.forEach(c=>c.destroy());charts=[];const g=v=>v==null?null:+(v/10000).toFixed(4);
+  if(s.length>1){const L=s.map(r=>tl(r[0])),pr=s.length<12?3:0;
+    charts.push(new Chart($('#c1'),{type:'line',data:{labels:L,datasets:[{label:'Ринкова, з',data:s.map(r=>g(r[2])),borderColor:'#e2b657',backgroundColor:'rgba(226,182,87,.12)',fill:true,tension:.25,pointRadius:pr,borderWidth:2},{label:'Мінімум',data:s.map(r=>g(r[1])),borderColor:'#3fb6a8',tension:.25,pointRadius:pr,borderWidth:1.3},{label:'Медіана',data:s.map(r=>g(r[3])),borderColor:'#8c7bd6',tension:.25,pointRadius:0,borderWidth:1.3,borderDash:[4,3]}]},options:copt()}));
+    charts.push(new Chart($('#c2'),{data:{labels:L,datasets:[{type:'bar',label:'Продано (оцінка)',data:s.map(r=>r[6]),backgroundColor:'#e2b657',borderRadius:3,yAxisID:'y1'},{type:'bar',label:'Нові лоти, шт',data:s.map(r=>r[7]),backgroundColor:'rgba(63,182,168,.55)',borderRadius:3,yAxisID:'y1'},{type:'line',label:'На аукціоні, шт',data:s.map(r=>r[4]),borderColor:'#c9d1d6',pointRadius:pr,borderWidth:1.6,tension:.25,yAxisID:'y'}]},options:copt({scales:{x:{ticks:{color:'#8b9897',maxTicksLimit:8,maxRotation:0,font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{position:'left',ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}},y1:{position:'right',ticks:{color:'#8b9897',font:{size:10}},grid:{display:false}}}})}))}
+  if(dep.length){let cum=0;const cap=dep[0][0]*2.5;const pts=dep.filter(d=>d[0]<=cap).map(d=>{cum+=d[1];return {x:g(d[0]),y:cum}});
+    charts.push(new Chart($('#c3'),{type:'line',data:{datasets:[{label:'Штук не дорожче цієї ціни',data:pts,borderColor:'#3fb6a8',backgroundColor:'rgba(63,182,168,.18)',fill:true,stepped:true,pointRadius:0,borderWidth:1.6}]},options:copt({scales:{x:{type:'linear',title:{display:true,text:'ціна, золото',color:'#8b9897'},ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}}}})}))}
+};
+window.closeDr=()=>$('#drawer').classList.remove('on');
+$('#drawer').addEventListener('click',e=>{if(e.target.id==='drawer')closeDr()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDr()});
+function showErr(e){$('#err').innerHTML=`<div class="err"><b>Не вдалося отримати дані.</b> ${esc(e.message||e)}</div>`}
+function render(keepFocus){if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt}[S.tab]();$('#view').innerHTML=v;if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.t;S.q='';document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b));render()});
+$('#prof').addEventListener('change',e=>{S.prof=+e.target.value;S.cat='';try{localStorage.setItem('wowProf',S.prof)}catch(_){}loadMine();load()});
+$('#lvl').addEventListener('input',e=>{S.lvl=+e.target.value;$('#lvlV').textContent=S.lvl>=65?'усі':S.lvl;try{localStorage.setItem('wowLvl',S.lvl)}catch(_){}render()});
+async function load(){try{$('#err').innerHTML='';S.ov=await rpc('wow_api_overview',{p_prof:S.prof});build();status();render()}catch(e){showErr(e)}}
+(async()=>{try{const p=+localStorage.getItem('wowProf');if(p)S.prof=p;const l=+localStorage.getItem('wowLvl');if(l){S.lvl=l;$('#lvl').value=l;$('#lvlV').textContent=l>=65?'усі':l}}catch(_){}
+  loadMine();
+  try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} (${p.n})</option>`).join('')}catch(e){showErr(e)}
+  await load();setInterval(()=>{S.mk=null;load()},10*60000)})();
+</script>
+</body>
+</html>
