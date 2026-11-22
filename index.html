@@ -120,6 +120,11 @@ body.simple .adv{display:none!important}
 details.more{margin-top:18px;border:1px solid var(--line);border-radius:10px;padding:4px 14px 10px}details.more summary{cursor:pointer;color:var(--gold2);font-weight:600;padding:8px 0}
 .note{color:#cdb77a;font-size:12.5px}
 @media(min-width:1900px){.ch{height:250px}}
+.ic{width:28px;height:28px;border-radius:5px;border:1px solid #4a4a4a;vertical-align:middle;margin-right:9px;background:#15191b;flex:none;display:inline-block;object-fit:cover}
+.ic.big{width:60px;height:60px;border-radius:8px;border-width:2px;margin-right:14px}
+.ic.bq-UNCOMMON{border-color:#3fa53f}.ic.bq-RARE{border-color:#3d7fd0}.ic.bq-EPIC{border-color:#9550d6}
+.tt{background:linear-gradient(#0c1020,#080a14);border:1px solid #6b7488;border-radius:8px;padding:14px 16px;margin-top:6px;box-shadow:0 0 0 1px #000,0 8px 24px rgba(0,0,0,.5);font-size:13.5px;line-height:1.5}
+.tt .tth{display:flex;align-items:center;margin-bottom:6px}.tt h2{font-size:26px}.tt .use{color:#3ddc5a;white-space:pre-line}.tt .dim{color:#b9c0c8}
 .err{background:rgba(239,123,107,.12);border:1px solid var(--dn);border-radius:12px;padding:14px;margin:16px 0}
 .foot{color:var(--mut);font-size:12px;margin-top:22px;text-align:center}
 svg.sp{vertical-align:middle}
@@ -161,6 +166,7 @@ const num=n=>n==null?'<span class="mut">—</span>':Number(n).toLocaleString('uk
 const pct=(a,b)=>(a==null||!b)?null:(a/b-1)*100;
 const pctH=p=>p==null?'<span class="mut">—</span>':`<span class="${p>0.5?'up':p<-0.5?'dn':'mut'}">${p>0?'+':''}${p.toFixed(1)}%</span>`;
 function spark(a){a=(a||[]).filter(v=>v!=null);if(a.length<2)return '<span class="mut" title="замало знімків">·</span>';const w=84,h=24,mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1;const p=a.map((v,i)=>`${(i/(a.length-1)*w).toFixed(1)},${(h-2-(v-mn)/r*(h-4)).toFixed(1)}`).join(' ');const up=a[a.length-1]>=a[0];return `<svg class="sp" width="${w}" height="${h}"><polyline fill="none" stroke="${up?'#6fd08c':'#ef7b6b'}" stroke-width="1.6" points="${p}"/></svg>`}
+const ico=(u,q,big)=>u?`<img class="ic ${big?'big':''} bq-${q||''}" src="${esc(u)}" loading="lazy" alt="">`:`<span class="ic ${big?'big':''} bq-${q||''}"></span>`;
 const px=it=>it?(it.mkt??it.min??null):null;
 function ago(ts){const m=Math.round((Date.now()-new Date(ts))/60000);return m<1?'щойно':m<60?m+' хв тому':Math.floor(m/60)+' год '+(m%60)+' хв тому'}
 const mineKey=()=>'wowMine'+S.prof;
@@ -191,8 +197,8 @@ function vSig(){
   else{say=`Найжирніший шматок зараз — <b>${esc(best.name)}</b>: ${coin(best.profit,1)} з одного крафту${best.cd?' (але це кулдаун, раз на добу-дві)':''}.`;
     if(bestNoCd&&bestNoCd!==best)say+=` Без кулдауну найкраще варити <b>${esc(bestNoCd.name)}</b>: ${coin(bestNoCd.profit,1)} за штуку${bestNoCd.sold24>0?`, за добу пішло ~${num(bestNoCd.sold24)} шт`:''}.`;
     if(H<NEED)say+=` Історії поки ${H} год, тож про «дешево» й «дорого» скажу пізніше.`}
-  const crow=r=>`<div class="card" onclick="openItem(${r.item})"><div><div class="t">${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div>${r.note?`<div class="note">${esc(r.note)}</div>`:''}<div class="d">реагенти ${coin(r.cost)} → продаж ${coin(r.sell)}${r.n>1?' ×'+r.n:''} · на аукціоні ${num(r.qty)} шт${r.sold24>0?' · продано за добу ~'+num(r.sold24):''}</div></div><div class="r">${coin(r.profit,1)}<div class="d">${r.margin!=null?'+'+r.margin.toFixed(0)+'%':''}</div></div></div>`;
-  const irow=i=>`<div class="card" onclick="openItem(${i.id})"><div><div class="t q-${i.q||''}">${esc(i.name)}</div><div class="d">зараз ${coin(px(i))} · середня за 7 днів ${coin(i.avg7)}</div></div><div class="r">${pctH(pct(px(i),i.avg7))}<div class="d">${num(i.qty)} шт</div></div></div>`;
+  const crow=r=>`<div class="card" onclick="openItem(${r.item})"><div><div class="t">${ico(r.prod?.icon,r.prod?.q)}${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div>${r.note?`<div class="note">${esc(r.note)}</div>`:''}<div class="d">реагенти ${coin(r.cost)} → продаж ${coin(r.sell)}${r.n>1?' ×'+r.n:''} · на аукціоні ${num(r.qty)} шт${r.sold24>0?' · продано за добу ~'+num(r.sold24):''}</div></div><div class="r">${coin(r.profit,1)}<div class="d">${r.margin!=null?'+'+r.margin.toFixed(0)+'%':''}</div></div></div>`;
+  const irow=i=>`<div class="card" onclick="openItem(${i.id})"><div><div class="t q-${i.q||''}">${ico(i.icon,i.q)}${esc(i.name)}</div><div class="d">зараз ${coin(px(i))} · середня за 7 днів ${coin(i.avg7)}</div></div><div class="r">${pctH(pct(px(i),i.avg7))}<div class="d">${num(i.qty)} шт</div></div></div>`;
   return `<div class="gob"><img src="${GOB}" alt=""><div class="say">${say}</div></div>
   <div class="grid g4 adv" style="margin-bottom:14px">
     <div class="panel kpi"><div class="l">Найкращий крафт${inf('Рецепт із найбільшим прибутком з одного крафту просто зараз, серед усіх рецептів обраної професії та рівня.','r')}</div><div class="v">${best?coin(best.profit,1):'—'}</div><div class="n">${best?esc(best.name):''}</div></div>
@@ -221,7 +227,7 @@ function vRec(){
   <label class="ck"><input type="checkbox" ${S.onlyMine?'checked':''} onchange="S.onlyMine=this.checked;render()">лише мої ★ (${S.mine.size})</label></div>
   <div class="fl adv"><button class="pill ${!S.cat?'on':''}" onclick="S.cat='';render()">Усі</button>${cats.map(c=>`<button class="pill ${S.cat===c?'on':''}" onclick="S.cat=this.dataset.c;render()" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>
   <div class="tw"><table><thead>${th('rec',[['name','Рецепт'],['lvl','Рів.','Рівень предмета, що виходить','adv'],['cost','Собівартість',T.cost],['sell','Ціна продажу',T.mkt],['profit','Прибуток',T.profit],['margin','Маржа',T.margin,'adv'],['sold24','Продано/добу',T.sold],['qty','На аукціоні',T.qty,'adv'],['x','Тренд',T.spark,'adv']])}</thead><tbody>
-  ${rows.map(r=>`<tr onclick="openItem(${r.item})"><td><div class="nm"><span class="star ${S.mine.has(r.id)?'on':''}" title="Я це вмію" onclick="star(${r.id},event)">★</span>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div><div class="cat">${(r.reag||[]).map(g=>g.qty+'× '+esc(g.name)).join(', ')}${r.note?` · <span class="note">${esc(r.note)}</span>`:''}</div></td>
+  ${rows.map(r=>`<tr onclick="openItem(${r.item})"><td><div class="nm"><span class="star ${S.mine.has(r.id)?'on':''}" title="Я це вмію" onclick="star(${r.id},event)">★</span>${ico(r.prod?.icon,r.prod?.q)}${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div><div class="cat">${(r.reag||[]).map(g=>g.qty+'× '+esc(g.name)).join(', ')}${r.note?` · <span class="note">${esc(r.note)}</span>`:''}</div></td>
   <td class="adv">${r.lvl??'<span class="mut">—</span>'}</td><td>${r.cost!=null?coin(r.cost):`<span class="mut" title="Немає на аукціоні: ${esc(r.miss.join(', '))}">немає ціни</span>`}</td><td>${coin(r.sell)}${r.n>1?` <span class="mut">×${r.n}</span>`:''}</td><td>${coin(r.profit,1)}</td><td class="adv">${r.margin!=null?pctH(r.margin):'<span class="mut">—</span>'}</td><td>${num(r.sold24)}</td><td class="adv">${num(r.qty)}</td><td class="adv">${spark(r.prod?.spark)}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Нічого не знайдено. Спробуй зняти фільтри або підняти рівень предметів.</td></tr>'}
   </tbody></table></div></div>`}
 
@@ -231,7 +237,7 @@ function vItm(){
   return `<div class="panel"><h2>Товари професії${inf('Усе, з чим працює обрана професія: реагенти, які ти купуєш, і продукти, які продаєш. Наведи на заголовок колонки, щоб побачити пояснення.','r')}</h2><div class="sub">Реагенти і продукти на аукціоні. Клік по рядку відкриває картку товару.</div>
   <div class="fl"><input type="search" id="q" placeholder="Пошук товару" value="${esc(S.q)}" oninput="S.q=this.value;render(1)"></div>
   <div class="tw"><table><thead>${th('itm',[['name','Товар'],['min','Мінімум',T.min,'adv'],['px','Ціна',T.mkt],['d24','Δ 24 год',T.d24],['d7','до середньої 7 дн',T.d7,'adv'],['qty','На аукціоні',T.qty],['near','Біля мінімуму',T.near,'adv'],['sold24','Продано/добу',T.sold],['val24','Оборот/добу',T.val,'adv'],['x','Тренд',T.spark,'adv']])}</thead><tbody>
-  ${rows.map(i=>`<tr onclick="openItem(${i.id})"><td><div class="nm q-${i.q||''}">${esc(i.name)}</div><div class="cat">${i.role}</div></td><td class="adv">${coin(i.min)}</td><td>${coin(i.px)}</td><td>${pctH(i.d24)}</td><td class="adv">${pctH(i.d7)}</td><td>${num(i.qty)}</td><td class="adv">${num(i.near)}</td><td>${num(i.sold24)}</td><td class="adv">${coin(i.val24)}</td><td class="adv">${spark(i.spark)}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Нічого не знайдено.</td></tr>'}
+  ${rows.map(i=>`<tr onclick="openItem(${i.id})"><td><div class="nm q-${i.q||''}">${ico(i.icon,i.q)}${esc(i.name)}</div><div class="cat">${i.role}</div></td><td class="adv">${coin(i.min)}</td><td>${coin(i.px)}</td><td>${pctH(i.d24)}</td><td class="adv">${pctH(i.d7)}</td><td>${num(i.qty)}</td><td class="adv">${num(i.near)}</td><td>${num(i.sold24)}</td><td class="adv">${coin(i.val24)}</td><td class="adv">${spark(i.spark)}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Нічого не знайдено.</td></tr>'}
   </tbody></table></div></div>`}
 
 const tl=e=>new Date(e*1000).toLocaleString('uk',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -239,13 +245,13 @@ function copt(extra={}){return Object.assign({responsive:true,maintainAspectRati
 let mcharts=[];
 function vMkt(){
   if(!S.mk){rpc('wow_api_market').then(j=>{S.mk=j;render()}).catch(showErr);return '<div class="panel"><div class="empty">Завантажую весь ринок…</div></div>'}
-  const all=(S.mk.rows||[]).map(r=>{const c=r.slice();c[11]=pct(r[5]??r[4],r[10]);c[12]=(r[5]??r[4]??0)*(r[6]||0);return c});
+  const all=(S.mk.rows||[]).map(r=>{const c=r.slice();c[13]=r[11];c[11]=pct(r[5]??r[4],r[10]);c[12]=(r[5]??r[4]??0)*(r[6]||0);return c});
   const q=S.mq.toLowerCase();let rows=all.filter(r=>(!q||String(r[1]).toLowerCase().includes(q))&&(!S.mcat||(r[3]||'Інше')===S.mcat));
   const [k,d]=S.sort.mkt;rows=sortBy(rows,r=>r[k],d).slice(0,300);
   const tot=(S.mk.totals||[]);const turn=tot.slice(-24).reduce((s,t)=>s+(t[1]||0),0);const hasTurn=turn>0;
   const cap=all.reduce((s,r)=>s+r[12],0);
   const byCat={};all.forEach(r=>{const c=r[3]||'Інше';byCat[c]=(byCat[c]||0)+r[12]});const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);const topC=cats.slice(0,12);
-  const topList=(arr,val)=>arr.slice(0,10).map((r,n)=>`<div class="top" onclick="openItem(${r[0]})"><span class="n">${n+1}</span><span class="t q-${r[2]||''}">${esc(r[1])}</span><span>${val(r)}</span></div>`).join('');
+  const topList=(arr,val)=>arr.slice(0,10).map((r,n)=>`<div class="top" onclick="openItem(${r[0]})"><span class="n">${n+1}</span><span class="t q-${r[2]||''}">${ico(r[13],r[2])}${esc(r[1])}</span><span>${val(r)}</span></div>`).join('');
   const byCap=all.slice().sort((a,b)=>b[12]-a[12]), byPrice=all.slice().sort((a,b)=>(b[5]||0)-(a[5]||0)), bySold=all.filter(r=>r[9]>0).sort((a,b)=>b[9]-a[9]);
   const movers=all.filter(r=>r[11]!=null&&r[6]>20).sort((a,b)=>Math.abs(b[11])-Math.abs(a[11]));
   setTimeout(()=>{mcharts.forEach(c=>c.destroy());mcharts=[];
@@ -268,7 +274,7 @@ function vMkt(){
   <div class="panel"><h2>Весь ринок${inf('Повний список стакових товарів аукціону. Шукай за назвою, фільтруй за категорією, сортуй кліком по заголовку. Показано до 300 рядків.','r')}</h2><div class="sub">${S.mcat?`Категорія: <b>${esc(S.mcat)}</b> · `:''}показано ${rows.length} рядків</div>
   <div class="fl"><input type="search" id="q" placeholder="Пошук по всьому аукціону" value="${esc(S.mq)}" oninput="S.mq=this.value;render(1)"><select onchange="S.mcat=this.value;render()"><option value="">Усі категорії</option>${cats.map(c=>`<option ${S.mcat===c[0]?'selected':''}>${esc(c[0])}</option>`).join('')}</select></div>
   <div class="tw"><table><thead>${th('mkt',[[1,'Товар'],[4,'Мінімум',T.min,'adv'],[5,'Ціна',T.mkt],[11,'Δ 24 год',T.d24],[6,'На аукціоні',T.qty],[12,'Вартість запасу','Ринкова ціна × кількість на аукціоні','adv'],[8,'Продано/добу',T.sold],[9,'Оборот/добу',T.val,'adv']])}</thead><tbody>
-  ${rows.map(r=>`<tr onclick="openItem(${r[0]})"><td><div class="nm q-${r[2]||''}">${esc(r[1])}</div><div class="cat">${esc(r[3]||'')}</div></td><td class="adv">${coin(r[4])}</td><td>${coin(r[5])}</td><td>${pctH(r[11])}</td><td>${num(r[6])}</td><td class="adv">${coin(r[12])}</td><td>${num(r[8])}</td><td class="adv">${coin(r[9])}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Нічого не знайдено.</td></tr>'}
+  ${rows.map(r=>`<tr onclick="openItem(${r[0]})"><td><div class="nm q-${r[2]||''}">${ico(r[13],r[2])}${esc(r[1])}</div><div class="cat">${esc(r[3]||'')}</div></td><td class="adv">${coin(r[4])}</td><td>${coin(r[5])}</td><td>${pctH(r[11])}</td><td>${num(r[6])}</td><td class="adv">${coin(r[12])}</td><td>${num(r[8])}</td><td class="adv">${coin(r[9])}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Нічого не знайдено.</td></tr>'}
   </tbody></table></div></div>`}
 
 let charts=[];
@@ -287,13 +293,14 @@ window.openItem=async id=>{
   if(dv!=null)v.push(dv<=-10?`Зараз <b>дешево</b>: на ${Math.abs(dv).toFixed(0)}% нижче за середню за 7 днів. ${isReag?'Вдалий момент купити про запас.':'Продавати краще пізніше.'}`:dv>=10?`Зараз <b>дорого</b>: на ${dv.toFixed(0)}% вище за середню за 7 днів. ${isReag?'З купівлею краще зачекати.':'Вдалий момент продати запаси.'}`:`Ціна близька до звичайної (${dv>0?'+':''}${dv.toFixed(0)}% до середньої за 7 днів).`);
   else if(!r0||r0.profit==null)v.push('Історії ще замало, щоб сказати, дешево зараз чи дорого.');
   const calc=r=>`${r.note?`<div class="note" style="margin:6px 0">${esc(r.note)}</div>`:''}<table class="calc"><thead><tr><th>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</th><th>Кількість</th><th>Ціна за шт</th><th>Сума</th></tr></thead><tbody>
-    ${(r.reag||[]).map(g=>{const p=px(S.items.get(g.item));return `<tr><td><a href="#" onclick="openItem(${g.item});return false">${esc(g.name)}</a></td><td>${g.qty}</td><td>${coin(p)}</td><td>${p!=null?coin(-p*g.qty):'<span class="mut">немає на аукціоні</span>'}</td></tr>`}).join('')}
+    ${(r.reag||[]).map(g=>{const p=px(S.items.get(g.item));return `<tr><td>${ico(S.items.get(g.item)?.icon,S.items.get(g.item)?.q)}<a href="#" onclick="openItem(${g.item});return false">${esc(g.name)}</a></td><td>${g.qty}</td><td>${coin(p)}</td><td>${p!=null?coin(-p*g.qty):'<span class="mut">немає на аукціоні</span>'}</td></tr>`}).join('')}
     <tr class="tot"><td>Усього реагенти</td><td></td><td></td><td>${r.cost!=null?coin(-r.cost):'—'}</td></tr>
     <tr><td>Продаж: ${esc(name)}</td><td>${r.n}</td><td>${coin(r.sell)}</td><td>${r.sell!=null?coin(r.sell*r.n):'—'}</td></tr>
     <tr><td>Комісія аукціону 5%</td><td></td><td></td><td>${r.sell!=null?coin(-r.sell*r.n*0.05):'—'}</td></tr>
     <tr class="tot"><td>Прибуток з одного крафту</td><td></td><td></td><td>${coin(r.profit,1)}</td></tr></tbody></table>`;
   const used=(j.used||[]);
-  $('#dr').innerHTML=`<button class="x" onclick="closeDr()">Закрити ✕</button><h2 class="q-${it.q||loc?.q||''}">${esc(name)}</h2><div class="sub">${esc(it.cls||'')}${it.level?` · рівень предмета ${it.level}`:''}${it.vendor?` · торговець платить ${coin(it.vendor)}`:''}</div>
+  $('#dr').innerHTML=`<button class="x" onclick="closeDr()">Закрити ✕</button><div style="clear:both"></div><div class="tt"><div class="tth">${ico(it.icon||loc?.icon,it.q||loc?.q,1)}<div><h2 class="q-${it.q||loc?.q||''}">${esc(name)}</h2><div class="dim">${esc(it.cls||'')}</div></div></div>
+  ${it.level?`<div class="dim">Рівень предмета ${it.level}</div>`:''}${it.req?`<div>Потрібен рівень ${it.req}</div>`:''}${it.descr?`<div class="use">${esc(it.descr)}</div>`:''}${it.vendor?`<div class="dim">Торговець купує за ${coin(it.vendor)}</div>`:''}</div>
   <div class="verdict"><img src="${GOB}" alt=""><div>${v.join(' ')}</div></div>
   <div class="stats"><div class="st"><div class="l">Мінімум${inf(T.min,'r')}</div><div class="v">${coin(last[1])}</div></div><div class="st"><div class="l">Ринкова${inf(T.mkt)}</div><div class="v">${coin(mk)}</div></div><div class="st"><div class="l">На аукціоні${inf(T.qty)}</div><div class="v">${num(last[4])} шт</div></div><div class="st"><div class="l">Продано за добу${inf(T.sold,'l')}</div><div class="v">${sold24>0?num(sold24):'—'}</div></div></div>
   ${recs.length?`<h3>Розрахунок крафту${inf('Що треба купити, за скільки продати і скільки залишиться. Ціни реагентів — ринкові на аукціоні зараз. Клік по реагенту відкриває його картку.','r')}</h3>${recs.map(calc).join('<br>')}`:''}
