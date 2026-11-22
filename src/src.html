@@ -15,7 +15,7 @@ body{font-family:Manrope,system-ui,sans-serif;color:var(--txt);background:var(--
 body::before{content:"";position:fixed;inset:0;background:linear-gradient(rgba(12,8,6,.52),rgba(10,8,7,.80)),var(--im-bg) center/cover no-repeat;z-index:-1}
 h1,h2,h3{font-family:Forum,Georgia,serif;font-weight:400;margin:0;letter-spacing:.02em}
 .wrap{max-width:min(1680px,96vw);margin:0 auto;padding:0 18px 60px}
-.hero{border-radius:0 0 18px 18px;position:relative;height:clamp(250px,13vw,300px);border-radius:0 0 18px 18px;overflow:hidden;border:1px solid var(--line);border-top:0;background:var(--im-ah) center 38%/cover}
+.hero{border-radius:0 0 18px 18px;position:relative;height:clamp(290px,15vw,340px);border-radius:0 0 18px 18px;overflow:hidden;border:1px solid var(--line);border-top:0;background:var(--im-ah) center 38%/cover}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,14,18,.92) 0%,rgba(8,14,18,.55) 42%,rgba(8,14,18,.05) 75%),linear-gradient(0deg,rgba(8,14,18,.85),transparent 45%)}
 .hero-in{position:absolute;z-index:2;left:28px;bottom:22px;right:28px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .hero h1{font-size:44px;color:var(--gold2);text-shadow:0 2px 14px #000}
@@ -111,13 +111,13 @@ details.more{margin-top:18px;border:1px solid var(--line);border-radius:10px;pad
 .ic.bq-UNCOMMON{border-color:#3fa53f}.ic.bq-RARE{border-color:#3d7fd0}.ic.bq-EPIC{border-color:#9550d6}
 .tt{background:linear-gradient(#0c1020,#080a14);border:1px solid #6b7488;border-radius:8px;padding:14px 16px;margin-top:6px;box-shadow:0 0 0 1px #000,0 8px 24px rgba(0,0,0,.5);font-size:13.5px;line-height:1.5}
 .tt .tth{display:flex;align-items:center;margin-bottom:6px}.tt h2{font-size:26px}.tt .use{color:#3ddc5a;white-space:pre-line}.tt .dim{color:#b9c0c8}
-.nav{display:flex;align-items:flex-end;gap:6px;background:rgba(8,10,10,.92);border:1px solid var(--line);border-top:0;border-bottom:0;padding:8px 14px 0}
-.nav button{cursor:pointer;transition:.2s;border-radius:12px 12px 0 0;border:1px solid var(--line);border-bottom:0;margin:0}
-.nav button.main{font:400 24px Forum,Georgia,serif;letter-spacing:.04em;padding:10px 44px;color:var(--gold2);background:rgba(226,182,87,.12);border-color:var(--gold)}
-.nav button.sec{font:400 18px Forum,Georgia,serif;letter-spacing:.03em;padding:8px 24px;color:#e2d9bf;background:rgba(255,255,255,.06)}
-.nav button.sec:hover{color:var(--gold2);border-color:var(--gold)}
-.nav button.on{color:#1b1407!important;background:linear-gradient(180deg,#f0cf78,#b98a2f)!important;border-color:var(--gold)}
-.navl{color:var(--mut);font-size:12.5px;margin:0 4px 11px 18px;text-transform:uppercase;letter-spacing:.1em}
+.nav{display:flex;align-items:center;gap:8px;position:relative;z-index:3;height:64px;margin-bottom:-64px;padding:0 22px;background:linear-gradient(rgba(4,6,8,.62),rgba(4,6,8,0))}
+.nav button{cursor:pointer;transition:.2s;border-radius:999px;border:1px solid var(--line);margin:0;backdrop-filter:blur(6px)}
+.nav button.main{font:400 23px Forum,Georgia,serif;letter-spacing:.04em;padding:8px 38px;color:var(--gold2);background:rgba(10,14,16,.6);border-color:var(--gold)}
+.nav button.sec{font:400 18px Forum,Georgia,serif;letter-spacing:.03em;padding:6px 22px;color:#efe7cf;background:rgba(10,14,16,.55)}
+.nav button:hover{color:var(--gold2);border-color:var(--gold2)}
+.nav button.on{color:#1b1407!important;background:linear-gradient(180deg,#f0cf78,#b98a2f)!important;border-color:var(--gold);box-shadow:0 4px 16px rgba(0,0,0,.5)}
+.navl{color:#d9d2bd;font-size:12px;margin:0 2px 0 16px;text-transform:uppercase;letter-spacing:.1em;text-shadow:0 1px 4px #000}
 .tree{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 8px;margin-top:6px}
 .tn{position:relative;border:1px solid rgba(214,170,84,.45);border-radius:9px;background:linear-gradient(160deg,rgba(226,182,87,.14),rgba(0,0,0,.25));padding:8px 6px 16px;min-height:66px;font-size:11.5px;line-height:1.25;text-align:center;cursor:help;transition:.15s;display:flex;align-items:center;justify-content:center}
 .tn:hover{border-color:var(--gold2);transform:scale(1.04);background:rgba(226,182,87,.22)}
