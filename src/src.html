@@ -154,7 +154,7 @@ svg.sp{vertical-align:middle}
   <div class="bar" id="bar">
     <div class="tabs" id="tabs">
       <button class="tab on" data-t="sig">Сигнали</button><button class="tab" data-t="rec">Рецепти</button>
-      <button class="tab" data-t="itm">Товари професії</button><button class="tab" data-t="mkt">Весь ринок</button>
+      <button class="tab" data-t="itm">Товари професії</button><button class="tab" data-t="arb">Перепродаж</button><button class="tab" data-t="mkt">Весь ринок</button>
     </div>
     <div class="ctl">
       <button class="pill" id="mode"></button>
@@ -292,6 +292,20 @@ function vMkt(){
   ${rows.map(r=>`<tr onclick="openItem(${r[0]})"><td><div class="nm q-${r[2]||''}">${ico(r[13],r[2])}${esc(r[1])}</div><div class="cat">${esc(r[3]||'')}</div></td><td class="adv">${coin(r[4])}</td><td>${coin(r[5])}</td><td>${pctH(r[11])}</td><td>${num(r[6])}</td><td class="adv">${coin(r[12])}</td><td>${num(r[8])}</td><td class="adv">${coin(r[9])}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Нічого не знайдено.</td></tr>'}
   </tbody></table></div></div>`}
 
+function vArb(){
+  if(!S.arb){rpc('wow_api_arb').then(j=>{S.arb=j||{rows:[]};render()}).catch(showErr);return '<div class="panel"><div class="empty">Порівнюю два аукціони…</div></div>'}
+  const rows=S.arb.rows||[];
+  const nh=rows.map(r=>{const buy=r[9],sell=r[4];if(!buy||!sell)return null;const p=sell*0.95-buy,av=r[11]||0,dm=r[12];return {r,buy,sell,p,m:p/buy*100,av,dm,pot:p*Math.min(av,dm??av)}}).filter(o=>o&&o.p>0&&o.m>=10&&o.av>=5&&(o.dm==null||o.dm>=5)).sort((a,b)=>b.pot-a.pot).slice(0,40);
+  const hn=rows.map(r=>{const buy=r[5],sell=r[8];if(!buy||!sell)return null;const p=sell*0.85-buy,av=r[7]||0,dm=r[13];return {r,buy,sell,p,m:p/buy*100,av,dm,pot:p*Math.min(av,dm||0)}}).filter(o=>o&&o.p>0&&o.m>=15&&o.av>=5&&o.dm>=3).sort((a,b)=>b.pot-a.pot).slice(0,20);
+  const b=nh[0];
+  const say=b?`Найкраща угода зараз — <b>${esc(b.r[1])}</b>: купи на Черноводье по ${coin(b.buy)}, вистав в Оргриммаре по ${coin(b.sell)}. Після комісії залишиться ${coin(b.p,1)} зі штуки, а купити можна ~${num(Math.min(b.av,b.dm??b.av))} шт: разом близько ${coin(b.pot,1)}.`:'Зараз немає товарів, які вигідно везти з Черноводья в Оргриммар. Зазирни після наступного знімка.';
+  const tr=(o,dir)=>`<tr onclick="openItem(${o.r[0]})"><td><div class="nm q-${o.r[2]||''}">${ico(o.r[3],o.r[2])}${esc(o.r[1])}</div><div class="cat adv">${esc(o.r[14]||'')}</div></td><td>${coin(o.buy)}</td><td>${coin(o.sell)}</td><td>${coin(o.p,1)}</td><td class="adv">${pctH(o.m)}</td><td>${num(o.av)}</td><td>${num(o.dm)}</td><td>${coin(o.pot,1)}</td></tr>`;
+  const head=(a,b2)=>`<tr><th>Товар</th><th title="Середня ціна найдешевших лотів там, де купуємо">${a}</th><th title="Найнижча ціна там, де продаємо: щоб продати швидко, треба стати не дорожче за неї">${b2}</th><th title="Ціна продажу мінус комісія мінус ціна купівлі">Прибуток за шт</th><th class="adv">Маржа</th><th title="Скільки штук стоїть біля найнижчої ціни там, де купуємо">Можна купити</th><th title="Оцінка: скільки штук за добу розходиться там, де продаємо">Продається/добу</th><th title="Прибуток за штуку, помножений на кількість, яку реально купити й продати за добу">Разом</th></tr>`;
+  return `<div class="gob"><img src="${GOB}" alt=""><div class="say">${say}</div></div>
+  <div class="panel" style="margin-bottom:14px"><h2>Купити на Черноводье — продати в Орді${inf('Товари, які на нейтральному аукціоні (Пиратская Бухта, Прибамбасск, Круговзор) дешевші, ніж в Оргриммаре. Прибуток уже після 5% комісії ординського аукціону. Депозит за виставлення не враховано. Показано лише те, де маржа від 10% і товар справді розходиться.','r')}</h2><div class="sub">Купуєш у гоблінів, виставляєш в Оргриммаре. Клік по рядку відкриває картку товару.</div>
+  <div class="tw"><table><thead>${head('Купити на Черноводье','Продати в Орді')}</thead><tbody>${nh.map(o=>tr(o)).join('')||'<tr><td colspan="8" class="empty">Зараз вигідних товарів немає.</td></tr>'}</tbody></table></div></div>
+  <div class="panel"><h2>Купити в Орді — продати на Черноводье${inf('Зворотний напрям. Нейтральний аукціон забирає 15% з продажу, тому тут показано лише товари з маржею від 15%, які на Черноводье справді купують. Продаж там повільніший і ризикованіший.','r')}</h2><div class="sub">Комісія нейтрального аукціону 15%, покупців менше</div>
+  ${(S.arb.hours_n||0)<2?`<div class="wait">Щоб радити цей напрям, треба знати, що на Черноводье справді купують. Дані про продажі там з'являться після другого знімка (щогодини о :09). Робити нічого не треба.</div>`:`<div class="tw"><table><thead>${head('Купити в Орді','Продати на Черноводье')}</thead><tbody>${hn.map(o=>tr(o)).join('')||'<tr><td colspan="8" class="empty">Зараз вигідних товарів немає.</td></tr>'}</tbody></table></div>`}</div>`}
 let charts=[];
 window.openItem=async id=>{
   $('#drawer').classList.add('on');$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div class="empty">Завантаження…</div>';
@@ -422,7 +436,7 @@ function vMnt(){
   <div class="panel"><h2>Маунти${inf('Усі їздові тварини з довідника Blizzard для WoW Forever, із зображенням моделі та фракцією. Ціни, торговця й характеристик окремого маунта Blizzard у цих даних не віддає.','r')}</h2><div class="sub">Показано ${ms.length} із ${m.length}</div>
   <div class="fl"><input type="search" id="q" placeholder="Пошук маунта" value="${esc(R.mq)}" oninput="R.mq=this.value;render(1)">${[['','Усі'],['HORDE','Орда'],['ALLIANCE','Альянс']].map(f=>`<button class="pill ${R.mf===f[0]?'on':''}" onclick="R.mf='${f[0]}';render()">${f[1]}</button>`).join('')}</div>
   <div class="cards">${ms.map(x=>`<div class="mc">${x.img?`<img src="${esc(x.img)}" loading="lazy" alt="">`:'<img alt="">'}<div class="n">${esc(x.name)}${x.f?`<span class="badge ${x.f}">${x.f==='HORDE'?'Орда':'Альянс'}</span>`:''}</div></div>`).join('')}</div></div>`}
-function render(keepFocus){if(R.sec!=='ah'){$('#view').innerHTML={ref:vCls,qst:vQst}[R.sec]();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt}[S.tab]();$('#view').innerHTML=v;if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
+function render(keepFocus){if(R.sec!=='ah'){$('#view').innerHTML={ref:vCls,qst:vQst}[R.sec]();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt,arb:vArb}[S.tab]();$('#view').innerHTML=v;if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.t;S.q='';document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b));render()});
 $('#prof').addEventListener('change',e=>{S.prof=+e.target.value;S.cat='';try{localStorage.setItem('wowProf',S.prof)}catch(_){}loadMine();load()});
 function setMode(){document.body.classList.toggle('simple',S.simple);$('#mode').textContent=S.simple?'Показати детально':'Показати просто';$('#mode').classList.toggle('on',!S.simple)}
@@ -433,7 +447,7 @@ async function load(){try{$('#err').innerHTML='';S.ov=await rpc('wow_api_overvie
   try{if(localStorage.getItem('wowSimple')==='0')S.simple=false}catch(_){}
   setMode();loadMine();
   try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} · ${p.n} рецептів</option>`).join('')}catch(e){showErr(e)}
-  await load();setInterval(()=>{S.mk=null;load()},10*60000)})();
+  await load();setInterval(()=>{S.mk=null;S.arb=null;load()},10*60000)})();
 </script>
 </body>
 </html>
