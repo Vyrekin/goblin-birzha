@@ -11,11 +11,11 @@
 :root{--bg:#0b1216;--panel:rgba(15,20,22,.93);--panel2:rgba(26,32,34,.96);--line:rgba(214,170,84,.38);--gold:#e2b657;--gold2:#f6d98a;--txt:#e9e4d6;--mut:#9aa7a6;--up:#6fd08c;--dn:#ef7b6b;--teal:#3fb6a8;--sil:#c9d1d6;--cop:#d08a55}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{font-family:Manrope,system-ui,sans-serif;color:var(--txt);background:var(--bg);font-size:14px;line-height:1.45;min-height:100vh}
+body{font-family:Manrope,system-ui,sans-serif;color:var(--txt);background:var(--bg);font-size:clamp(14px,.72vw,17px);line-height:1.45;min-height:100vh}
 body::before{content:"";position:fixed;inset:0;background:linear-gradient(rgba(12,8,6,.52),rgba(10,8,7,.80)),url(__BG__) center/cover no-repeat;z-index:-1}
 h1,h2,h3{font-family:Forum,Georgia,serif;font-weight:400;margin:0;letter-spacing:.02em}
-.wrap{max-width:1380px;margin:0 auto;padding:0 18px 60px}
-.hero{position:relative;height:250px;border-radius:0 0 18px 18px;overflow:hidden;border:1px solid var(--line);border-top:0;background:url(__HERO__) center 38%/cover}
+.wrap{max-width:min(2500px,96vw);margin:0 auto;padding:0 18px 60px}
+.hero{position:relative;height:clamp(250px,17vw,400px);border-radius:0 0 18px 18px;overflow:hidden;border:1px solid var(--line);border-top:0;background:url(__HERO__) center 38%/cover}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,14,18,.92) 0%,rgba(8,14,18,.55) 42%,rgba(8,14,18,.05) 75%),linear-gradient(0deg,rgba(8,14,18,.85),transparent 45%)}
 .hero-in{position:absolute;z-index:2;left:28px;bottom:22px;right:28px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .hero h1{font-size:44px;color:var(--gold2);text-shadow:0 2px 14px #000}
@@ -105,6 +105,7 @@ label.ck{color:var(--mut);font-size:13px;display:flex;gap:6px;align-items:center
 body.simple .adv{display:none!important}
 details.more{margin-top:18px;border:1px solid var(--line);border-radius:10px;padding:4px 14px 10px}details.more summary{cursor:pointer;color:var(--gold2);font-weight:600;padding:8px 0}
 .note{color:#cdb77a;font-size:12.5px}
+@media(min-width:1900px){.ch{height:280px}.tw{max-height:74vh}}
 .err{background:rgba(239,123,107,.12);border:1px solid var(--dn);border-radius:12px;padding:14px;margin:16px 0}
 .foot{color:var(--mut);font-size:12px;margin-top:22px;text-align:center}
 svg.sp{vertical-align:middle}
