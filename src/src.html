@@ -111,10 +111,13 @@ details.more{margin-top:18px;border:1px solid var(--line);border-radius:10px;pad
 .ic.bq-UNCOMMON{border-color:#3fa53f}.ic.bq-RARE{border-color:#3d7fd0}.ic.bq-EPIC{border-color:#9550d6}
 .tt{background:linear-gradient(#0c1020,#080a14);border:1px solid #6b7488;border-radius:8px;padding:14px 16px;margin-top:6px;box-shadow:0 0 0 1px #000,0 8px 24px rgba(0,0,0,.5);font-size:13.5px;line-height:1.5}
 .tt .tth{display:flex;align-items:center;margin-bottom:6px}.tt h2{font-size:26px}.tt .use{color:#3ddc5a;white-space:pre-line}.tt .dim{color:#b9c0c8}
-.nav{display:flex;gap:2px;justify-content:center;background:rgba(8,10,10,.92);border:1px solid var(--line);border-top:0;border-bottom:0;padding:8px 10px 0}
-.nav button{font-family:Forum,Georgia,serif;font-size:19px;letter-spacing:.03em;border:1px solid transparent;border-bottom:0;background:none;color:var(--mut);padding:9px 26px;border-radius:10px 10px 0 0;cursor:pointer;transition:.2s}
-.nav button:hover{color:var(--gold2)}.nav button.on{color:#1b1407;background:linear-gradient(180deg,#f0cf78,#b98a2f);border-color:var(--gold)}
-.hero{border-radius:0 0 18px 18px!important}.hero.s-cls{background-image:var(--im-cls)}.hero.s-qst{background-image:var(--im-qst);background-position:center 60%}.hero.s-mnt{background-image:var(--im-bg);background-position:center 30%}
+.nav{display:flex;align-items:flex-end;justify-content:space-between;background:rgba(8,10,10,.92);border:1px solid var(--line);border-top:0;border-bottom:0;padding:8px 14px 0}
+.nav button{font:600 13px Manrope,sans-serif;border:1px solid var(--line);background:rgba(255,255,255,.04);color:#d9d2bd;padding:6px 14px;border-radius:999px;cursor:pointer;transition:.2s;margin:0 0 8px 6px}
+.nav button:hover{color:var(--gold2);border-color:var(--gold)}.nav button.on{background:rgba(226,182,87,.2);color:var(--gold2);border-color:var(--gold)}
+.nav button.main{font:400 23px Forum,Georgia,serif;letter-spacing:.04em;padding:10px 40px;border-radius:12px 12px 0 0;border-bottom:0;margin:0;color:var(--gold2);background:rgba(226,182,87,.12);border-color:var(--gold)}
+.nav button.main.on{color:#1b1407;background:linear-gradient(180deg,#f0cf78,#b98a2f);border-color:var(--gold)}
+.navl{color:var(--mut);font-size:12px;margin-right:2px}
+.hero{border-radius:0 0 18px 18px!important}.hero.s-ref{background-image:var(--im-cls)}.hero.s-qst{background-image:var(--im-qst);background-position:center 60%}
 .cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .rc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px;cursor:pointer;transition:.18s}
 .rc:hover,.rc.on{border-color:var(--gold);background:rgba(226,182,87,.08)}.rc h3{font-size:21px;color:var(--gold2)}.rc .d{color:var(--mut);font-size:12.5px;margin-top:3px}
@@ -134,7 +137,7 @@ svg.sp{vertical-align:middle}
 </head>
 <body>
 <div class="wrap">
-  <div class="nav" id="nav"><button class="on" data-s="ah">Біржа</button><button data-s="cls">Класи й таланти</button><button data-s="qst">Квести</button><button data-s="mnt">Маунти</button></div>
+  <div class="nav" id="nav"><button class="main on" data-s="ah">Біржа</button><span class="navr"><span class="navl">Додатково:</span><button data-s="ref">Довідник</button><button data-s="qst">Квести</button></span></div>
   <div class="hero" id="hero"><div class="hero-in">
     <div><h1 id="hT">Гоблінська біржа</h1><p id="hP">Аукціон Орди · WoW Forever · PvP EU. Ціни, обсяги й тренди: що варити, що купувати, що продавати.</p></div>
     <div class="chips" id="hChips"><span class="chip" id="cUpd">завантаження…</span><span class="chip" id="cHist"></span></div>
@@ -327,42 +330,43 @@ $('#drawer').addEventListener('click',e=>{if(e.target.id==='drawer')closeDr()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDr()});
 function showErr(e){$('#err').innerHTML=`<div class="err"><b>Не вдалося отримати дані.</b> ${esc(e.message||e)}</div>`}
 const SEC={ah:{t:'Гоблінська біржа',p:'Аукціон Орди · WoW Forever · PvP EU. Ціни, обсяги й тренди: що варити, що купувати, що продавати.'},
- cls:{t:'Класи й таланти',p:'Класи, раси, спеціалізації й усі таланти WoW Forever з описами рангів.'},
- qst:{t:'Квести',p:'Усі квести за зонами: опис, вимоги й нагороди.'},
- mnt:{t:'Маунти',p:'Усі їздові тварини WoW Forever.'}};
-const R={sec:'ah',data:{},ctab:'class',cls:null,zone:null,zq:'',quests:null,quest:null,mf:'',mq:''};
+ ref:{t:'Довідник',p:'Класи, таланти, раси й маунти WoW Forever.'},
+ qst:{t:'Квести',p:'Пошук по всіх квестах гри: текст, вимоги й нагороди.'}};
+const R={sec:'ah',data:{},ctab:'class',cls:null,zone:0,zq:'',qd:null,qid:null,quest:null,mf:'',mq:''};
 async function need(kind){if(!R.data[kind]){R.data[kind]=await rpc('wow_api_ref_list',{p_kind:kind})||[]}return R.data[kind]}
-function setSec(s){R.sec=s;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));const c=SEC[s];$('#hT').textContent=c.t;$('#hP').textContent=c.p;$('#hero').className='hero s-'+s;$('#bar').style.display=s==='ah'?'':'none';$('#view').style.marginTop=s==='ah'?'':'16px';$('#hChips').style.display=s==='ah'?'':'none';try{localStorage.setItem('wowSec',s)}catch(_){}render()}
+function setSec(s){R.sec=s;if(s==='ah')R.ctab=R.ctab;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));const c=SEC[s];$('#hT').textContent=c.t;$('#hP').textContent=c.p;$('#hero').className='hero s-'+s;$('#bar').style.display=s==='ah'?'':'none';$('#view').style.marginTop=s==='ah'?'':'16px';$('#hChips').style.display=s==='ah'?'':'none';render()}
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setSec(b.dataset.s)});
 const loading='<div class="panel"><div class="empty">Завантаження…</div></div>';
 function vCls(){
   const cl=R.data.class,ra=R.data.race,ta=R.data.talent;
-  if(!cl||!ra||!ta){Promise.all([need('class'),need('race'),need('talent')]).then(render).catch(showErr);return loading}
-  const head=`<div class="fl"><button class="pill ${R.ctab==='class'?'on':''}" onclick="R.ctab='class';render()">Класи й таланти</button><button class="pill ${R.ctab==='race'?'on':''}" onclick="R.ctab='race';render()">Раси</button></div>`;
+  const head=`<div class="fl">${[['class','Класи й таланти'],['race','Раси'],['mount','Маунти']].map(t=>`<button class="pill ${R.ctab===t[0]?'on':''}" onclick="R.ctab='${t[0]}';render()">${t[1]}</button>`).join('')}</div>`;
+  if(R.ctab==='mount')return head+vMnt();
+  if(!cl||!ra||!ta){Promise.all([need('class'),need('race'),need('talent')]).then(render).catch(showErr);return head+loading}
   if(R.ctab==='race')return head+`<div class="panel"><h2>Раси${inf('Усі ігрові раси: фракція, расові здібності й доступні класи.','r')}</h2><div class="sub">Расові здібності й доступні класи</div><div class="cards">${ra.map(r=>`<div class="rc" style="cursor:default"><h3>${esc(r.name)}<span class="badge ${r.faction?.type||''}">${esc(r.faction?.name||'')}</span></h3><div class="d"><b>Расові здібності:</b> ${(r.racial_spells||[]).map(x=>esc(x.name)).join(', ')||'—'}</div><div class="d"><b>Класи:</b> ${(r.playable_classes||[]).map(x=>esc(x.name)).join(', ')||'—'}</div></div>`).join('')}</div></div>`;
   if(!R.cls)R.cls=(cl.find(c=>c.id===5)||cl[0])?.id;
   const c=cl.find(x=>x.id===R.cls);
   const specs=(c?.specializations||[]).map(sp=>{const ts=ta.filter(t=>t.cls===c.id&&t.spec===sp.id);return `<div class="panel"><h2>${esc(sp.name)}</h2><div class="sub">${ts.length} талантів · клік по таланту показує опис усіх рангів</div>${ts.map(t=>`<div class="tal" onclick="this.classList.toggle('open')"><b>${esc(t.name)}</b><span class="rk">${(t.ranks||[]).length} ранг.</span><div class="ds">${(t.ranks||[]).map((d,i)=>`Ранг ${i+1}: ${esc(d)}`).join('\n')}</div></div>`).join('')||'<div class="empty">Таланти ще довантажуються в базу, зайди за кілька хвилин.</div>'}</div>`}).join('');
   return head+`<div class="panel" style="margin-bottom:14px"><h2>Класи${inf('Обери клас, щоб побачити його спеціалізації й таланти. Дані з довідника Blizzard для WoW Forever.','r')}</h2><div class="sub">Обери клас</div><div class="cards">${cl.map(x=>`<div class="rc ${x.id===R.cls?'on':''}" onclick="R.cls=${x.id};render()"><h3>${esc(x.name)}</h3><div class="d">${esc(x.power_type?.name||'')} · ${(x.specializations||[]).map(s=>esc(s.name)).join(' / ')}</div><div class="d">${(x.playable_races||[]).map(r=>esc(r.name)).join(', ')}</div></div>`).join('')}</div></div><div class="grid g3">${specs}</div>`}
-window.pickZone=async id=>{R.zone=id;R.quests=null;R.quest=null;render();try{R.quests=(await rpc('wow_api_ref',{p_kind:'qarea',p_id:id}))?.quests||[]}catch(e){showErr(e);R.quests=[]}render()};
-window.pickQuest=async id=>{R.quest={loading:true};render();try{R.quest=await rpc('wow_api_ref',{p_kind:'quest',p_id:id})||{}}catch(e){showErr(e);R.quest=null}render()};
+window.pickQuest=async id=>{R.qid=id;R.quest={loading:true};render();try{R.quest=await rpc('wow_api_ref',{p_kind:'quest',p_id:id})||{}}catch(e){showErr(e);R.quest=null}render()};
 function vQst(){
-  const z=R.data.qarea;if(!z){need('qarea').then(render).catch(showErr);return loading}
-  const q=R.zq.toLowerCase(),zs=z.filter(a=>!q||a.name.toLowerCase().includes(q));
-  let right='<div class="empty">Обери зону зліва, щоб побачити її квести.</div>';
-  if(R.zone){const zn=z.find(a=>a.id===R.zone)?.name||'';
-    right=`<h2>${esc(zn)}${inf('Квести цієї зони з довідника Blizzard. Клік по квесту відкриває його текст і нагороди.','r')}</h2><div class="sub">${R.quests?R.quests.length+' квестів':'завантаження…'}</div><div class="chiprow">${(R.quests||[]).map(x=>`<span style="cursor:pointer" onclick="pickQuest(${x.id})">${esc(x.name)}</span>`).join('')}</div>`;
-    const Q=R.quest;if(Q&&Q.loading)right+='<div class="empty">Розгортаю свиток…</div>';
-    else if(Q&&Q.title){const rw=Q.rewards||{},rq=Q.requirements||{};const items=[...(rw.items?.items||rw.items||[]),...(rw.items?.choice_of||[])].map(i=>esc(i.item?.name||i.name||'')).filter(Boolean);
-      right+=`<div class="scroll"><h3>${esc(Q.title)}</h3>${esc(Q.description||'')}<div class="rw">${rq.faction?`<b>Фракція:</b> ${esc(rq.faction.name)} · `:''}${rq.min_character_level?`<b>Рівень:</b> від ${rq.min_character_level} · `:''}${rw.experience?`<b>Досвід:</b> ${num(rw.experience)} · `:''}${rw.money?.value?`<b>Гроші:</b> ${coin(rw.money.value)} · `:''}${(rw.reputations||[]).map(r=>`<b>${esc(r.reward?.name||'')}:</b> +${r.value}`).join(' · ')}${items.length?`<br><b>Предмети:</b> ${items.join(', ')}`:''}</div></div>`}}
-  return `<div class="two"><div class="panel"><h2>Зони</h2><div class="sub">${z.length} зон і категорій</div><input type="search" id="q" placeholder="Пошук зони" value="${esc(R.zq)}" oninput="R.zq=this.value;render(1)" style="width:100%;margin-bottom:8px"><div class="zl">${zs.map(a=>`<div class="${a.id===R.zone?'on':''}" onclick="pickZone(${a.id})">${esc(a.name)}</div>`).join('')}</div></div><div class="panel">${right}</div></div>`}
+  if(!R.qd){rpc('wow_api_quests').then(j=>{R.qd=j||{};render()}).catch(showErr);return loading}
+  const all=R.qd.quests||[],zones=R.qd.zones||[],q=R.zq.trim().toLowerCase();
+  const found=all.filter(x=>(!R.zone||x[3]===R.zone)&&(!q||String(x[1]).toLowerCase().includes(q)));
+  const list=(q||R.zone)?found.slice(0,300):[];
+  let right='<div class="empty">Обери квест зі списку зліва, і тут розгорнеться свиток з його текстом і нагородами.</div>';
+  const Q=R.quest;if(Q&&Q.loading)right='<div class="empty">Розгортаю свиток…</div>';
+  else if(Q&&Q.title){const rw=Q.rewards||{},rq=Q.requirements||{};const items=[...(rw.items?.items||(Array.isArray(rw.items)?rw.items:[])),...(rw.items?.choice_of||[])].map(i=>esc(i.item?.name||i.name||'')).filter(Boolean);
+    right=`<div class="scroll" style="margin-top:0"><h3>${esc(Q.title)}</h3>${esc(Q.description||'Blizzard не віддає текст цього квесту.')}<div class="rw">${Q.area?.name?`<b>Зона:</b> ${esc(Q.area.name)} · `:''}${rq.faction?`<b>Фракція:</b> ${esc(rq.faction.name)} · `:''}${rq.min_character_level?`<b>Рівень:</b> від ${rq.min_character_level} · `:''}${rw.experience?`<b>Досвід:</b> ${num(rw.experience)} · `:''}${rw.money?.value?`<b>Гроші:</b> ${coin(rw.money.value)} · `:''}${(rw.reputations||[]).map(r=>`<b>${esc(r.reward?.name||'')}:</b> +${r.value}`).join(' · ')}${items.length?`<br><b>Предмети:</b> ${items.join(', ')}`:''}</div></div>`}
+  return `<div class="panel" style="margin-bottom:14px"><h2>Пошук квесту${inf('Шукай за назвою квесту по всій грі або обери зону, щоб побачити всі її квести. Дані з довідника Blizzard для WoW Forever: текст, вимоги й нагороди. Де саме стоїть NPC, у цих даних немає.','r')}</h2><div class="sub">У базі ${num(all.length)} квестів у ${zones.length} зонах і категоріях${R.qd.pending?` · ще довантажується ${R.qd.pending} зон`:''}</div>
+  <div class="fl" style="margin-bottom:0"><input type="search" id="q" placeholder="Назва квесту, напр. «Месть Ганна»" value="${esc(R.zq)}" oninput="R.zq=this.value;render(1)" style="flex:1;min-width:240px;font-size:15px;padding:10px 12px"><select onchange="R.zone=+this.value;render()" style="padding:10px"><option value="0">Усі зони</option>${zones.map(z=>`<option value="${z.id}" ${R.zone===z.id?'selected':''}>${esc(z.name)} (${z.n})</option>`).join('')}</select></div></div>
+  <div class="two"><div class="panel"><h2>Результати</h2><div class="sub">${(q||R.zone)?`знайдено ${found.length}${found.length>300?', показано перші 300':''}`:'введи назву або обери зону'}</div><div class="zl">${list.map(x=>`<div class="${x[0]===R.qid?'on':''}" onclick="pickQuest(${x[0]})">${esc(x[1])}<span class="mut" style="font-size:12px"> · ${esc(x[2]||'')}</span></div>`).join('')||((q||R.zone)?'<div class="empty">Нічого не знайдено.</div>':'')}</div></div><div class="panel">${right}</div></div>`}
 function vMnt(){
   const m=R.data.mount;if(!m){need('mount').then(render).catch(showErr);return loading}
   const q=R.mq.toLowerCase(),ms=m.filter(x=>(!R.mf||x.f===R.mf)&&(!q||(x.name||'').toLowerCase().includes(q)));
   return `<div class="panel"><h2>Маунти${inf('Усі їздові тварини з довідника Blizzard для WoW Forever, із зображенням моделі. Як саме отримати маунта, Blizzard у цих даних не вказує.','r')}</h2><div class="sub">Показано ${ms.length} із ${m.length}</div>
   <div class="fl"><input type="search" id="q" placeholder="Пошук маунта" value="${esc(R.mq)}" oninput="R.mq=this.value;render(1)">${[['','Усі'],['HORDE','Орда'],['ALLIANCE','Альянс']].map(f=>`<button class="pill ${R.mf===f[0]?'on':''}" onclick="R.mf='${f[0]}';render()">${f[1]}</button>`).join('')}</div>
   <div class="cards">${ms.map(x=>`<div class="mc">${x.img?`<img src="${esc(x.img)}" loading="lazy" alt="">`:'<img alt="">'}<div class="n">${esc(x.name)}${x.f?`<span class="badge ${x.f}">${x.f==='HORDE'?'Орда':'Альянс'}</span>`:''}</div></div>`).join('')}</div></div>`}
-function render(keepFocus){if(R.sec!=='ah'){$('#view').innerHTML={cls:vCls,qst:vQst,mnt:vMnt}[R.sec]();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt}[S.tab]();$('#view').innerHTML=v;if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
+function render(keepFocus){if(R.sec!=='ah'){$('#view').innerHTML={ref:vCls,qst:vQst}[R.sec]();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt}[S.tab]();$('#view').innerHTML=v;if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.t;S.q='';document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b));render()});
 $('#prof').addEventListener('change',e=>{S.prof=+e.target.value;S.cat='';try{localStorage.setItem('wowProf',S.prof)}catch(_){}loadMine();load()});
 function setMode(){document.body.classList.toggle('simple',S.simple);$('#mode').textContent=S.simple?'Показати детально':'Показати просто';$('#mode').classList.toggle('on',!S.simple)}
@@ -373,7 +377,6 @@ async function load(){try{$('#err').innerHTML='';S.ov=await rpc('wow_api_overvie
   try{if(localStorage.getItem('wowSimple')==='0')S.simple=false}catch(_){}
   setMode();loadMine();
   try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} · ${p.n} рецептів</option>`).join('')}catch(e){showErr(e)}
-  try{const sc=localStorage.getItem('wowSec');if(sc&&SEC[sc]&&sc!=='ah')setSec(sc)}catch(_){}
   await load();setInterval(()=>{S.mk=null;load()},10*60000)})();
 </script>
 </body>
