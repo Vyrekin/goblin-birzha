@@ -382,23 +382,25 @@ window.pickQuest=async id=>{R.qid=id;R.quest={loading:true};render();try{R.quest
 function scrollHtml(Q){const rw=Q.rewards||{},rq=Q.requirements||{};const items=[...(rw.items?.items||(Array.isArray(rw.items)?rw.items:[])),...(rw.items?.choice_of||[])].map(i=>esc(i.item?.name||i.name||'')).filter(Boolean);
   return `<div class="scroll" style="margin-top:0"><h3>${esc(Q.title||'')}</h3>${esc(Q.description||'Blizzard не віддає текст цього квесту.')}<div class="rw">${Q.area?.name?`<b>Зона:</b> ${esc(Q.area.name)} · `:''}${Q.type?.name?`<b>Тип:</b> ${esc(Q.type.name)} · `:''}${rq.faction?`<b>Фракція:</b> ${esc(rq.faction.name)} · `:''}${rq.min_character_level?`<b>Рівень:</b> від ${rq.min_character_level} · `:''}${rw.experience?`<b>Досвід:</b> ${num(rw.experience)} · `:''}${rw.money?.value?`<b>Гроші:</b> ${coin(rw.money.value)} · `:''}${(rw.reputations||[]).map(r=>`<b>${esc(r.reward?.name||'')}:</b> +${r.value}`).join(' · ')}${items.length?`<br><b>Предмети:</b> ${items.join(', ')}`:''}</div></div>`}
 window.openQuest=async id=>{$('#drawer').classList.add('on');$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div class="empty">Розгортаю свиток…</div>';try{const Q=await rpc('wow_api_ref',{p_kind:'quest',p_id:id})||{};$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div style="clear:both;height:10px"></div>'+scrollHtml(Q)}catch(e){$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div class="err">'+esc(e.message)+'</div>'}};
-const mine=x=>x[7]!=='ALLIANCE';
+const ALLY=new Set([47,54,69,72,469,509,589,730,890,891,2586,2799,2826]),HORD=new Set([68,76,81,530,67,510,630,729,889,892,2587,2782,2798]);
+const sideOf=x=>x[7]||((x[8]||[]).some(p=>p[1]>0&&ALLY.has(p[0]))?'ALLIANCE':(x[8]||[]).some(p=>p[1]>0&&HORD.has(p[0]))?'HORDE':null);
+const mine=x=>sideOf(x)!=='ALLIANCE';
 function vQRep(){
   const all=(R.qd.quests||[]).filter(mine),fs=R.qd.factions||[],agg=new Map();
   all.forEach(x=>(x[8]||[]).forEach(([f,v])=>{if(v>0){const a=agg.get(f)||{n:0,sum:0};a.n++;a.sum+=v;agg.set(f,a)}}));
-  const list=fs.filter(f=>agg.has(f.id)).sort((a,b)=>agg.get(b.id).n-agg.get(a.id).n);
+  const list=fs.filter(f=>agg.has(f.id)&&!ALLY.has(f.id)).sort((a,b)=>agg.get(b.id).n-agg.get(a.id).n);
   if(!agg.has(R.fid)&&list[0])R.fid=list[0].id;
   const f=fs.find(x=>x.id===R.fid)||{},a=agg.get(R.fid)||{n:0,sum:0};
   const rows=all.map(x=>({x,v:((x[8]||[]).find(p=>p[0]===R.fid)||[])[1]||0})).filter(o=>o.v>0).sort((p,q)=>q.v-p.v||(p.x[6]??99)-(q.x[6]??99));
   return `<div class="two"><div class="panel"><h2>Фракції${inf('Фракції, репутацію з якими дають квести, доступні Орді. Число — скільки таких квестів. Обери фракцію, щоб побачити список.','r')}</h2><div class="sub">${list.length} фракцій</div><div class="zl">${list.map(x=>`<div class="${x.id===R.fid?'on':''}" onclick="R.fid=${x.id};render()">${esc(x.name)}<span class="mut" style="font-size:12px"> · ${agg.get(x.id).n} квестів</span></div>`).join('')}</div></div>
-  <div class="panel"><h2>${esc(f.name||'')}${inf('Квести, які дають репутацію з цією фракцією, від найбільшої нагороди. Тільки ті, що доступні Орді. Повторювані квести й репутацію за вбивства Blizzard у цих даних не позначає.','r')}</h2><div class="sub">${esc(f.d||'')}</div>
+  <div class="panel"><h2>${esc(f.name||'')}${inf('Квести, які дають репутацію з цією фракцією, від найбільшої нагороди. Квести Альянсу відсіяні приблизно: Blizzard позначає фракцію лише в кожного шостого квесту, решту я визначаю за тим, чию репутацію дає квест. Повторювані квести й репутацію за вбивства Blizzard у цих даних не позначає.','r')}</h2><div class="sub">${esc(f.d||'')}</div>
   <div class="stats" style="grid-template-columns:repeat(3,1fr)"><div class="st"><div class="l">Квестів</div><div class="v">${num(a.n)}</div></div><div class="st"><div class="l">Репутації сумарно</div><div class="v">${num(a.sum)}</div></div><div class="st"><div class="l">У середньому за квест</div><div class="v">${a.n?num(Math.round(a.sum/a.n)):'—'}</div></div></div>
   <div class="tw"><table><thead><tr><th>Квест</th><th>Рівень</th><th>Репутація</th><th>Досвід</th><th>Гроші</th></tr></thead><tbody>${rows.slice(0,400).map(o=>`<tr onclick="openQuest(${o.x[0]})"><td><div class="nm">${esc(o.x[1])}</div><div class="cat">${esc(o.x[2]||'')}${o.x[9]?' · '+esc(o.x[9]):''}</div></td><td>${o.x[6]??'<span class="mut">—</span>'}</td><td class="up">+${num(o.v)}</td><td>${num(o.x[4])}</td><td>${coin(o.x[5])}</td></tr>`).join('')}</tbody></table></div></div></div>`}
 function vQGold(){
   const all=(R.qd.quests||[]).filter(mine),zm=new Map();
   all.forEach(x=>{const z=zm.get(x[3])||{id:x[3],name:x[2],n:0,m:0,xp:0,mq:0};z.n++;z.m+=x[5]||0;z.xp+=x[4]||0;if(x[5]>0)z.mq++;zm.set(x[3],z)});
   const zs=[...zm.values()].filter(z=>z.m>0).sort((a,b)=>b.m-a.m),top=all.filter(x=>x[5]>0).sort((a,b)=>b[5]-a[5]).slice(0,40),tot=all.reduce((s,x)=>s+(x[5]||0),0);
-  return `<div class="grid g3" style="margin-bottom:14px"><div class="panel kpi"><div class="l">Грошей у всіх квестах${inf('Сума грошових нагород усіх квестів, доступних Орді. Орієнтир: стільки золота дають квести за всю гру, якщо зробити все.','r')}</div><div class="v">${coin(tot)}</div><div class="n">${num(all.filter(x=>x[5]>0).length)} квестів із грошовою нагородою</div></div>
+  return `<div class="grid g3" style="margin-bottom:14px"><div class="panel kpi"><div class="l">Грошей у всіх квестах${inf('Сума грошових нагород усіх квестів, крім явно альянсових. Фракцію Blizzard позначає не скрізь, тому число приблизне: частина нейтрально позначених квестів насправді для Альянсу.','r')}</div><div class="v">${coin(tot)}</div><div class="n">${num(all.filter(x=>x[5]>0).length)} квестів із грошовою нагородою</div></div>
   <div class="panel kpi"><div class="l">Найгрошовитіша зона</div><div class="v" style="font-size:20px">${esc(zs[0]?.name||'—')}</div><div class="n">${zs[0]?coin(zs[0].m):''}</div></div>
   <div class="panel kpi"><div class="l">Найдорожчий квест</div><div class="v">${top[0]?coin(top[0][5]):'—'}</div><div class="n">${esc(top[0]?.[1]||'')}</div></div></div>
   <div class="grid g2"><div class="panel"><h2>Зони за грошима${inf('Скільки золота сумарно дають квести кожної зони (доступні Орді). Клік по зоні відкриває її квести, відсортовані за грошима.','r')}</h2><div class="sub">Клік по зоні показує її квести</div><div class="tw"><table><thead><tr><th>Зона</th><th>Квестів із грошима</th><th>Гроші разом</th><th>У середньому</th><th>Досвід разом</th></tr></thead><tbody>${zs.map(z=>`<tr onclick="R.qmode='search';R.zone=${z.id};R.qs='money';R.zq='';render()"><td><div class="nm">${esc(z.name)}</div></td><td>${z.mq}</td><td>${coin(z.m)}</td><td>${coin(z.m/z.mq)}</td><td>${num(z.xp)}</td></tr>`).join('')}</tbody></table></div></div>
@@ -410,7 +412,7 @@ function vQst(){
 function vQSearch(){
   if(!R.qd){rpc('wow_api_quests').then(j=>{R.qd=j||{};render()}).catch(showErr);return loading}
   const all=R.qd.quests||[],zones=R.qd.zones||[],q=R.zq.trim().toLowerCase();
-  let found=all.filter(x=>(!R.zone||x[3]===R.zone)&&(!q||String(x[1]).toLowerCase().includes(q))&&(!R.qf||x[7]===R.qf||(R.qf==='N'&&!x[7]))&&(!R.qm||x[5]>0)&&(!R.qt||String(x[9]||'').includes(R.qt)));
+  let found=all.filter(x=>(!R.zone||x[3]===R.zone)&&(!q||String(x[1]).toLowerCase().includes(q))&&(!R.qf||sideOf(x)===R.qf)&&(!R.qm||x[5]>0)&&(!R.qt||String(x[9]||'').includes(R.qt)));
   const act=q||R.zone||R.qs!=='name'||R.qf||R.qm||R.qt;
   if(R.qs==='xp')found=found.slice().sort((a,b)=>(b[4]||0)-(a[4]||0));else if(R.qs==='money')found=found.slice().sort((a,b)=>(b[5]||0)-(a[5]||0));else if(R.qs==='lvl')found=found.slice().sort((a,b)=>(a[6]??999)-(b[6]??999));
   const list=act?found.slice(0,300):[];
