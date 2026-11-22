@@ -102,6 +102,9 @@ label.ck{color:var(--mut);font-size:13px;display:flex;gap:6px;align-items:center
 .nochart{border:1px dashed var(--line);border-radius:10px;padding:18px;margin:8px 0 18px;color:#cfc8b4;font-size:13px;text-align:center}
 .top{display:flex;justify-content:space-between;gap:10px;padding:7px 4px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer}.top:hover{background:rgba(226,182,87,.07)}
 .top .n{color:var(--mut);width:20px;flex:none}.top .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.simple .adv{display:none!important}
+details.more{margin-top:18px;border:1px solid var(--line);border-radius:10px;padding:4px 14px 10px}details.more summary{cursor:pointer;color:var(--gold2);font-weight:600;padding:8px 0}
+.note{color:#cdb77a;font-size:12.5px}
 .err{background:rgba(239,123,107,.12);border:1px solid var(--dn);border-radius:12px;padding:14px;margin:16px 0}
 .foot{color:var(--mut);font-size:12px;margin-top:22px;text-align:center}
 svg.sp{vertical-align:middle}
@@ -119,8 +122,9 @@ svg.sp{vertical-align:middle}
       <button class="tab" data-t="itm">Товари професії</button><button class="tab" data-t="mkt">Весь ринок</button>
     </div>
     <div class="ctl">
+      <button class="pill" id="mode"></button>
       <label>Професія <select id="prof"></select></label>
-      <label>Рівень предметів до <input type="range" id="lvl" min="5" max="65" step="5" value="65"><b id="lvlV">усі</b><i class="i l" data-tip="Blizzard не віддає, який навик професії потрібен для рецепта. Тому фільтр іде за рівнем предмета, що виходить: посунь повзунок, щоб сховати рецепти вищого рівня. Точніше — познач зірочкою рецепти, які ти вмієш, на вкладці «Рецепти» й увімкни «лише мої».">i</i></label>
+      <label class="adv">Рівень предметів до <input type="range" id="lvl" min="5" max="65" step="5" value="65"><b id="lvlV">усі</b><i class="i l" data-tip="Blizzard не віддає, який навик професії потрібен для рецепта. Тому фільтр іде за рівнем предмета, що виходить: посунь повзунок, щоб сховати рецепти вищого рівня. Точніше — познач зірочкою рецепти, які ти вмієш, на вкладці «Рецепти» й увімкни «лише мої».">i</i></label>
     </div>
   </div>
   <div id="err"></div>
@@ -132,7 +136,7 @@ svg.sp{vertical-align:middle}
 <script>
 const SB='https://anmzbxgwxxudxwataqio.supabase.co', KEY='sb_publishable_ynsNKcOGrY4u8o_7gtHu2w_yI3lUCXr';
 const GOB='__GOB__', NEED=12;
-const S={tab:'sig',prof:171,lvl:65,ov:null,mk:null,items:new Map(),recs:[],sort:{rec:['profit',-1],itm:['qty',-1],mkt:[12,-1]},cat:'',q:'',onlyPos:true,onlyMine:false,mine:new Set(),mq:'',mcat:''};
+const S={simple:true,tab:'sig',prof:171,lvl:65,ov:null,mk:null,items:new Map(),recs:[],sort:{rec:['profit',-1],itm:['qty',-1],mkt:[12,-1]},cat:'',q:'',onlyPos:true,onlyMine:false,mine:new Set(),mq:'',mcat:''};
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const inf=(t,c='')=>`<i class="i ${c}" data-tip="${esc(t)}">i</i>`;
 const T={mkt:'Ринкова ціна — середня ціна найдешевших 15% товару. Вона стійкіша за мінімальну: один випадковий дешевий лот її не збиває.',min:'Найдешевший лот на аукціоні просто зараз.',sold:'Оцінка: скільки штук зникло з аукціону за останні 24 години за ціною, близькою до мінімальної. Blizzard не показує справжні продажі, тому сюди можуть потрапити й зняті лоти.',qty:'Скільки штук цього товару зараз виставлено на аукціоні.',near:'Скільки штук стоїть у межах +5% від мінімальної ціни. Це твої прямі конкуренти: щоб продати швидко, треба ставити дешевше за них.',d24:'Зміна ринкової ціни порівняно з учорашньою о цій самій порі.',d7:'Наскільки поточна ціна відрізняється від середньої за 7 днів. Мінус — зараз дешево, плюс — дорого.',cost:'Скільки коштують усі реагенти на один крафт, якщо купити їх на аукціоні за ринковою ціною.',profit:'Ціна продажу мінус 5% комісії аукціону мінус собівартість. Це прибуток з одного крафту.',margin:'Прибуток у відсотках від собівартості. Показує, наскільки «жирний» рецепт відносно вкладених грошей.',spark:'Мініграфік ринкової ціни за останні 72 години. Зелений — ціна росте, червоний — падає.',val:'Оцінка: на яку суму цього товару продано за добу.'};
@@ -152,7 +156,7 @@ function build(){
   const ov=S.ov;S.items=new Map(ov.items.map(i=>[i.id,i]));
   S.recs=ov.recipes.map(r=>{const prod=S.items.get(r.item);let cost=0,miss=[];for(const g of r.reag||[]){const p=px(S.items.get(g.item));if(p==null)miss.push(g.name);else cost+=p*g.qty}
     const sell=px(prod);const known=!miss.length&&(r.reag||[]).length>0;const rev=sell!=null?sell*r.n*0.95:null;
-    return {...r,prod,lvl:prod?.lvl??null,cost:known?cost:null,miss,sell,profit:(known&&rev!=null)?rev-cost:null,margin:(known&&rev!=null&&cost>0)?(rev-cost)/cost*100:null,sold24:prod?.sold24??null,qty:prod?.qty??0,cd:/трансмутац/i.test(r.cat||'')||/трансмутац/i.test(r.name)}});
+    return {...r,prod,lvl:prod?.lvl??null,cost:known?cost:null,miss,sell,profit:(known&&rev!=null)?rev-cost:null,margin:(known&&rev!=null&&cost>0)?(rev-cost)/cost*100:null,sold24:prod?.sold24??null,qty:prod?.qty??0,cd:/трансмутац|кулдаун/i.test(r.cat||'')||/трансмутац/i.test(r.name)}});
   S.reagIds=new Set(ov.recipes.flatMap(r=>(r.reag||[]).map(g=>g.item)));S.prodIds=new Set(ov.recipes.map(r=>r.item));
 }
 const lvlOk=r=>S.lvl>=65||r.lvl==null||r.lvl<=S.lvl;
@@ -172,23 +176,24 @@ function vSig(){
   else{say=`Найжирніший шматок зараз — <b>${esc(best.name)}</b>: ${coin(best.profit,1)} з одного крафту${best.cd?' (але це кулдаун, раз на добу-дві)':''}.`;
     if(bestNoCd&&bestNoCd!==best)say+=` Без кулдауну найкраще варити <b>${esc(bestNoCd.name)}</b>: ${coin(bestNoCd.profit,1)} за штуку${bestNoCd.sold24>0?`, за добу пішло ~${num(bestNoCd.sold24)} шт`:''}.`;
     if(H<NEED)say+=` Історії поки ${H} год, тож про «дешево» й «дорого» скажу пізніше.`}
-  const crow=r=>`<div class="card" onclick="openItem(${r.item})"><div><div class="t">${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div><div class="d">реагенти ${coin(r.cost)} → продаж ${coin(r.sell)}${r.n>1?' ×'+r.n:''} · на аукціоні ${num(r.qty)} шт${r.sold24>0?' · продано за добу ~'+num(r.sold24):''}</div></div><div class="r">${coin(r.profit,1)}<div class="d">${r.margin!=null?'+'+r.margin.toFixed(0)+'%':''}</div></div></div>`;
+  const crow=r=>`<div class="card" onclick="openItem(${r.item})"><div><div class="t">${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div>${r.note?`<div class="note">${esc(r.note)}</div>`:''}<div class="d">реагенти ${coin(r.cost)} → продаж ${coin(r.sell)}${r.n>1?' ×'+r.n:''} · на аукціоні ${num(r.qty)} шт${r.sold24>0?' · продано за добу ~'+num(r.sold24):''}</div></div><div class="r">${coin(r.profit,1)}<div class="d">${r.margin!=null?'+'+r.margin.toFixed(0)+'%':''}</div></div></div>`;
   const irow=i=>`<div class="card" onclick="openItem(${i.id})"><div><div class="t q-${i.q||''}">${esc(i.name)}</div><div class="d">зараз ${coin(px(i))} · середня за 7 днів ${coin(i.avg7)}</div></div><div class="r">${pctH(pct(px(i),i.avg7))}<div class="d">${num(i.qty)} шт</div></div></div>`;
   return `<div class="gob"><img src="${GOB}" alt=""><div class="say">${say}</div></div>
-  <div class="grid g4" style="margin-bottom:14px">
+  <div class="grid g4 adv" style="margin-bottom:14px">
     <div class="panel kpi"><div class="l">Найкращий крафт${inf('Рецепт із найбільшим прибутком з одного крафту просто зараз, серед усіх рецептів обраної професії та рівня.','r')}</div><div class="v">${best?coin(best.profit,1):'—'}</div><div class="n">${best?esc(best.name):''}</div></div>
     <div class="panel kpi"><div class="l">Найкращий без кулдауну${inf('Те саме, але без трансмутацій: те, що можна варити скільки завгодно разів поспіль.')}</div><div class="v">${bestNoCd?coin(bestNoCd.profit,1):'—'}</div><div class="n">${bestNoCd?esc(bestNoCd.name):''}</div></div>
     <div class="panel kpi"><div class="l">Прибуткових рецептів${inf('Скільки рецептів зараз дають плюс після комісії. Рахуються лише ті, де всі реагенти й сам продукт є на аукціоні.')}</div><div class="v">${pos.length} <span class="mut" style="font-size:14px">із ${ok.length}</span></div><div class="n">де відомі всі ціни</div></div>
     <div class="panel kpi"><div class="l">Оборот професії за добу${inf('На яку суму за добу продано реагентів і продуктів цієї професії. Оцінка за лотами, що зникли з аукціону.','l')}</div><div class="v">${hasSold?coin(turn):'—'}</div><div class="n">${hasSold?'оцінка за зниклими лотами':'рахується, зайди за годину-дві'}</div></div>
   </div>
-  <div class="grid g3">
-    <div class="panel"><h2>Варити й продавати${inf('Рецепти, відсортовані за прибутком з одного крафту. Натисни на рядок, щоб побачити розрахунок: що купити, за скільки продати і скільки залишиться.','r')}</h2><div class="sub">Купи реагенти, звари, вистав на аукціон</div>${pos.slice(0,8).map(crow).join('')||'<div class="empty">Немає прибуткових рецептів на цьому рівні.</div>'}</div>
-    <div class="panel"><h2>Купувати реагенти${inf('Реагенти, які зараз щонайменше на 10% дешевші за свою середню ціну за 7 днів. Вдалий момент закупитися про запас.')}</h2><div class="sub">Зараз дешевше, ніж зазвичай</div>${H<NEED?waitBox('реагенти, які подешевшали'):(buy.map(irow).join('')||'<div class="empty">Зараз жоден реагент не просів більш ніж на 10%. Закуповуватися про запас не час.</div>')}</div>
-    <div class="panel"><h2>Продавати запаси${inf('Продукти професії, які зараз щонайменше на 10% дорожчі за свою середню ціну за 7 днів. Якщо вони лежать у тебе в банку, вдалий момент виставити.','l')}</h2><div class="sub">Зараз дорожче, ніж зазвичай</div>${H<NEED?waitBox('зілля й товари, які подорожчали'):(sell.map(irow).join('')||'<div class="empty">Зараз нічого не подорожчало більш ніж на 10%. Запаси можна притримати.</div>')}</div>
+  <div class="grid ${S.simple&&H<NEED?'':'g3'}">
+    <div class="panel"><h2>Варити й продавати${inf('Рецепти, відсортовані за прибутком з одного крафту. Натисни на рядок, щоб побачити розрахунок: що купити, за скільки продати і скільки залишиться.','r')}</h2><div class="sub">Купи реагенти, звари, вистав на аукціон</div>${pos.slice(0,S.simple?5:8).map(crow).join('')||'<div class="empty">Немає прибуткових рецептів на цьому рівні.</div>'}</div>
+    ${S.simple&&H<NEED?`<div class="panel"><h2>Купувати й продавати запаси</h2>${waitBox('підказки, що зараз дешево купити про запас і що дорого продати')}</div>`:''}
+    <div class="panel ${S.simple&&H<NEED?'adv':''}"><h2>Купувати реагенти${inf('Реагенти, які зараз щонайменше на 10% дешевші за свою середню ціну за 7 днів. Вдалий момент закупитися про запас.')}</h2><div class="sub">Зараз дешевше, ніж зазвичай</div>${H<NEED?waitBox('реагенти, які подешевшали'):(buy.map(irow).join('')||'<div class="empty">Зараз жоден реагент не просів більш ніж на 10%. Закуповуватися про запас не час.</div>')}</div>
+    <div class="panel ${S.simple&&H<NEED?'adv':''}"><h2>Продавати запаси${inf('Продукти професії, які зараз щонайменше на 10% дорожчі за свою середню ціну за 7 днів. Якщо вони лежать у тебе в банку, вдалий момент виставити.','l')}</h2><div class="sub">Зараз дорожче, ніж зазвичай</div>${H<NEED?waitBox('зілля й товари, які подорожчали'):(sell.map(irow).join('')||'<div class="empty">Зараз нічого не подорожчало більш ніж на 10%. Запаси можна притримати.</div>')}</div>
   </div>`}
 
 function sortBy(arr,k,d){return arr.slice().sort((a,b)=>{const x=typeof k==='function'?k(a):a[k],y=typeof k==='function'?k(b):b[k];if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return typeof x==='string'?d*x.localeCompare(y,'ru'):d*(x-y)})}
-function th(tab,cols){const [k,d]=S.sort[tab];return '<tr>'+cols.map(c=>`<th title="${esc(c[2]||'')}" class="${c[0]===k?'s'+(d>0?' a':''):''}" onclick="setSort('${tab}',${typeof c[0]==='number'?c[0]:`'${c[0]}'`})">${c[1]}</th>`).join('')+'</tr>'}
+function th(tab,cols){const [k,d]=S.sort[tab];return '<tr>'+cols.map(c=>`<th title="${esc(c[2]||'')}" class="${c[3]||''} ${c[0]===k?'s'+(d>0?' a':''):''}" onclick="setSort('${tab}',${typeof c[0]==='number'?c[0]:`'${c[0]}'`})">${c[1]}</th>`).join('')+'</tr>'}
 window.setSort=(tab,k)=>{const s=S.sort[tab];S.sort[tab]=s[0]===k?[k,-s[1]]:[k,(k==='name'||k===1)?1:-1];render()};
 
 function vRec(){
@@ -199,10 +204,10 @@ function vRec(){
   <div class="fl"><input type="search" id="q" placeholder="Пошук рецепта" value="${esc(S.q)}" oninput="S.q=this.value;render(1)">
   <label class="ck"><input type="checkbox" ${S.onlyPos?'checked':''} onchange="S.onlyPos=this.checked;render()">лише прибуткові</label>
   <label class="ck"><input type="checkbox" ${S.onlyMine?'checked':''} onchange="S.onlyMine=this.checked;render()">лише мої ★ (${S.mine.size})</label></div>
-  <div class="fl"><button class="pill ${!S.cat?'on':''}" onclick="S.cat='';render()">Усі</button>${cats.map(c=>`<button class="pill ${S.cat===c?'on':''}" onclick="S.cat=this.dataset.c;render()" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>
-  <div class="tw"><table><thead>${th('rec',[['name','Рецепт'],['lvl','Рів.','Рівень предмета, що виходить'],['cost','Собівартість',T.cost],['sell','Ціна продажу',T.mkt],['profit','Прибуток',T.profit],['margin','Маржа',T.margin],['sold24','Продано/добу',T.sold],['qty','На аукціоні',T.qty],['x','Тренд',T.spark]])}</thead><tbody>
-  ${rows.map(r=>`<tr onclick="openItem(${r.item})"><td><div class="nm"><span class="star ${S.mine.has(r.id)?'on':''}" title="Я це вмію" onclick="star(${r.id},event)">★</span>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div><div class="cat">${esc(r.cat||'')} · ${(r.reag||[]).map(g=>g.qty+'× '+esc(g.name)).join(', ')}</div></td>
-  <td>${r.lvl??'<span class="mut">—</span>'}</td><td>${r.cost!=null?coin(r.cost):`<span class="mut" title="Немає на аукціоні: ${esc(r.miss.join(', '))}">немає ціни</span>`}</td><td>${coin(r.sell)}${r.n>1?` <span class="mut">×${r.n}</span>`:''}</td><td>${coin(r.profit,1)}</td><td>${r.margin!=null?pctH(r.margin):'<span class="mut">—</span>'}</td><td>${num(r.sold24)}</td><td>${num(r.qty)}</td><td>${spark(r.prod?.spark)}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Нічого не знайдено. Спробуй зняти фільтри або підняти рівень предметів.</td></tr>'}
+  <div class="fl adv"><button class="pill ${!S.cat?'on':''}" onclick="S.cat='';render()">Усі</button>${cats.map(c=>`<button class="pill ${S.cat===c?'on':''}" onclick="S.cat=this.dataset.c;render()" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+  <div class="tw"><table><thead>${th('rec',[['name','Рецепт'],['lvl','Рів.','Рівень предмета, що виходить','adv'],['cost','Собівартість',T.cost],['sell','Ціна продажу',T.mkt],['profit','Прибуток',T.profit],['margin','Маржа',T.margin,'adv'],['sold24','Продано/добу',T.sold],['qty','На аукціоні',T.qty,'adv'],['x','Тренд',T.spark,'adv']])}</thead><tbody>
+  ${rows.map(r=>`<tr onclick="openItem(${r.item})"><td><div class="nm"><span class="star ${S.mine.has(r.id)?'on':''}" title="Я це вмію" onclick="star(${r.id},event)">★</span>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</div><div class="cat">${(r.reag||[]).map(g=>g.qty+'× '+esc(g.name)).join(', ')}${r.note?` · <span class="note">${esc(r.note)}</span>`:''}</div></td>
+  <td class="adv">${r.lvl??'<span class="mut">—</span>'}</td><td>${r.cost!=null?coin(r.cost):`<span class="mut" title="Немає на аукціоні: ${esc(r.miss.join(', '))}">немає ціни</span>`}</td><td>${coin(r.sell)}${r.n>1?` <span class="mut">×${r.n}</span>`:''}</td><td>${coin(r.profit,1)}</td><td class="adv">${r.margin!=null?pctH(r.margin):'<span class="mut">—</span>'}</td><td>${num(r.sold24)}</td><td class="adv">${num(r.qty)}</td><td class="adv">${spark(r.prod?.spark)}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Нічого не знайдено. Спробуй зняти фільтри або підняти рівень предметів.</td></tr>'}
   </tbody></table></div></div>`}
 
 function vItm(){
@@ -210,8 +215,8 @@ function vItm(){
   const [k,d]=S.sort.itm;rows=sortBy(rows,k,d);
   return `<div class="panel"><h2>Товари професії${inf('Усе, з чим працює обрана професія: реагенти, які ти купуєш, і продукти, які продаєш. Наведи на заголовок колонки, щоб побачити пояснення.','r')}</h2><div class="sub">Реагенти і продукти на аукціоні. Клік по рядку відкриває картку товару.</div>
   <div class="fl"><input type="search" id="q" placeholder="Пошук товару" value="${esc(S.q)}" oninput="S.q=this.value;render(1)"></div>
-  <div class="tw"><table><thead>${th('itm',[['name','Товар'],['min','Мінімум',T.min],['px','Ринкова',T.mkt],['d24','Δ 24 год',T.d24],['d7','до середньої 7 дн',T.d7],['qty','Обсяг',T.qty],['near','Біля мінімуму',T.near],['sold24','Продано/добу',T.sold],['val24','Оборот/добу',T.val],['x','Тренд',T.spark]])}</thead><tbody>
-  ${rows.map(i=>`<tr onclick="openItem(${i.id})"><td><div class="nm q-${i.q||''}">${esc(i.name)}</div><div class="cat">${i.role}</div></td><td>${coin(i.min)}</td><td>${coin(i.px)}</td><td>${pctH(i.d24)}</td><td>${pctH(i.d7)}</td><td>${num(i.qty)}</td><td>${num(i.near)}</td><td>${num(i.sold24)}</td><td>${coin(i.val24)}</td><td>${spark(i.spark)}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Нічого не знайдено.</td></tr>'}
+  <div class="tw"><table><thead>${th('itm',[['name','Товар'],['min','Мінімум',T.min,'adv'],['px','Ціна',T.mkt],['d24','Δ 24 год',T.d24],['d7','до середньої 7 дн',T.d7,'adv'],['qty','На аукціоні',T.qty],['near','Біля мінімуму',T.near,'adv'],['sold24','Продано/добу',T.sold],['val24','Оборот/добу',T.val,'adv'],['x','Тренд',T.spark,'adv']])}</thead><tbody>
+  ${rows.map(i=>`<tr onclick="openItem(${i.id})"><td><div class="nm q-${i.q||''}">${esc(i.name)}</div><div class="cat">${i.role}</div></td><td class="adv">${coin(i.min)}</td><td>${coin(i.px)}</td><td>${pctH(i.d24)}</td><td class="adv">${pctH(i.d7)}</td><td>${num(i.qty)}</td><td class="adv">${num(i.near)}</td><td>${num(i.sold24)}</td><td class="adv">${coin(i.val24)}</td><td class="adv">${spark(i.spark)}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Нічого не знайдено.</td></tr>'}
   </tbody></table></div></div>`}
 
 const tl=e=>new Date(e*1000).toLocaleString('uk',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -231,14 +236,14 @@ function vMkt(){
   setTimeout(()=>{mcharts.forEach(c=>c.destroy());mcharts=[];
     const e1=$('#cCat');if(e1)mcharts.push(new Chart(e1,{type:'bar',data:{labels:topC.map(c=>c[0]),datasets:[{label:'Вартість товару на аукціоні, з',data:topC.map(c=>Math.round(c[1]/10000)),backgroundColor:topC.map((_,i)=>`hsla(${42-i*2},70%,${62-i*2.5}%,.9)`),borderRadius:5}]},options:copt({indexAxis:'y',plugins:{legend:{display:false}},onClick:(ev,els)=>{if(els[0]){S.mcat=topC[els[0].index][0];render()}}})}));
     const e2=$('#cTot');if(e2&&tot.length>1)mcharts.push(new Chart(e2,{data:{labels:tot.map(t=>tl(t[0])),datasets:[{type:'bar',label:'Оборот за годину, з',data:tot.map(t=>t[1]!=null?Math.round(t[1]/10000):null),backgroundColor:'#e2b657',borderRadius:4,yAxisID:'y'},{type:'line',label:'Штук у продажу',data:tot.map(t=>t[2]),borderColor:'#3fb6a8',pointRadius:tot.length<12?3:0,borderWidth:1.8,tension:.3,yAxisID:'y1'}]},options:copt({scales:{x:{ticks:{color:'#8b9897',maxTicksLimit:8,maxRotation:0,font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{position:'left',ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}},y1:{position:'right',ticks:{color:'#8b9897',font:{size:10}},grid:{display:false}}}})}))},0);
-  return `<div class="grid g4" style="margin-bottom:14px">
+  return `<div class="grid g4 adv" style="margin-bottom:14px">
   <div class="panel kpi"><div class="l">Товарів на аукціоні${inf('Скільки різних стакових товарів (трави, руда, зілля, тканина тощо) зараз у продажу. Шмот сюди поки не входить.','r')}</div><div class="v">${num(all.length)}</div><div class="n">різних найменувань</div></div>
   <div class="panel kpi"><div class="l">Вартість усього товару${inf('Якщо викупити весь аукціон за ринковими цінами — стільки золота це коштуватиме. Показує розмір ринку.')}</div><div class="v">${coin(cap)}</div><div class="n">${num(tot.length?tot[tot.length-1][2]:null)} шт у ${num(tot.length?tot[tot.length-1][3]:null)} лотах</div></div>
   <div class="panel kpi"><div class="l">Оборот ринку за добу${inf('На яку суму за добу продано товарів на всьому аукціоні. Оцінка за лотами, що зникли.')}</div><div class="v">${hasTurn?coin(turn):'—'}</div><div class="n">${hasTurn?'оцінка за зниклими лотами':'рахується, зайди за годину-дві'}</div></div>
   <div class="panel kpi"><div class="l">Найбільша категорія${inf('Категорія товарів, у якій зараз лежить найбільше золота.','l')}</div><div class="v" style="font-size:19px">${esc(cats[0]?.[0]||'—')}</div><div class="n">${cats[0]?coin(cats[0][1]):''}</div></div></div>
-  <div class="grid g2" style="margin-bottom:14px">
+  <div class="grid ${S.simple?'':'g2'}" style="margin-bottom:14px">
     <div class="panel"><h2>Де лежить золото${inf('Сумарна вартість товару на аукціоні за категоріями. Клік по стовпчику фільтрує таблицю внизу за цією категорією.','r')}</h2><div class="sub">Вартість товару за категоріями, золото. Клік по стовпчику — фільтр.</div><div class="ch" style="height:330px"><canvas id="cCat"></canvas></div></div>
-    <div class="panel"><h2>Пульс ринку${inf('Стовпчики — на яку суму продано за кожну годину (оцінка). Лінія — скільки всього штук товару виставлено. Якщо лінія падає, а стовпчики ростуть — товар розкуповують швидше, ніж виставляють.','l')}</h2><div class="sub">Оборот і кількість товару по годинах</div>${tot.length>1?'<div class="ch" style="height:330px"><canvas id="cTot"></canvas></div>':`<div class="nochart" style="margin-top:60px">Графік малюється з другого знімка.<br>Знімки робляться щогодини о :05, зараз їх ${tot.length}.</div>`}</div>
+    <div class="panel adv"><h2>Пульс ринку${inf('Стовпчики — на яку суму продано за кожну годину (оцінка). Лінія — скільки всього штук товару виставлено. Якщо лінія падає, а стовпчики ростуть — товар розкуповують швидше, ніж виставляють.','l')}</h2><div class="sub">Оборот і кількість товару по годинах</div>${tot.length>1?'<div class="ch" style="height:330px"><canvas id="cTot"></canvas></div>':`<div class="nochart" style="margin-top:60px">Графік малюється з другого знімка.<br>Знімки робляться щогодини о :05, зараз їх ${tot.length}.</div>`}</div>
   </div>
   <div class="grid g3" style="margin-bottom:14px">
     <div class="panel"><h2>Найбільші запаси${inf('Товари, яких на аукціоні лежить на найбільшу суму. Зазвичай це найходовіші матеріали.','r')}</h2><div class="sub">За сумарною вартістю</div>${topList(byCap,r=>coin(r[12]))}</div>
@@ -247,8 +252,8 @@ function vMkt(){
   </div>
   <div class="panel"><h2>Весь ринок${inf('Повний список стакових товарів аукціону. Шукай за назвою, фільтруй за категорією, сортуй кліком по заголовку. Показано до 300 рядків.','r')}</h2><div class="sub">${S.mcat?`Категорія: <b>${esc(S.mcat)}</b> · `:''}показано ${rows.length} рядків</div>
   <div class="fl"><input type="search" id="q" placeholder="Пошук по всьому аукціону" value="${esc(S.mq)}" oninput="S.mq=this.value;render(1)"><select onchange="S.mcat=this.value;render()"><option value="">Усі категорії</option>${cats.map(c=>`<option ${S.mcat===c[0]?'selected':''}>${esc(c[0])}</option>`).join('')}</select></div>
-  <div class="tw"><table><thead>${th('mkt',[[1,'Товар'],[4,'Мінімум',T.min],[5,'Ринкова',T.mkt],[11,'Δ 24 год',T.d24],[6,'Обсяг',T.qty],[12,'Вартість запасу','Ринкова ціна × кількість на аукціоні'],[8,'Продано/добу',T.sold],[9,'Оборот/добу',T.val]])}</thead><tbody>
-  ${rows.map(r=>`<tr onclick="openItem(${r[0]})"><td><div class="nm q-${r[2]||''}">${esc(r[1])}</div><div class="cat">${esc(r[3]||'')}</div></td><td>${coin(r[4])}</td><td>${coin(r[5])}</td><td>${pctH(r[11])}</td><td>${num(r[6])}</td><td>${coin(r[12])}</td><td>${num(r[8])}</td><td>${coin(r[9])}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Нічого не знайдено.</td></tr>'}
+  <div class="tw"><table><thead>${th('mkt',[[1,'Товар'],[4,'Мінімум',T.min,'adv'],[5,'Ціна',T.mkt],[11,'Δ 24 год',T.d24],[6,'На аукціоні',T.qty],[12,'Вартість запасу','Ринкова ціна × кількість на аукціоні','adv'],[8,'Продано/добу',T.sold],[9,'Оборот/добу',T.val,'adv']])}</thead><tbody>
+  ${rows.map(r=>`<tr onclick="openItem(${r[0]})"><td><div class="nm q-${r[2]||''}">${esc(r[1])}</div><div class="cat">${esc(r[3]||'')}</div></td><td class="adv">${coin(r[4])}</td><td>${coin(r[5])}</td><td>${pctH(r[11])}</td><td>${num(r[6])}</td><td class="adv">${coin(r[12])}</td><td>${num(r[8])}</td><td class="adv">${coin(r[9])}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Нічого не знайдено.</td></tr>'}
   </tbody></table></div></div>`}
 
 let charts=[];
@@ -266,7 +271,7 @@ window.openItem=async id=>{
   if(isReag&&!r0)v.push(`Це реагент: використовується у ${(j.used||[]).length} рецептах.`);
   if(dv!=null)v.push(dv<=-10?`Зараз <b>дешево</b>: на ${Math.abs(dv).toFixed(0)}% нижче за середню за 7 днів. ${isReag?'Вдалий момент купити про запас.':'Продавати краще пізніше.'}`:dv>=10?`Зараз <b>дорого</b>: на ${dv.toFixed(0)}% вище за середню за 7 днів. ${isReag?'З купівлею краще зачекати.':'Вдалий момент продати запаси.'}`:`Ціна близька до звичайної (${dv>0?'+':''}${dv.toFixed(0)}% до середньої за 7 днів).`);
   else if(!r0||r0.profit==null)v.push('Історії ще замало, щоб сказати, дешево зараз чи дорого.');
-  const calc=r=>`<table class="calc"><thead><tr><th>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</th><th>Кількість</th><th>Ціна за шт</th><th>Сума</th></tr></thead><tbody>
+  const calc=r=>`${r.note?`<div class="note" style="margin:6px 0">${esc(r.note)}</div>`:''}<table class="calc"><thead><tr><th>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</th><th>Кількість</th><th>Ціна за шт</th><th>Сума</th></tr></thead><tbody>
     ${(r.reag||[]).map(g=>{const p=px(S.items.get(g.item));return `<tr><td><a href="#" onclick="openItem(${g.item});return false">${esc(g.name)}</a></td><td>${g.qty}</td><td>${coin(p)}</td><td>${p!=null?coin(-p*g.qty):'<span class="mut">немає на аукціоні</span>'}</td></tr>`}).join('')}
     <tr class="tot"><td>Усього реагенти</td><td></td><td></td><td>${r.cost!=null?coin(-r.cost):'—'}</td></tr>
     <tr><td>Продаж: ${esc(name)}</td><td>${r.n}</td><td>${coin(r.sell)}</td><td>${r.sell!=null?coin(r.sell*r.n):'—'}</td></tr>
@@ -277,12 +282,13 @@ window.openItem=async id=>{
   <div class="verdict"><img src="${GOB}" alt=""><div>${v.join(' ')}</div></div>
   <div class="stats"><div class="st"><div class="l">Мінімум${inf(T.min,'r')}</div><div class="v">${coin(last[1])}</div></div><div class="st"><div class="l">Ринкова${inf(T.mkt)}</div><div class="v">${coin(mk)}</div></div><div class="st"><div class="l">На аукціоні${inf(T.qty)}</div><div class="v">${num(last[4])} шт</div></div><div class="st"><div class="l">Продано за добу${inf(T.sold,'l')}</div><div class="v">${sold24>0?num(sold24):'—'}</div></div></div>
   ${recs.length?`<h3>Розрахунок крафту${inf('Що треба купити, за скільки продати і скільки залишиться. Ціни реагентів — ринкові на аукціоні зараз. Клік по реагенту відкриває його картку.','r')}</h3>${recs.map(calc).join('<br>')}`:''}
+  <details class="more" ${S.simple?'':'open'}><summary>Графіки ціни, попит і стіна цін</summary>
   <h3>Ціна в часі${inf('Золота лінія — ринкова ціна, бірюзова — найдешевший лот, пунктир — медіана (ціна «посередині» всіх лотів). Якщо мінімум сильно нижче ринкової, хтось демпінгує.','r')}</h3>
   ${s.length>1?`<div class="ch"><canvas id="c1"></canvas></div><p class="how">Ціна росте — вигідніше продавати, падає — вигідніше купувати. Діапазон за період: ${coin(lo)} – ${coin(hi)}.</p>`:`<div class="nochart">Графік малюється з другого знімка. Знімки робляться щогодини о :05, зараз для цього товару є ${s.length}.</div>`}
   <h3>Попит і пропозиція${inf('Сіра лінія — скільки штук лежить на аукціоні. Золоті стовпчики — скільки продано за годину (оцінка), бірюзові — скільки нового виставили. Продають більше, ніж виставляють, — ціна, найімовірніше, ростиме.','r')}</h3>
   ${s.length>1?`<div class="ch"><canvas id="c2"></canvas></div><p class="how">Золоті стовпчики вищі за бірюзові — товар розкуповують; навпаки — ринок заливають товаром.</p>`:`<div class="nochart">З'явиться разом із графіком ціни.</div>`}
   ${dep.length?`<h3>Стіна цін${inf('Скільки штук треба викупити, щоб ціна піднялася до певного рівня. Пологий початок — біля мінімуму багато товару, ціну важко зрушити. Крута сходинка — товару мало, ціна легко стрибне.','r')}</h3><div class="ch"><canvas id="c3"></canvas></div><p class="how">По горизонталі ціна, по вертикалі — скільки штук продається не дорожче цієї ціни.</p>`:''}
-  ${used.length?`<h3>Де використовується${inf('Рецепти всіх професій, яким потрібен цей товар. Що їх більше, то стабільніший попит.','r')}</h3><div class="chiprow">${used.slice(0,14).map(u=>`<span>${esc(u.name)} <span class="mut">· ${esc(u.prof)} ×${u.qty}</span></span>`).join('')}${used.length>14?`<span class="mut">і ще ${used.length-14}</span>`:''}</div>`:''}`;
+  ${used.length?`<h3>Де використовується${inf('Рецепти всіх професій, яким потрібен цей товар. Що їх більше, то стабільніший попит.','r')}</h3><div class="chiprow">${used.slice(0,14).map(u=>`<span>${esc(u.name)} <span class="mut">· ${esc(u.prof)} ×${u.qty}</span></span>`).join('')}${used.length>14?`<span class="mut">і ще ${used.length-14}</span>`:''}</div>`:''}</details>`;
   charts.forEach(c=>c.destroy());charts=[];const g=v=>v==null?null:+(v/10000).toFixed(4);
   if(s.length>1){const L=s.map(r=>tl(r[0])),pr=s.length<12?3:0;
     charts.push(new Chart($('#c1'),{type:'line',data:{labels:L,datasets:[{label:'Ринкова, з',data:s.map(r=>g(r[2])),borderColor:'#e2b657',backgroundColor:'rgba(226,182,87,.12)',fill:true,tension:.25,pointRadius:pr,borderWidth:2},{label:'Мінімум',data:s.map(r=>g(r[1])),borderColor:'#3fb6a8',tension:.25,pointRadius:pr,borderWidth:1.3},{label:'Медіана',data:s.map(r=>g(r[3])),borderColor:'#8c7bd6',tension:.25,pointRadius:0,borderWidth:1.3,borderDash:[4,3]}]},options:copt()}));
@@ -298,10 +304,13 @@ function showErr(e){$('#err').innerHTML=`<div class="err"><b>Не вдалося
 function render(keepFocus){if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt}[S.tab]();$('#view').innerHTML=v;if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.t;S.q='';document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b));render()});
 $('#prof').addEventListener('change',e=>{S.prof=+e.target.value;S.cat='';try{localStorage.setItem('wowProf',S.prof)}catch(_){}loadMine();load()});
+function setMode(){document.body.classList.toggle('simple',S.simple);$('#mode').textContent=S.simple?'Показати детально':'Показати просто';$('#mode').classList.toggle('on',!S.simple)}
+$('#mode').addEventListener('click',()=>{S.simple=!S.simple;try{localStorage.setItem('wowSimple',S.simple?'1':'0')}catch(_){}setMode();render()});
 $('#lvl').addEventListener('input',e=>{S.lvl=+e.target.value;$('#lvlV').textContent=S.lvl>=65?'усі':S.lvl;try{localStorage.setItem('wowLvl',S.lvl)}catch(_){}render()});
 async function load(){try{$('#err').innerHTML='';S.ov=await rpc('wow_api_overview',{p_prof:S.prof});build();status();render()}catch(e){showErr(e)}}
 (async()=>{try{const p=+localStorage.getItem('wowProf');if(p)S.prof=p;const l=+localStorage.getItem('wowLvl');if(l){S.lvl=l;$('#lvl').value=l;$('#lvlV').textContent=l>=65?'усі':l}}catch(_){}
-  loadMine();
+  try{if(localStorage.getItem('wowSimple')==='0')S.simple=false}catch(_){}
+  setMode();loadMine();
   try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} · ${p.n} рецептів</option>`).join('')}catch(e){showErr(e)}
   await load();setInterval(()=>{S.mk=null;load()},10*60000)})();
 </script>
