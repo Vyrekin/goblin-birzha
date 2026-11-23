@@ -412,7 +412,7 @@ function vMkt(){
 /*TREND-BLOCK-BEGIN*/
 /*TREND-CORE-BEGIN*/
 // Тенденції: «звична» ціна, справжні підйоми/падіння, відсів сплесків без продажів, цикли доби й тижня.
-const TR={W:168,MINB:24,TH:0.07,RUN:3,DAYS:5,WDAYS:21,AMP:0.04};
+const TR={W:168,MINB:24,MINV:72,TH:0.07,RUN:3,DAYS:5,WDAYS:21,AMP:0.04};
 const trMed=a=>{if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
 const trQ=(a,f)=>{if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y),i=f*(s.length-1),lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo)};
 // «Звична» ціна на кожну годину — медіана за попередні W годин (поточна година не входить).
@@ -477,26 +477,33 @@ function trAnalyze(P,F,t0,daily,d0){
   const w=[];for(let j=Math.max(0,li-TR.W);j<=li;j++)if(xc[j]!=null)w.push(xc[j]);
   o.cur=x[li];o.base=b[li];o.dev=o.cur/o.base-1;o.lo=w.length>=TR.MINB?trQ(w,0.2):null;o.hi=w.length>=TR.MINB?trQ(w,0.8):null;o.prelim=valid<72;
   const r=runs.find(q=>q.s<=li&&q.e>=li);o.run=r||null;
+  if(valid<TR.MINV){o.early=true;return o}
   o.state=!r?'norm':r.sg>0?(r.real?'high':r.n<TR.RUN?'spike_new':'spike_fake'):(r.real?'low':'dip_new');
   const st=a=>({n:a.length,back:a.filter(q=>q.e-q.s+1<=24).length,dur:trMed(a.map(q=>q.e-q.s+1)),peak:trMed(a.map(q=>Math.abs(q.peak)))});
   const past=runs.filter(q=>q.real&&q!==r&&q.e<li);o.up=st(past.filter(q=>q.sg>0));o.dn=st(past.filter(q=>q.sg<0));
   const seg=(a,z)=>{const v=[];for(let j=Math.max(0,a);j<=z&&j<n;j++)if(j>=0&&xc[j]!=null)v.push(xc[j]);return v};
   const l24=seg(li-23,li),p24=seg(li-47,li-24);o.chg1=l24.length>=12&&p24.length>=12?trMed(l24)/trMed(p24)-1:null;
   const p7=seg(li-191,li-168);o.chg7=l24.length>=12&&p7.length>=12?trMed(l24)/trMed(p7)-1:null;
+  // нахил: ціна зараз проти ціни три надійні години тому
+  let k=li,c=0;while(k>0&&c<3){k--;if(x[k]!=null)c++}
+  o.slope=c===3?o.cur/x[k]-1:null;
+  // падає далі (за останні години або день до дня) — це ще не «дешево», а падіння, яке не зупинилось
+  if(o.state==='low'&&((o.slope!=null&&o.slope<=-0.02)||(o.chg1!=null&&o.chg1<=-0.10)))o.state='falling';
+  o.rising=o.state==='high'&&o.slope!=null&&o.slope>=0.02;
   return o}
 /*TREND-CORE-END*/
 // ===== Тенденції: вкладка =====
 const WDA=['понеділок','вівторок','середу','четвер','п’ятницю','суботу','неділю'];
 const hh=h=>String(h).padStart(2,'0')+':00', pl=(n,a,b,c)=>{const m=n%100,k=n%10;return m>10&&m<20?c:k===1?a:k>=2&&k<=4?b:c};
 const dLong=d=>d.toLocaleDateString('uk',{day:'numeric',month:'long'});
-const TT={base:'Звична ціна — медіана ринкової ціни за останні 7 днів (поки історії менше, за весь зібраний час). Години, коли ціну задерли без продажів, у неї не входять.',
+const TT={base:'Звична ціна — медіана ринкової ціни за останні 7 днів. Поради з’являються, коли набереться 72 години надійних цін: за одну добу звичну ціну не видно. Години, коли ціну задерли без продажів, у неї не входять.',
   dev:'На скільки відсотків поточна ціна вища чи нижча за звичну.',
-  state:'«Дорого» й «дешево»: ціна відійшла від звичної щонайменше на 7%, тримається три знімки поспіль, а для підйому за нею ще й справді купують. «Стрибок» і «сплеск без продажів»: ціну підняли, але минуло менше трьох знімків або продажів за нею не видно. Такі години в розрахунки не входять.',
+  state:'«Ще падає»: ціна нижча за звичну, але падіння не зупинилось, купувати рано. «Дорого» й «дешево»: ціна відійшла від звичної щонайменше на 7%, тримається три знімки поспіль, а для підйому за нею ще й справді купують. «Стрибок» і «сплеск без продажів»: ціну підняли, але минуло менше трьох знімків або продажів за нею не видно. Такі години в розрахунки не входять.',
   rep:'Скільки разів за зібрану історію ціна вже так само підіймалась (для дорогих) чи падала (для дешевих). Що більше повторів, то надійніша підказка.',
   d1:'Як змінилася звична ціна за останню добу порівняно з попередньою добою. Показує загальний напрям, а не миттєвий стрибок.',
   val:'На яку суму цей товар купують за добу (оцінка за зниклими лотами). У «Тенденції» потрапляють лише ходові товари: з малим обігом ціну легко намалювати.'};
 const trLen=a=>(a.run.s===0||a.b[a.run.s-1]==null?'щонайменше ':'')+a.run.n+' год';
-const TST={high:['дорого','sell'],low:['дешево','buy'],norm:['звично',''],spike_new:['свіжий стрибок','wn'],spike_fake:['сплеск без продажів','wn'],dip_new:['свіже падіння','wn'],thin:['мало лотів',''],collect:['збираю історію','']};
+const TST={high:['дорого','sell'],low:['дешево','buy'],falling:['ще падає','wn'],norm:['звично',''],spike_new:['свіжий стрибок','wn'],spike_fake:['сплеск без продажів','wn'],dip_new:['свіже падіння','wn'],thin:['мало лотів',''],collect:['збираю історію','']};
 const tBadge=s=>`<span class="wsig ${TST[s][1]}" style="margin-left:0">${TST[s][0]}</span>`;
 function trBuild(){const j=S.tr,P=s=>String(s||'').split(',').map(v=>v===''?null:+v);
   j.rows=(j.items||[]).map(r=>{const a=trAnalyze(P(r[10]),r[11]||'',j.t0,r[12]||[],j.d0);
@@ -507,17 +514,17 @@ function trHist(a,up){const h=up?a.up:a.dn;
   if(h.n<3)return `Схожих ${up?'підйомів':'падінь'} в історії поки ${h.n}: замало, щоб рахувати ймовірність.`;
   return `Так уже було <b>${h.n} ${pl(h.n,'раз','рази','разів')}</b>: у <b>${h.back}</b> з них ціна повернулась до звичної за добу, зазвичай за ~${Math.round(h.dur)} год.`}
 function trSay(r){const a=r.a,p=r.dev!=null?Math.abs(r.dev).toFixed(0)+'%':'',v=[];
-  if(r.st==='high')v.push(`<b>Дорого:</b> на ${p} вище за звичну ${coin(r.base)}. Тримається ${trLen(a)}, і за цією ціною купують. Продавай запаси, з купівлею зачекай. ${trHist(a,true)}`);
+  if(r.st==='high')v.push(`<b>Дорого:</b> на ${p} вище за звичну ${coin(r.base)}. Тримається ${trLen(a)}, і за цією ціною купують. Продавай запаси, з купівлею зачекай.${a.rising?' Ціна ще росте, тож пік, можливо, попереду.':''} ${trHist(a,true)}`);
   else if(r.st==='low')v.push(`<b>Дешево:</b> на ${p} нижче за звичну ${coin(r.base)}. Тримається ${trLen(a)}. Купуй, якщо потрібно; продавати краще пізніше. ${trHist(a,false)}`);
+  else if(r.st==='falling')v.push(`<b>Ще падає:</b> уже на ${p} нижче за звичну ${coin(r.base)}, але падіння не зупинилось${a.slope!=null&&a.slope<0?` (за останні три години ще ${(a.slope*100).toFixed(0)}%)`:''}. Не купуй про запас: дочекайся, поки ціна постоїть на місці хоча б три знімки. Продавати теж краще не поспішати, якщо можеш чекати.`);
   else if(r.st==='spike_new')v.push(`<b>Свіжий стрибок</b> на ${p}: минуло лише ${a.run.n} ${pl(a.run.n,'знімок','знімки','знімків')}. Поки не рахую: можливо, ціну просто задерли. Звична ціна ${coin(r.base)}.`);
   else if(r.st==='spike_fake')v.push(`<b>Сплеск без продажів</b> на ${p}: ціну тримають ${a.run.n} год, але за нею ніхто не купує. У розрахунки не входить; орієнтуйся на звичну ${coin(r.base)}.`);
   else if(r.st==='dip_new')v.push(`<b>Свіже падіння</b> на ${p}: минуло лише ${a.run.n} ${pl(a.run.n,'знімок','знімки','знімків')}. Можливо, це поодинокий дешевий лот. Звична ціна ${coin(r.base)}.`);
   else if(r.st==='norm')v.push(`Ціна звична: ${r.dev>0?'+':''}${r.dev.toFixed(0)}% до ${coin(r.base)}.`);
   else if(r.st==='thin')v.push('Останні години на аукціоні менше п’яти лотів: ціна ненадійна, висновків не роблю.');
-  else v.push(`Збираю історію: є ${a.valid} із ${TR.MINB} надійних годин. Після цього скажу, дешево зараз чи дорого.`);
+  else v.push(a.early?`Порад поки не даю: надійної історії ${a.valid} год із ${TR.MINV}. За одну добу не видно, яка ціна звична: нічний сплеск робить вечірню ціну «дешевою», хоча вона просто повертається назад. Зараз ${coin(r.cur)}, медіана за зібраний час ${coin(r.base)}.`:`Збираю історію: є ${a.valid} із ${TR.MINV} надійних годин. Після цього скажу, дешево зараз чи дорого.`);
   if(a.day?.ok)v.push(`Протягом доби найдешевше близько <b>${hh(a.day.lowH)}</b>, найдорожче близько <b>${hh(a.day.highH)}</b>: різниця ~${(a.day.amp*100).toFixed(0)}%, спрацювало в ${a.day.k} з ${a.day.n} днів.`);
   if(a.week?.ok)v.push(`Протягом тижня найдешевше в <b>${WDA[a.week.lowD]}</b>, найдорожче в <b>${WDA[a.week.highD]}</b>: різниця ~${(a.week.amp*100).toFixed(0)}%, спрацювало в ${a.week.k} з ${a.week.n} тижнів.`);
-  if(a.prelim&&r.base!=null)v.push(`<span class="mut">Попередньо: надійної історії лише ${a.valid} год.</span>`);
   return v.join(' ')}
 function vTrd(){
   if(!S.tr){rpc('wow_api_trends',{p_n:PN()}).then(j=>{S.tr=j||{items:[]};trBuild();render()}).catch(showErr);return '<div class="panel"><div class="empty">Гобліни креслять графіки…</div></div>'}
@@ -525,27 +532,28 @@ function vTrd(){
   const hi=all.filter(r=>r.st==='high').sort((a,b)=>b.dev-a.dev),lo=all.filter(r=>r.st==='low').sort((a,b)=>a.dev-b.dev);
   const sp=all.filter(r=>r.st==='spike_new'||r.st==='spike_fake'||r.st==='dip_new').sort((a,b)=>b.adev-a.adev);
   const cyc=all.filter(r=>r.a.day?.ok).sort((a,b)=>b.a.day.amp-a.a.day.amp),wk=all.filter(r=>r.a.week?.ok).sort((a,b)=>b.a.week.amp-a.a.week.amp);
-  const judged=all.filter(r=>r.base!=null).length,noise=all.reduce((s,r)=>s+(r.a.noise||0),0);
-  const d0=new Date((j.since||0)*1000);d0.setHours(0,0,0,0);const dayAt=new Date(d0);dayAt.setDate(d0.getDate()+1+TR.DAYS);const wkAt=new Date(d0);wkAt.setDate(d0.getDate()+1+TR.WDAYS);
+  const fall=all.filter(r=>r.st==='falling').sort((a,b)=>a.dev-b.dev),judged=all.filter(r=>r.base!=null&&!r.a.early).length,noise=all.reduce((s,r)=>s+(r.a.noise||0),0);
+  const baseAt=new Date((j.since||0)*1000+(TR.MINV+6)*3600e3);const d0=new Date((j.since||0)*1000);d0.setHours(0,0,0,0);const dayAt=new Date(d0);dayAt.setDate(d0.getDate()+1+TR.DAYS);const wkAt=new Date(d0);wkAt.setDate(d0.getDate()+1+TR.WDAYS);
   const gotD=Math.max(0,...all.map(r=>r.a.day?.days||0)),gotW=Math.max(0,...all.map(r=>r.a.week?.days||0));
   let say;
-  if(!judged)say=`Щоб казати «дорого» чи «дешево», мені треба знати звичну ціну, а для цього потрібно <b>${TR.MINB} години</b> надійних спостережень. Зібрано ${H}. Дані підтягуються самі.`;
+  if(!judged)say=`Порад тут поки не даю. Щоб казати «дорого» чи «дешево», мені треба знати звичну ціну, а за одну добу її не видно: нічний сплеск робить вечірню ціну нібито дешевою, хоча вона просто повертається назад. Потрібно <b>${TR.MINV} години</b> надійних спостережень, зібрано <b>${H}</b>. Очікую приблизно <b>${dLong(baseAt)}</b>.`;
   else{say=`Стежу за <b>${all.length}</b> найходовішими товарами. Справді подорожчали <b>${hi.length}</b>, подешевшали <b>${lo.length}</b>.`;
     if(hi[0])say+=` Найбільше виріс <b>${esc(hi[0].name)}</b>: +${hi[0].dev.toFixed(0)}% до звичної, тож продавай запаси й не купуй.`;
-    if(lo[0])say+=` Найбільше просів <b>${esc(lo[0].name)}</b>: ${lo[0].dev.toFixed(0)}%, вдалий момент купити.`;
+    if(lo[0])say+=` Найбільше просів і зупинився <b>${esc(lo[0].name)}</b>: ${lo[0].dev.toFixed(0)}%, вдалий момент купити.`;
+    if(fall.length)say+=` Ще <b>${fall.length}</b> ${pl(fall.length,'товар падає','товари падають','товарів падають')} далі: їх не раджу купувати, поки ціна не зупиниться.`;
     if(sp.length||noise)say+=` Стрибки, де ціну задерли без продажів, я не рахую: зараз таких <b>${sp.length}</b>${noise?`, за всю історію відсіяно ${noise}`:''}.`;
-    if(H<72)say+=` Історії поки ${H} год, тож звична ціна попередня; за три доби стане точнішою.`}
+}
   const card=r=>{const h=r.st==='high'?r.a.up:r.a.dn;return `<div class="card" onclick="openTrend(${r.id})"><div><div class="t q-${r.q||''}">${ico(r.icon,r.q)}${esc(r.name)}</div><div class="d">зараз ${coin(r.cur)} · звична ${coin(r.base)} · тримається ${trLen(r.a)}${h&&h.n>=3?` · раніше поверталась ${h.back} з ${h.n}`:''}</div></div><div class="r">${pctH(r.dev)}<div class="d">${coin(r.v24)} за добу</div></div></div>`};
-  const needBase=what=>`<div class="wait">Тут з'являться ${what}. Потрібно <b>${TR.MINB} години</b> надійних цін, зібрано <b>${Math.min(H,TR.MINB)}</b>.<div class="prog"><i style="width:${Math.min(100,H/TR.MINB*100)}%"></i></div></div>`;
+  const needBase=what=>`<div class="wait">Тут з'являться ${what}. Потрібно <b>${TR.MINV} години</b> надійних цін, зібрано <b>${Math.min(H,TR.MINV)}</b>. Очікую приблизно <b>${dLong(baseAt)}</b>.<div class="prog"><i style="width:${Math.min(100,H/TR.MINV*100)}%"></i></div></div>`;
   const srow=r=>`<div class="card" onclick="openTrend(${r.id})"><div><div class="t q-${r.q||''}">${ico(r.icon,r.q)}${esc(r.name)} ${tBadge(r.st)}</div><div class="d">зараз ${coin(r.cur)} · звична ${coin(r.base)} · ${r.st==='spike_fake'?`тримають ${r.a.run.n} год без продажів`:`минуло ${r.a.run.n} ${pl(r.a.run.n,'знімок','знімки','знімків')} із ${TR.RUN}`}</div></div><div class="r">${pctH(r.dev)}</div></div>`;
   const f=S.tf||'all',q=(S.tq||'').toLowerCase();
-  let rows=all.filter(r=>(!q||r.name.toLowerCase().includes(q))&&(f==='all'||(f==='high'&&r.st==='high')||(f==='low'&&r.st==='low')||(f==='sp'&&sp.includes(r))||(f==='cyc'&&(r.a.day?.ok||r.a.week?.ok))));
+  let rows=all.filter(r=>(!q||r.name.toLowerCase().includes(q))&&(f==='all'||(f==='high'&&r.st==='high')||(f==='low'&&(r.st==='low'||r.st==='falling'))||(f==='sp'&&sp.includes(r))||(f==='cyc'&&(r.a.day?.ok||r.a.week?.ok))));
   const [k,d]=S.sort.trd;rows=sortBy(rows,r=>r[k],d).slice(0,300);
   const pill=(v,t,n)=>`<button class="pill ${f===v?'on':''}" onclick="S.tf='${v}';render()">${t}${n!=null?' · '+n:''}</button>`;
   return `<div class="gob"><img src="${GOB}" alt=""><div class="say">${say}</div></div>
   <div class="grid g2" style="margin-bottom:14px">
     <div class="panel"><h2>Подорожчало${inf('Товари, ціна яких зараз щонайменше на 7% вища за звичну, тримається три знімки поспіль і за якою справді купують. Якщо ціну просто задерли без продажів, товар сюди не потрапляє. Що частіше такі підйоми раніше закінчувались поверненням, то певніше ціна впаде й цього разу.','r')}</h2><div class="sub">Продавай запаси, з купівлею зачекай</div>${!judged?needBase('товари, які справді подорожчали'):(hi.slice(0,8).map(card).join('')||'<div class="empty">Зараз жоден ходовий товар не подорожчав більш ніж на 7%. Це нормально: ринок спокійний.</div>')}${hi.length>8?`<div class="empty">і ще ${hi.length-8}: увімкни «Показати детально», там повна таблиця.</div>`:''}</div>
-    <div class="panel"><h2>Подешевшало${inf('Товари, ціна яких зараз щонайменше на 7% нижча за звичну й тримається три знімки поспіль. Поодинокий дешевий лот сюди не потрапляє: ціна рахується за найдешевшими 15% товару.','l')}</h2><div class="sub">Купуй, якщо потрібно; продавати краще пізніше</div>${!judged?needBase('товари, які справді подешевшали'):(lo.slice(0,8).map(card).join('')||'<div class="empty">Зараз жоден ходовий товар не просів більш ніж на 7%.</div>')}${lo.length>8?`<div class="empty">і ще ${lo.length-8}: увімкни «Показати детально», там повна таблиця.</div>`:''}</div>
+    <div class="panel"><h2>Подешевшало${inf('Товари, ціна яких зараз щонайменше на 7% нижча за звичну, тримається три знімки поспіль і вже не падає. Якщо ціна ще сповзає (за останні три години або день до дня), товар іде в окремий список «Ще падають»: дешевше, ніж було, не означає, що далі не подешевшає. Поодинокий дешевий лот сюди не потрапляє: ціна рахується за найдешевшими 15% товару.','l')}</h2><div class="sub">Купуй, якщо потрібно; продавати краще пізніше</div>${!judged?needBase('товари, які справді подешевшали'):(lo.slice(0,8).map(card).join('')||'<div class="empty">Зараз немає товарів, які просіли більш ніж на 7% і зупинились.</div>')+(fall.length?`<div class="sub" style="margin:14px 0 0">Ще падають: не купуй, поки ціна не зупиниться</div>`+fall.slice(0,5).map(r=>`<div class="card" onclick="openTrend(${r.id})"><div><div class="t q-${r.q||''}">${ico(r.icon,r.q)}${esc(r.name)} ${tBadge(r.st)}</div><div class="d">зараз ${coin(r.cur)} · звична ${coin(r.base)}${r.a.slope!=null&&r.a.slope<0?` · за три години ще ${(r.a.slope*100).toFixed(0)}%`:''}</div></div><div class="r">${pctH(r.dev)}</div></div>`).join(''):'')}${lo.length>8?`<div class="empty">і ще ${lo.length-8}: увімкни «Показати детально», там повна таблиця.</div>`:''}</div>
   </div>
   <div class="grid g2" style="margin-bottom:14px">
     <div class="panel"><h2>Цикл доби${inf('Багато товарів дешевшають і дорожчають в одні й ті самі години: вдень фармери заливають аукціон, увечері перед рейдами все розкуповують. Тут товари, де це повторюється день у день: різниця щонайменше 4% і спрацьовує не рідше ніж у 7 днях із 10. Потрібно 5 повних діб історії.','r')}</h2><div class="sub">О котрій купувати й о котрій продавати</div>
@@ -559,7 +567,7 @@ function vTrd(){
   </div>
   <div class="panel adv" style="margin-bottom:14px"><h2>Стрибки, які я не рахую${inf('Ціна різко змінилась, але це ще не тенденція: або минуло менше трьох знімків, або ціну тримають без продажів (хтось викупив дешеве й виставив утридорога). Такі години не впливають на звичну ціну, цикли й підказки.','r')}</h2><div class="sub">Щоб було видно, що саме відсіяно</div>${sp.slice(0,12).map(srow).join('')||'<div class="empty">Зараз таких немає.</div>'}</div>
   <div class="panel adv"><h2>Усі ходові товари${inf('Найходовіші товари аукціону: продажі видно щонайменше у 8 годинах з останніх 24 і лотів у середньому не менше шести. Товари з малим обігом сюди не беруться: там ціну легко намалювати. Клік по рядку відкриває розбір товару.','r')}</h2><div class="sub">показано ${rows.length} із ${all.length}</div>
-  <div class="fl"><input type="search" id="q" placeholder="Пошук товару" value="${esc(S.tq||'')}" oninput="S.tq=this.value;render(1)">${pill('all','Усі')}${pill('high','Дорого',hi.length)}${pill('low','Дешево',lo.length)}${pill('cyc','З циклом',all.filter(r=>r.a.day?.ok||r.a.week?.ok).length)}${pill('sp','Стрибки',sp.length)}</div>
+  <div class="fl"><input type="search" id="q" placeholder="Пошук товару" value="${esc(S.tq||'')}" oninput="S.tq=this.value;render(1)">${pill('all','Усі')}${pill('high','Дорого',hi.length)}${pill('low','Дешево й падає',lo.length+fall.length)}${pill('cyc','З циклом',all.filter(r=>r.a.day?.ok||r.a.week?.ok).length)}${pill('sp','Стрибки',sp.length)}</div>
   <div class="tw"><table><thead>${th('trd',[['name','Товар'],['cur','Ціна',T.mkt],['base','Звична',TT.base],['dev','Відхилення',TT.dev],['st','Стан',TT.state],['chg1','Напрям за добу',TT.d1],['rep','Повторів',TT.rep],['v24','Оборот/добу',TT.val]])}</thead><tbody>
   ${rows.map(r=>`<tr onclick="openTrend(${r.id})"><td><div class="nm q-${r.q||''}">${ico(r.icon,r.q)}${esc(r.name)}</div><div class="cat">${esc(r.cat||'')}</div></td><td>${coin(r.cur)}</td><td>${coin(r.base)}</td><td>${pctH(r.dev)}</td><td>${tBadge(r.st)}</td><td>${pctH(r.chg1)}</td><td>${r.rep!=null?num(r.rep):'<span class="mut">—</span>'}</td><td>${coin(r.v24)}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Нічого не знайдено.</td></tr>'}
   </tbody></table></div></div>`}
@@ -570,7 +578,7 @@ window.openTrend=id=>{const r=S.tr?.rows.find(x=>x.id===id);if(!r)return;const a
   <div class="verdict"><img src="${GOB}" alt=""><div>${trSay(r)}</div></div>
   <div class="stats"><div class="st"><div class="l">Зараз${inf(T.mkt,'r')}</div><div class="v">${coin(r.cur)}</div></div><div class="st"><div class="l">Звична${inf(TT.base)}</div><div class="v">${coin(r.base)}</div></div><div class="st"><div class="l">Коридор${inf('У цих межах ціна трималась більшість часу: нижня межа відсікає найдешевші 20% годин, верхня — найдорожчі 20%.')}</div><div class="v">${a.lo!=null?coin(a.lo)+' – '+coin(a.hi):'<span class="mut">—</span>'}</div></div><div class="st"><div class="l">Оборот за добу${inf(TT.val,'l')}</div><div class="v">${coin(r.v24)}</div></div></div>
   <h3>Ціна і звичний рівень${inf('Золота лінія — ринкова ціна по годинах. Пунктир — звична ціна. Червоні точки — години, які я не рахую: ціну задерли без продажів або стрибок тривав менше трьох знімків.','r')}</h3>
-  ${n>1?`<div class="ch"><canvas id="t1"></canvas></div><p class="how">Ціна вище пунктиру — дорожче, ніж зазвичай; нижче — дешевше. ${hasB?'':'Пунктир з’явиться, коли набереться '+TR.MINB+' години надійних цін.'}</p>`:'<div class="nochart">Графік малюється з другого знімка.</div>'}
+  ${n>1?`<div class="ch"><canvas id="t1"></canvas></div><p class="how">Ціна вище пунктиру — дорожче, ніж зазвичай; нижче — дешевше. ${a.early?'Поки історії менше '+TR.MINV+' годин, пунктир лише орієнтир: порад за ним не даю.':hasB?'':'Пунктир з’явиться, коли набереться '+TR.MINB+' години надійних цін.'}</p>`:'<div class="nochart">Графік малюється з другого знімка.</div>'}
   <h3>Коли дешево й коли дорого${inf('Середнє відхилення ціни від рівня дня для кожної години доби. Стовпчик нижче нуля — у цю годину зазвичай дешевше, вище — дорожче.','r')}</h3>
   ${hasP?`<div class="ch"><canvas id="t2"></canvas></div><p class="how">${a.day.ok?`Цикл стійкий: спрацював у ${a.day.k} з ${a.day.n} днів.`:'Стійкого циклу не видно: різниця мала або повторюється не щодня.'}</p>`:`<div class="nochart">Потрібно ${TR.DAYS} повних діб історії, зібрано ${a.day?.days||0}.</div>`}
   <h3>Минулі підйоми й падіння${inf('Справжні відхилення від звичної ціни за зібрану історію: коли почалось, на скільки відсотків і скільки годин тривало. Відсіяні сплески сюди не входять.','r')}</h3>
