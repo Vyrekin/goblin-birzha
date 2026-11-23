@@ -37,7 +37,7 @@ input[type=range]{accent-color:var(--gold);width:170px;vertical-align:middle}
 .tab:hover{color:var(--txt)}
 .tab.on{background:linear-gradient(180deg,#e9c46a,#b98a2f);color:#1b1407}
 .ctl{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 14px}
-.ctl label{color:var(--mut);font-size:13px;display:flex;gap:6px;align-items:center;white-space:nowrap}body[data-tab="rep"] .ctl .np{display:none}
+.ctl label{color:var(--mut);font-size:13px;display:flex;gap:6px;align-items:center;white-space:nowrap}body[data-tab="rep"] .ctl .np{display:none}body[data-tab="trd"] .ctl .np~.np{display:none}
 #mode{white-space:nowrap}
 @media(min-width:900px){.ctl{flex-wrap:nowrap;gap:10px;padding:7px 10px}#prof{max-width:170px}}
 .ctl b{color:var(--gold2);min-width:22px;display:inline-block}
@@ -147,6 +147,7 @@ table.srt th{cursor:pointer}table.srt th.sd::after{content:" ▾";color:var(--go
 #toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);opacity:0;transition:.4s;background:linear-gradient(180deg,#f0cf78,#b98a2f);color:#1b1407;font-weight:700;padding:11px 22px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.6);z-index:900;pointer-events:none}#toast.on{transform:translate(-50%,0);opacity:1}
 .wsig{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:1px;background:rgba(255,255,255,.07);color:var(--mut)}
 .wsig.buy{background:rgba(111,208,140,.2);color:var(--up)}.wsig.sell{background:rgba(226,182,87,.25);color:var(--gold2)}
+.wsig.wn{background:rgba(239,123,107,.18);color:var(--dn)}
 .wc.buy{border-color:rgba(111,208,140,.55)}.wc.sell{border-color:var(--gold)}
 .wi{width:58px;font:inherit;font-size:12.5px;color:var(--txt);background:rgba(10,16,20,.85);border:1px solid var(--line);border-radius:7px;padding:3px 6px;text-align:right}
 #wbtn{border:1px solid var(--gold);background:rgba(226,182,87,.14);color:var(--gold2);border-radius:8px;padding:5px 12px;cursor:pointer;font:inherit;font-weight:600;float:right;margin-right:8px}
@@ -219,7 +220,7 @@ select,input[type=search],.wi{font-size:16px}
   <div class="bar" id="bar">
     <div class="tabs" id="tabs">
       <button class="tab on" data-t="sig">Сигнали</button><button class="tab" data-t="rec">Рецепти</button>
-      <button class="tab" data-t="itm">Товари професії</button><button class="tab" data-t="arb">Перепродаж</button><button class="tab" data-t="rep">Репутація</button><button class="tab" data-t="mkt">Весь ринок</button>
+      <button class="tab" data-t="itm">Товари професії</button><button class="tab" data-t="arb">Перепродаж</button><button class="tab" data-t="trd">Тенденції</button><button class="tab" data-t="rep">Репутація</button><button class="tab" data-t="mkt">Весь ринок</button>
     </div>
     <div class="ctl">
       <label class="np">Аукціон <span id="exs"><button class="pill" data-x="h">Орда</button><button class="pill" data-x="n">Гобліни</button></span><i class="i" data-tip="Який аукціон показувати. «Орда» — Оргриммар, Громовой Утес, Подгород (комісія 5%). «Гобліни» — нейтральний аукціон у Пиратской Бухте, Прибамбасске й Круговзоре (комісія 15%). Діє на всі вкладки Біржі, крім «Перепродажу»: він завжди порівнює обидва.">i</i></label>
@@ -238,7 +239,7 @@ select,input[type=search],.wi{font-size:16px}
 <script>
 const SB='https://anmzbxgwxxudxwataqio.supabase.co', KEY='sb_publishable_ynsNKcOGrY4u8o_7gtHu2w_yI3lUCXr';
 const GOB='__GOB__', NEED=12;
-const S={skill:0,ex:'h',wq:'',watch:[],wt:{},wd:[],ad:'nh',am:'tot',bud:'',simple:true,tab:'sig',prof:171,lvl:0,ov:null,mk:null,items:new Map(),recs:[],sort:{rec:['profit',-1],itm:['qty',-1],mkt:[12,-1]},cat:'',q:'',onlyPos:true,onlyMine:false,mine:new Set(),mq:'',mcat:''};
+const S={skill:0,ex:'h',wq:'',watch:[],wt:{},wd:[],ad:'nh',am:'tot',bud:'',simple:true,tab:'sig',prof:171,lvl:0,ov:null,mk:null,items:new Map(),recs:[],sort:{rec:['profit',-1],itm:['qty',-1],mkt:[12,-1],trd:['adev',-1]},cat:'',q:'',onlyPos:true,onlyMine:false,mine:new Set(),mq:'',mcat:''};
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const inf=(t,c='')=>`<i class="i ${c}" data-tip="${esc(t)}">i</i>`;
 const T={mkt:'Ринкова ціна — середня ціна найдешевших 15% товару. Вона стійкіша за мінімальну: один випадковий дешевий лот її не збиває.',min:'Найдешевший лот на аукціоні просто зараз.',sold:'Оцінка: скільки штук купують за добу. Рахується за лотами, що зникли з аукціону за ціною, близькою до мінімальної, і перераховується на добу з уже зібраних годин. Blizzard не показує справжні продажі, тому сюди можуть потрапити й зняті лоти.',qty:'Скільки штук цього товару зараз виставлено на аукціоні.',near:'Скільки штук стоїть у межах +5% від мінімальної ціни. Це твої прямі конкуренти: щоб продати швидко, треба ставити дешевше за них.',d24:'Зміна ринкової ціни порівняно з учорашньою о цій самій порі.',d7:'Наскільки поточна ціна відрізняється від середньої за 7 днів. Мінус — зараз дешево, плюс — дорого.',cost:'Скільки коштують усі реагенти на один крафт, якщо купити їх на аукціоні за ринковою ціною.',profit:'Ціна продажу мінус комісія аукціону (5% в Орді, 15% у гоблінів) мінус собівартість. Це прибуток з одного крафту.',margin:'Прибуток у відсотках від собівартості. Показує, наскільки «жирний» рецепт відносно вкладених грошей.',spark:'Мініграфік ринкової ціни за останні 72 години. Зелений — ціна росте, червоний — падає.',val:'Оцінка: на яку суму цього товару продано за добу.'};
@@ -408,6 +409,178 @@ function vMkt(){
   ${rows.map(r=>`<tr onclick="openItem(${r[0]})"><td><div class="nm q-${r[2]||''}">${ico(r[13],r[2])}${esc(r[1])}</div><div class="cat">${esc(r[3]||'')}</div></td><td class="adv">${coin(r[4])}</td><td>${coin(r[5])}</td><td>${pctH(r[11])}</td><td>${num(r[6])}</td><td class="adv">${coin(r[12])}</td><td>${num(r[8])}</td><td class="adv">${coin(r[9])}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Нічого не знайдено.</td></tr>'}
   </tbody></table></div></div>`}
 
+/*TREND-BLOCK-BEGIN*/
+/*TREND-CORE-BEGIN*/
+// Тенденції: «звична» ціна, справжні підйоми/падіння, відсів сплесків без продажів, цикли доби й тижня.
+const TR={W:168,MINB:24,TH:0.07,RUN:3,DAYS:5,WDAYS:21,AMP:0.04};
+const trMed=a=>{if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
+const trQ=(a,f)=>{if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y),i=f*(s.length-1),lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo)};
+// «Звична» ціна на кожну годину — медіана за попередні W годин (поточна година не входить).
+function trBase(x){const n=x.length,b=new Array(n).fill(null),s=[];
+  const pos=v=>{let lo=0,hi=s.length;while(lo<hi){const m=(lo+hi)>>1;if(s[m]<v)lo=m+1;else hi=m}return lo};
+  for(let i=0;i<n;i++){
+    if(i>0&&x[i-1]!=null)s.splice(pos(x[i-1]),0,x[i-1]);
+    const out=i-1-TR.W;if(out>=0&&x[out]!=null)s.splice(pos(x[out]),1);
+    if(s.length>=TR.MINB){const m=s.length>>1;b[i]=s.length%2?s[m]:(s[m-1]+s[m])/2}}
+  return b}
+// Відрізки, де ціна пішла від звичної більш ніж на TH. Справжній підйом: тримався RUN годин і за цією ціною купували.
+function trRuns(x,b,conf){const runs=[];let c=null;
+  for(let i=0;i<x.length;i++){
+    if(x[i]==null||b[i]==null){if(c&&i-c.e>1){runs.push(c);c=null}continue}
+    const d=x[i]/b[i]-1,sg=d>0?1:-1,a=Math.abs(d);
+    if(c&&(sg!==c.sg||a<TR.TH/2)){runs.push(c);c=null}
+    if(!c&&a>=TR.TH)c={sg,s:i,e:i,n:0,conf:false,peak:0};
+    if(c){c.e=i;c.n++;if(conf[i])c.conf=true;if(a>Math.abs(c.peak))c.peak=d}}
+  if(c)runs.push(c);
+  for(const r of runs)r.real=r.n>=TR.RUN&&(r.sg<0||r.conf);
+  return runs}
+const trClean=(x,runs)=>{const y=x.slice();for(const r of runs)if(!r.real)for(let i=r.s;i<=r.e;i++)y[i]=null;return y};
+// Цикл доби: о котрій годині товар зазвичай найдешевший і найдорожчий.
+function trDayCycle(xc,t0){const days=new Map();
+  for(let i=0;i<xc.length;i++){if(xc[i]==null)continue;const d=new Date((t0+i*3600)*1000),k=d.getFullYear()*10000+d.getMonth()*100+d.getDate();if(!days.has(k))days.set(k,[]);days.get(k).push([d.getHours(),xc[i]])}
+  const full=[...days.values()].filter(a=>a.length>=16);
+  if(full.length<TR.DAYS)return {ok:false,days:full.length};
+  const by=Array.from({length:24},()=>[]);
+  for(const a of full){const m=trMed(a.map(v=>v[1]));for(const [h,v] of a)by[h].push(v/m)}
+  const pr=by.map(a=>a.length>=3?trMed(a):null);
+  const sm=pr.map((_,h)=>{const w=[pr[(h+23)%24],pr[h],pr[(h+1)%24]].filter(v=>v!=null);return w.length?w.reduce((s,v)=>s+v,0)/w.length:null});
+  let lowH=-1,highH=-1;sm.forEach((v,h)=>{if(v==null)return;if(lowH<0||v<sm[lowH])lowH=h;if(highH<0||v>sm[highH])highH=h});
+  if(lowH<0||lowH===highH)return {ok:false,days:full.length,flat:true};
+  const amp=sm[highH]/sm[lowH]-1,near=(h,c)=>{const d=Math.abs(h-c);return Math.min(d,24-d)<=1};
+  let n=0,k=0;for(const a of full){const lo=a.filter(v=>near(v[0],lowH)).map(v=>v[1]),hi=a.filter(v=>near(v[0],highH)).map(v=>v[1]);if(!lo.length||!hi.length)continue;n++;
+    if(hi.reduce((s,v)=>s+v,0)/hi.length>lo.reduce((s,v)=>s+v,0)/lo.length*(1+amp/4))k++}
+  return {ok:amp>=TR.AMP&&n>=TR.DAYS&&k/n>=0.7,days:full.length,lowH,highH,amp,k,n,prof:sm}}
+// Цикл тижня: за добовими медіанами.
+function trWeekCycle(daily,d0){if(!daily||daily.length<TR.WDAYS)return {ok:false,days:daily?daily.length:0};
+  const m=new Map(daily.map(d=>[d[0],d[1]])),dow0=(new Date(d0+'T00:00:00Z').getUTCDay()+6)%7,by=Array.from({length:7},()=>[]);
+  for(const [di,v] of daily){const w=[];for(let j=di-3;j<=di+3;j++)if(m.has(j))w.push(m.get(j));if(w.length<5)continue;by[(dow0+di)%7].push(v/trMed(w))}
+  const pr=by.map(a=>a.length>=3?trMed(a):null);let lo=-1,hi=-1;pr.forEach((v,w)=>{if(v==null)return;if(lo<0||v<pr[lo])lo=w;if(hi<0||v>pr[hi])hi=w});
+  if(lo<0||lo===hi)return {ok:false,days:daily.length,flat:true};
+  const amp=pr[hi]/pr[lo]-1,wk=new Map();
+  for(const [di,v] of daily){const k=Math.floor((dow0+di)/7),w=(dow0+di)%7;if(!wk.has(k))wk.set(k,{});if(w===lo)wk.get(k).lo=v;if(w===hi)wk.get(k).hi=v}
+  let n=0,k=0;for(const o of wk.values())if(o.lo&&o.hi){n++;if(o.hi>o.lo)k++}
+  return {ok:amp>=TR.AMP&&n>=3&&k/n>=0.7,days:daily.length,lowD:lo,highD:hi,amp,k,n,prof:pr}}
+// Повний розбір одного товару. P — ціни по годинах, F — прапорці довіри, t0 — епоха першої години.
+function trAnalyze(P,F,t0,daily,d0){
+  const n=P.length,x=new Array(n),conf=new Array(n);let valid=0;
+  for(let i=0;i<n;i++){const ok=P[i]!=null&&(F[i]==='1'||F[i]==='2');x[i]=ok?P[i]:null;conf[i]=F[i]==='2';if(ok)valid++}
+  const o={valid,state:'collect',x,t0};
+  if(valid<TR.MINB)return o;
+  let b=trBase(x),runs=trRuns(x,b,conf),xc=trClean(x,runs);
+  b=trBase(xc);runs=trRuns(x,b,conf);xc=trClean(x,runs);
+  o.b=b;o.xc=xc;o.runs=runs;
+  o.noise=runs.filter(r=>!r.real&&r.sg>0).length;
+  o.day=trDayCycle(xc,t0);o.week=trWeekCycle(daily,d0);
+  let li=-1;for(let i=n-1;i>=Math.max(0,n-3);i--)if(x[i]!=null){li=i;break}
+  if(li<0){o.state='thin';return o}
+  if(b[li]==null)return o;
+  const w=[];for(let j=Math.max(0,li-TR.W);j<=li;j++)if(xc[j]!=null)w.push(xc[j]);
+  o.cur=x[li];o.base=b[li];o.dev=o.cur/o.base-1;o.lo=w.length>=TR.MINB?trQ(w,0.2):null;o.hi=w.length>=TR.MINB?trQ(w,0.8):null;o.prelim=valid<72;
+  const r=runs.find(q=>q.s<=li&&q.e>=li);o.run=r||null;
+  o.state=!r?'norm':r.sg>0?(r.real?'high':r.n<TR.RUN?'spike_new':'spike_fake'):(r.real?'low':'dip_new');
+  const st=a=>({n:a.length,back:a.filter(q=>q.e-q.s+1<=24).length,dur:trMed(a.map(q=>q.e-q.s+1)),peak:trMed(a.map(q=>Math.abs(q.peak)))});
+  const past=runs.filter(q=>q.real&&q!==r&&q.e<li);o.up=st(past.filter(q=>q.sg>0));o.dn=st(past.filter(q=>q.sg<0));
+  const seg=(a,z)=>{const v=[];for(let j=Math.max(0,a);j<=z&&j<n;j++)if(j>=0&&xc[j]!=null)v.push(xc[j]);return v};
+  const l24=seg(li-23,li),p24=seg(li-47,li-24);o.chg1=l24.length>=12&&p24.length>=12?trMed(l24)/trMed(p24)-1:null;
+  const p7=seg(li-191,li-168);o.chg7=l24.length>=12&&p7.length>=12?trMed(l24)/trMed(p7)-1:null;
+  return o}
+/*TREND-CORE-END*/
+// ===== Тенденції: вкладка =====
+const WDA=['понеділок','вівторок','середу','четвер','п’ятницю','суботу','неділю'];
+const hh=h=>String(h).padStart(2,'0')+':00', pl=(n,a,b,c)=>{const m=n%100,k=n%10;return m>10&&m<20?c:k===1?a:k>=2&&k<=4?b:c};
+const dLong=d=>d.toLocaleDateString('uk',{day:'numeric',month:'long'});
+const TT={base:'Звична ціна — медіана ринкової ціни за останні 7 днів (поки історії менше, за весь зібраний час). Години, коли ціну задерли без продажів, у неї не входять.',
+  dev:'На скільки відсотків поточна ціна вища чи нижча за звичну.',
+  state:'«Дорого» й «дешево»: ціна відійшла від звичної щонайменше на 7%, тримається три знімки поспіль, а для підйому за нею ще й справді купують. «Стрибок» і «сплеск без продажів»: ціну підняли, але минуло менше трьох знімків або продажів за нею не видно. Такі години в розрахунки не входять.',
+  rep:'Скільки разів за зібрану історію ціна вже так само підіймалась (для дорогих) чи падала (для дешевих). Що більше повторів, то надійніша підказка.',
+  d1:'Як змінилася звична ціна за останню добу порівняно з попередньою добою. Показує загальний напрям, а не миттєвий стрибок.',
+  val:'На яку суму цей товар купують за добу (оцінка за зниклими лотами). У «Тенденції» потрапляють лише ходові товари: з малим обігом ціну легко намалювати.'};
+const trLen=a=>(a.run.s===0||a.b[a.run.s-1]==null?'щонайменше ':'')+a.run.n+' год';
+const TST={high:['дорого','sell'],low:['дешево','buy'],norm:['звично',''],spike_new:['свіжий стрибок','wn'],spike_fake:['сплеск без продажів','wn'],dip_new:['свіже падіння','wn'],thin:['мало лотів',''],collect:['збираю історію','']};
+const tBadge=s=>`<span class="wsig ${TST[s][1]}" style="margin-left:0">${TST[s][0]}</span>`;
+function trBuild(){const j=S.tr,P=s=>String(s||'').split(',').map(v=>v===''?null:+v);
+  j.rows=(j.items||[]).map(r=>{const a=trAnalyze(P(r[10]),r[11]||'',j.t0,r[12]||[],j.d0);
+    return {id:r[0],name:r[1],q:r[2],cat:r[3],icon:r[4],req:r[5],s24:r[6],v24:r[7],qty:r[8],lots:r[9],a,st:a.state,cur:a.cur??null,base:a.base??null,dev:a.dev!=null?a.dev*100:null,adev:a.dev!=null?Math.abs(a.dev*100):null,
+      chg1:a.chg1!=null?a.chg1*100:null,rep:a.state==='high'?a.up.n:a.state==='low'?a.dn.n:null}})}
+function trHist(a,up){const h=up?a.up:a.dn;
+  if(!h||!h.n)return up?'Схожих підйомів в історії ще не було, тож обіцяти падіння не можу.':'Схожих падінь в історії ще не було, тож обіцяти відскок не можу.';
+  if(h.n<3)return `Схожих ${up?'підйомів':'падінь'} в історії поки ${h.n}: замало, щоб рахувати ймовірність.`;
+  return `Так уже було <b>${h.n} ${pl(h.n,'раз','рази','разів')}</b>: у <b>${h.back}</b> з них ціна повернулась до звичної за добу, зазвичай за ~${Math.round(h.dur)} год.`}
+function trSay(r){const a=r.a,p=r.dev!=null?Math.abs(r.dev).toFixed(0)+'%':'',v=[];
+  if(r.st==='high')v.push(`<b>Дорого:</b> на ${p} вище за звичну ${coin(r.base)}. Тримається ${trLen(a)}, і за цією ціною купують. Продавай запаси, з купівлею зачекай. ${trHist(a,true)}`);
+  else if(r.st==='low')v.push(`<b>Дешево:</b> на ${p} нижче за звичну ${coin(r.base)}. Тримається ${trLen(a)}. Купуй, якщо потрібно; продавати краще пізніше. ${trHist(a,false)}`);
+  else if(r.st==='spike_new')v.push(`<b>Свіжий стрибок</b> на ${p}: минуло лише ${a.run.n} ${pl(a.run.n,'знімок','знімки','знімків')}. Поки не рахую: можливо, ціну просто задерли. Звична ціна ${coin(r.base)}.`);
+  else if(r.st==='spike_fake')v.push(`<b>Сплеск без продажів</b> на ${p}: ціну тримають ${a.run.n} год, але за нею ніхто не купує. У розрахунки не входить; орієнтуйся на звичну ${coin(r.base)}.`);
+  else if(r.st==='dip_new')v.push(`<b>Свіже падіння</b> на ${p}: минуло лише ${a.run.n} ${pl(a.run.n,'знімок','знімки','знімків')}. Можливо, це поодинокий дешевий лот. Звична ціна ${coin(r.base)}.`);
+  else if(r.st==='norm')v.push(`Ціна звична: ${r.dev>0?'+':''}${r.dev.toFixed(0)}% до ${coin(r.base)}.`);
+  else if(r.st==='thin')v.push('Останні години на аукціоні менше п’яти лотів: ціна ненадійна, висновків не роблю.');
+  else v.push(`Збираю історію: є ${a.valid} із ${TR.MINB} надійних годин. Після цього скажу, дешево зараз чи дорого.`);
+  if(a.day?.ok)v.push(`Протягом доби найдешевше близько <b>${hh(a.day.lowH)}</b>, найдорожче близько <b>${hh(a.day.highH)}</b>: різниця ~${(a.day.amp*100).toFixed(0)}%, спрацювало в ${a.day.k} з ${a.day.n} днів.`);
+  if(a.week?.ok)v.push(`Протягом тижня найдешевше в <b>${WDA[a.week.lowD]}</b>, найдорожче в <b>${WDA[a.week.highD]}</b>: різниця ~${(a.week.amp*100).toFixed(0)}%, спрацювало в ${a.week.k} з ${a.week.n} тижнів.`);
+  if(a.prelim&&r.base!=null)v.push(`<span class="mut">Попередньо: надійної історії лише ${a.valid} год.</span>`);
+  return v.join(' ')}
+function vTrd(){
+  if(!S.tr){rpc('wow_api_trends',{p_n:PN()}).then(j=>{S.tr=j||{items:[]};trBuild();render()}).catch(showErr);return '<div class="panel"><div class="empty">Гобліни креслять графіки…</div></div>'}
+  const j=S.tr,all=j.rows.filter(r=>reqOk(r.req)),H=j.n||0;
+  const hi=all.filter(r=>r.st==='high').sort((a,b)=>b.dev-a.dev),lo=all.filter(r=>r.st==='low').sort((a,b)=>a.dev-b.dev);
+  const sp=all.filter(r=>r.st==='spike_new'||r.st==='spike_fake'||r.st==='dip_new').sort((a,b)=>b.adev-a.adev);
+  const cyc=all.filter(r=>r.a.day?.ok).sort((a,b)=>b.a.day.amp-a.a.day.amp),wk=all.filter(r=>r.a.week?.ok).sort((a,b)=>b.a.week.amp-a.a.week.amp);
+  const judged=all.filter(r=>r.base!=null).length,noise=all.reduce((s,r)=>s+(r.a.noise||0),0);
+  const d0=new Date((j.since||0)*1000);d0.setHours(0,0,0,0);const dayAt=new Date(d0);dayAt.setDate(d0.getDate()+1+TR.DAYS);const wkAt=new Date(d0);wkAt.setDate(d0.getDate()+1+TR.WDAYS);
+  const gotD=Math.max(0,...all.map(r=>r.a.day?.days||0)),gotW=Math.max(0,...all.map(r=>r.a.week?.days||0));
+  let say;
+  if(!judged)say=`Щоб казати «дорого» чи «дешево», мені треба знати звичну ціну, а для цього потрібно <b>${TR.MINB} години</b> надійних спостережень. Зібрано ${H}. Дані підтягуються самі.`;
+  else{say=`Стежу за <b>${all.length}</b> найходовішими товарами. Справді подорожчали <b>${hi.length}</b>, подешевшали <b>${lo.length}</b>.`;
+    if(hi[0])say+=` Найбільше виріс <b>${esc(hi[0].name)}</b>: +${hi[0].dev.toFixed(0)}% до звичної, тож продавай запаси й не купуй.`;
+    if(lo[0])say+=` Найбільше просів <b>${esc(lo[0].name)}</b>: ${lo[0].dev.toFixed(0)}%, вдалий момент купити.`;
+    if(sp.length||noise)say+=` Стрибки, де ціну задерли без продажів, я не рахую: зараз таких <b>${sp.length}</b>${noise?`, за всю історію відсіяно ${noise}`:''}.`;
+    if(H<72)say+=` Історії поки ${H} год, тож звична ціна попередня; за три доби стане точнішою.`}
+  const card=r=>{const h=r.st==='high'?r.a.up:r.a.dn;return `<div class="card" onclick="openTrend(${r.id})"><div><div class="t q-${r.q||''}">${ico(r.icon,r.q)}${esc(r.name)}</div><div class="d">зараз ${coin(r.cur)} · звична ${coin(r.base)} · тримається ${trLen(r.a)}${h&&h.n>=3?` · раніше поверталась ${h.back} з ${h.n}`:''}</div></div><div class="r">${pctH(r.dev)}<div class="d">${coin(r.v24)} за добу</div></div></div>`};
+  const needBase=what=>`<div class="wait">Тут з'являться ${what}. Потрібно <b>${TR.MINB} години</b> надійних цін, зібрано <b>${Math.min(H,TR.MINB)}</b>.<div class="prog"><i style="width:${Math.min(100,H/TR.MINB*100)}%"></i></div></div>`;
+  const srow=r=>`<div class="card" onclick="openTrend(${r.id})"><div><div class="t q-${r.q||''}">${ico(r.icon,r.q)}${esc(r.name)} ${tBadge(r.st)}</div><div class="d">зараз ${coin(r.cur)} · звична ${coin(r.base)} · ${r.st==='spike_fake'?`тримають ${r.a.run.n} год без продажів`:`минуло ${r.a.run.n} ${pl(r.a.run.n,'знімок','знімки','знімків')} із ${TR.RUN}`}</div></div><div class="r">${pctH(r.dev)}</div></div>`;
+  const f=S.tf||'all',q=(S.tq||'').toLowerCase();
+  let rows=all.filter(r=>(!q||r.name.toLowerCase().includes(q))&&(f==='all'||(f==='high'&&r.st==='high')||(f==='low'&&r.st==='low')||(f==='sp'&&sp.includes(r))||(f==='cyc'&&(r.a.day?.ok||r.a.week?.ok))));
+  const [k,d]=S.sort.trd;rows=sortBy(rows,r=>r[k],d).slice(0,300);
+  const pill=(v,t,n)=>`<button class="pill ${f===v?'on':''}" onclick="S.tf='${v}';render()">${t}${n!=null?' · '+n:''}</button>`;
+  return `<div class="gob"><img src="${GOB}" alt=""><div class="say">${say}</div></div>
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="panel"><h2>Подорожчало${inf('Товари, ціна яких зараз щонайменше на 7% вища за звичну, тримається три знімки поспіль і за якою справді купують. Якщо ціну просто задерли без продажів, товар сюди не потрапляє. Що частіше такі підйоми раніше закінчувались поверненням, то певніше ціна впаде й цього разу.','r')}</h2><div class="sub">Продавай запаси, з купівлею зачекай</div>${!judged?needBase('товари, які справді подорожчали'):(hi.slice(0,8).map(card).join('')||'<div class="empty">Зараз жоден ходовий товар не подорожчав більш ніж на 7%. Це нормально: ринок спокійний.</div>')}${hi.length>8?`<div class="empty">і ще ${hi.length-8}: увімкни «Показати детально», там повна таблиця.</div>`:''}</div>
+    <div class="panel"><h2>Подешевшало${inf('Товари, ціна яких зараз щонайменше на 7% нижча за звичну й тримається три знімки поспіль. Поодинокий дешевий лот сюди не потрапляє: ціна рахується за найдешевшими 15% товару.','l')}</h2><div class="sub">Купуй, якщо потрібно; продавати краще пізніше</div>${!judged?needBase('товари, які справді подешевшали'):(lo.slice(0,8).map(card).join('')||'<div class="empty">Зараз жоден ходовий товар не просів більш ніж на 7%.</div>')}${lo.length>8?`<div class="empty">і ще ${lo.length-8}: увімкни «Показати детально», там повна таблиця.</div>`:''}</div>
+  </div>
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="panel"><h2>Цикл доби${inf('Багато товарів дешевшають і дорожчають в одні й ті самі години: вдень фармери заливають аукціон, увечері перед рейдами все розкуповують. Тут товари, де це повторюється день у день: різниця щонайменше 4% і спрацьовує не рідше ніж у 7 днях із 10. Потрібно 5 повних діб історії.','r')}</h2><div class="sub">О котрій купувати й о котрій продавати</div>
+      ${cyc.length?`<div class="tw" style="max-height:44vh"><table><thead><tr><th style="cursor:default">Товар</th><th style="cursor:default">Дешево</th><th style="cursor:default">Дорого</th><th style="cursor:default">Різниця</th><th style="cursor:default" class="adv">Спрацювало</th></tr></thead><tbody>${cyc.slice(0,40).map(r=>`<tr onclick="openTrend(${r.id})"><td><div class="nm q-${r.q||''}">${ico(r.icon,r.q)}${esc(r.name)}</div></td><td class="up">${hh(r.a.day.lowH)}</td><td class="dn">${hh(r.a.day.highH)}</td><td>${(r.a.day.amp*100).toFixed(0)}%</td><td class="adv">${r.a.day.k} з ${r.a.day.n} днів</td></tr>`).join('')}</tbody></table></div>`
+      :gotD>=TR.DAYS?'<div class="empty">Історії вже досить, але стійкого добового циклу в жодного ходового товару не видно. Якщо з’явиться, покажу тут.</div>'
+      :`<div class="wait">Тут з'явиться розклад: о котрій годині кожен товар зазвичай найдешевший і найдорожчий. Потрібно <b>${TR.DAYS} повних діб</b> історії, зібрано <b>${gotD}</b>. Очікую приблизно <b>${dLong(dayAt)}</b>.<div class="prog"><i style="width:${Math.min(100,gotD/TR.DAYS*100)}%"></i></div></div>`}</div>
+    <div class="panel"><h2>Цикл тижня${inf('Те саме, але по днях тижня: наприклад, дешево у вихідні, коли всі фармлять, і дорого в день рейдів. Потрібно щонайменше 3 тижні історії, щоб кожен день тижня повторився тричі.','l')}</h2><div class="sub">У який день купувати й у який продавати</div>
+      ${wk.length?`<div class="tw" style="max-height:44vh"><table><thead><tr><th style="cursor:default">Товар</th><th style="cursor:default">Дешево</th><th style="cursor:default">Дорого</th><th style="cursor:default">Різниця</th><th style="cursor:default" class="adv">Спрацювало</th></tr></thead><tbody>${wk.slice(0,40).map(r=>`<tr onclick="openTrend(${r.id})"><td><div class="nm q-${r.q||''}">${ico(r.icon,r.q)}${esc(r.name)}</div></td><td class="up">${WDA[r.a.week.lowD]}</td><td class="dn">${WDA[r.a.week.highD]}</td><td>${(r.a.week.amp*100).toFixed(0)}%</td><td class="adv">${r.a.week.k} з ${r.a.week.n} тижнів</td></tr>`).join('')}</tbody></table></div>`
+      :gotW>=TR.WDAYS?'<div class="empty">Історії вже досить, але стійкого тижневого циклу в жодного ходового товару не видно.</div>'
+      :`<div class="wait">Тут з'явиться розклад по днях тижня. Потрібно <b>${TR.WDAYS} день</b> історії, зібрано <b>${gotW}</b>. Очікую приблизно <b>${dLong(wkAt)}</b>.<div class="prog"><i style="width:${Math.min(100,gotW/TR.WDAYS*100)}%"></i></div></div>`}</div>
+  </div>
+  <div class="panel adv" style="margin-bottom:14px"><h2>Стрибки, які я не рахую${inf('Ціна різко змінилась, але це ще не тенденція: або минуло менше трьох знімків, або ціну тримають без продажів (хтось викупив дешеве й виставив утридорога). Такі години не впливають на звичну ціну, цикли й підказки.','r')}</h2><div class="sub">Щоб було видно, що саме відсіяно</div>${sp.slice(0,12).map(srow).join('')||'<div class="empty">Зараз таких немає.</div>'}</div>
+  <div class="panel adv"><h2>Усі ходові товари${inf('Найходовіші товари аукціону: продажі видно щонайменше у 8 годинах з останніх 24 і лотів у середньому не менше шести. Товари з малим обігом сюди не беруться: там ціну легко намалювати. Клік по рядку відкриває розбір товару.','r')}</h2><div class="sub">показано ${rows.length} із ${all.length}</div>
+  <div class="fl"><input type="search" id="q" placeholder="Пошук товару" value="${esc(S.tq||'')}" oninput="S.tq=this.value;render(1)">${pill('all','Усі')}${pill('high','Дорого',hi.length)}${pill('low','Дешево',lo.length)}${pill('cyc','З циклом',all.filter(r=>r.a.day?.ok||r.a.week?.ok).length)}${pill('sp','Стрибки',sp.length)}</div>
+  <div class="tw"><table><thead>${th('trd',[['name','Товар'],['cur','Ціна',T.mkt],['base','Звична',TT.base],['dev','Відхилення',TT.dev],['st','Стан',TT.state],['chg1','Напрям за добу',TT.d1],['rep','Повторів',TT.rep],['v24','Оборот/добу',TT.val]])}</thead><tbody>
+  ${rows.map(r=>`<tr onclick="openTrend(${r.id})"><td><div class="nm q-${r.q||''}">${ico(r.icon,r.q)}${esc(r.name)}</div><div class="cat">${esc(r.cat||'')}</div></td><td>${coin(r.cur)}</td><td>${coin(r.base)}</td><td>${pctH(r.dev)}</td><td>${tBadge(r.st)}</td><td>${pctH(r.chg1)}</td><td>${r.rep!=null?num(r.rep):'<span class="mut">—</span>'}</td><td>${coin(r.v24)}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Нічого не знайдено.</td></tr>'}
+  </tbody></table></div></div>`}
+window.openTrend=id=>{const r=S.tr?.rows.find(x=>x.id===id);if(!r)return;const a=r.a,j=S.tr,n=a.x.length,g=v=>v==null?null:+(v/10000).toFixed(4);
+  const eps=(a.runs||[]).filter(q=>q.real&&q!==a.run).slice(-8).reverse(),hasB=a.b&&a.b.some(v=>v!=null),hasP=a.day&&a.day.prof&&a.day.days>=TR.DAYS;
+  $('#drawer').classList.add('on');
+  $('#dr').innerHTML=`<button class="x" onclick="closeDr()">Закрити ✕</button><div style="clear:both"></div><div class="tt"><div class="tth">${ico(r.icon,r.q,1)}<div><h2 class="q-${r.q||''}">${esc(r.name)}</h2><div class="dim">${esc(r.cat||'')} · тенденції</div></div></div></div>
+  <div class="verdict"><img src="${GOB}" alt=""><div>${trSay(r)}</div></div>
+  <div class="stats"><div class="st"><div class="l">Зараз${inf(T.mkt,'r')}</div><div class="v">${coin(r.cur)}</div></div><div class="st"><div class="l">Звична${inf(TT.base)}</div><div class="v">${coin(r.base)}</div></div><div class="st"><div class="l">Коридор${inf('У цих межах ціна трималась більшість часу: нижня межа відсікає найдешевші 20% годин, верхня — найдорожчі 20%.')}</div><div class="v">${a.lo!=null?coin(a.lo)+' – '+coin(a.hi):'<span class="mut">—</span>'}</div></div><div class="st"><div class="l">Оборот за добу${inf(TT.val,'l')}</div><div class="v">${coin(r.v24)}</div></div></div>
+  <h3>Ціна і звичний рівень${inf('Золота лінія — ринкова ціна по годинах. Пунктир — звична ціна. Червоні точки — години, які я не рахую: ціну задерли без продажів або стрибок тривав менше трьох знімків.','r')}</h3>
+  ${n>1?`<div class="ch"><canvas id="t1"></canvas></div><p class="how">Ціна вище пунктиру — дорожче, ніж зазвичай; нижче — дешевше. ${hasB?'':'Пунктир з’явиться, коли набереться '+TR.MINB+' години надійних цін.'}</p>`:'<div class="nochart">Графік малюється з другого знімка.</div>'}
+  <h3>Коли дешево й коли дорого${inf('Середнє відхилення ціни від рівня дня для кожної години доби. Стовпчик нижче нуля — у цю годину зазвичай дешевше, вище — дорожче.','r')}</h3>
+  ${hasP?`<div class="ch"><canvas id="t2"></canvas></div><p class="how">${a.day.ok?`Цикл стійкий: спрацював у ${a.day.k} з ${a.day.n} днів.`:'Стійкого циклу не видно: різниця мала або повторюється не щодня.'}</p>`:`<div class="nochart">Потрібно ${TR.DAYS} повних діб історії, зібрано ${a.day?.days||0}.</div>`}
+  <h3>Минулі підйоми й падіння${inf('Справжні відхилення від звичної ціни за зібрану історію: коли почалось, на скільки відсотків і скільки годин тривало. Відсіяні сплески сюди не входять.','r')}</h3>
+  ${eps.length?`<table class="calc"><thead><tr><th>Коли</th><th>Що</th><th>Пік</th><th>Тривало</th></tr></thead><tbody>${eps.map(q=>`<tr><td>${tl(j.t0+q.s*3600)}</td><td>${q.sg>0?'<span class="dn">подорожчало</span>':'<span class="up">подешевшало</span>'}</td><td>${q.peak>0?'+':''}${(q.peak*100).toFixed(0)}%</td><td>${q.e-q.s+1} год</td></tr>`).join('')}</tbody></table>`:'<div class="nochart">Справжніх підйомів чи падінь за зібрану історію ще не було.</div>'}
+  <p style="margin-top:18px"><button class="pill on" onclick="openItem(${id})">Картка товару: рецепти, попит, стіна цін</button></p>`;
+  charts.forEach(c=>c.destroy());charts=[];
+  if(n>1){const L=a.x.map((_,i)=>tl(j.t0+i*3600)),pr=n<30?3:0;
+    charts.push(new Chart($('#t1'),{type:'line',data:{labels:L,datasets:[{label:'Ринкова ціна, з',data:a.x.map(g),borderColor:'#e2b657',backgroundColor:'rgba(226,182,87,.12)',fill:true,tension:.25,pointRadius:pr,borderWidth:2},{label:'Звична',data:(a.b||[]).map(g),borderColor:'#3fb6a8',borderDash:[5,4],pointRadius:0,borderWidth:1.6,tension:.2},{label:'Не рахується',data:a.x.map((v,i)=>v!=null&&a.xc&&a.xc[i]==null?g(v):null),borderColor:'#ef7b6b',backgroundColor:'#ef7b6b',showLine:false,pointRadius:3.5}]},options:copt()}))}
+  if(hasP)charts.push(new Chart($('#t2'),{type:'bar',data:{labels:a.day.prof.map((_,h)=>hh(h)),datasets:[{label:'Відхилення від рівня дня, %',data:a.day.prof.map(v=>v==null?null:+((v-1)*100).toFixed(2)),backgroundColor:a.day.prof.map(v=>v!=null&&v<1?'rgba(111,208,140,.8)':'rgba(239,123,107,.8)'),borderRadius:3}]},options:copt({plugins:{legend:{display:false}}})}))};
+/*TREND-BLOCK-END*/
 function vArb(){
   if(!S.arb){rpc('wow_api_arb').then(j=>{S.arb=j||{rows:[]};render()}).catch(showErr);return '<div class="panel"><div class="empty">Порівнюю два аукціони…</div></div>'}
   const rows=S.arb.rows||[],bud=parseFloat(S.bud)>0?parseFloat(S.bud)*10000:0,unit=S.am==='unit';
@@ -695,11 +868,11 @@ function vMnt(){
   <div class="panel"><h2>Маунти${inf('Усі їздові тварини з довідника Blizzard для WoW Forever, із зображенням моделі та фракцією. Ціни, торговця й характеристик окремого маунта Blizzard у цих даних не віддає.','r')}</h2><div class="sub">Показано ${ms.length} із ${m.length}</div>
   <div class="fl"><input type="search" id="q" placeholder="Пошук маунта" value="${esc(R.mq)}" oninput="R.mq=this.value;render(1)">${[['','Усі'],['HORDE','Орда'],['ALLIANCE','Альянс']].map(f=>`<button class="pill ${R.mf===f[0]?'on':''}" onclick="R.mf='${f[0]}';render()">${f[1]}</button>`).join('')}</div>
   <div class="cards">${ms.map(x=>`<div class="mc">${x.img?`<img src="${esc(x.img)}" loading="lazy" alt="">`:'<img alt="">'}<div class="n">${esc(x.name)}${x.f?`<span class="badge ${x.f}">${x.f==='HORDE'?'Орда':'Альянс'}</span>`:''}</div></div>`).join('')}</div></div>`}
-function render(keepFocus){document.body.dataset.tab=R.sec==='ah'?S.tab:'';if(R.sec!=='ah'){$('#view').innerHTML={ref:vCls,qst:vQst}[R.sec]();applyAllSorts();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt,arb:vArb,rep:vRep}[S.tab]();$('#view').innerHTML=v;applyAllSorts();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
+function render(keepFocus){document.body.dataset.tab=R.sec==='ah'?S.tab:'';if(R.sec!=='ah'){$('#view').innerHTML={ref:vCls,qst:vQst}[R.sec]();applyAllSorts();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt,arb:vArb,rep:vRep,trd:vTrd}[S.tab]();$('#view').innerHTML=v;applyAllSorts();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.t;S.q='';document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b));render()});
 $('#prof').addEventListener('change',e=>{S.prof=+e.target.value;S.cat='';try{localStorage.setItem('wowProf',S.prof)}catch(_){}loadMine();loadSkill();load()});
 function setEx(){document.querySelectorAll('#exs button').forEach(b=>b.classList.toggle('on',b.dataset.x===S.ex));if(R.sec==='ah')$('#hP').textContent=SEC.ah.p=`${S.ex==='n'?'Нейтральний аукціон гоблінів (Черноводье)':'Аукціон Орди'} · WoW Forever · PvP EU. Ціни, обсяги й тренди: що варити, що купувати, що продавати.`;else SEC.ah.p=`${S.ex==='n'?'Нейтральний аукціон гоблінів (Черноводье)':'Аукціон Орди'} · WoW Forever · PvP EU. Ціни, обсяги й тренди: що варити, що купувати, що продавати.`}
-$('#exs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.x===S.ex)return;S.ex=b.dataset.x;try{localStorage.setItem('wowEx',S.ex)}catch(_){}S.mk=null;setEx();load()});
+$('#exs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.x===S.ex)return;S.ex=b.dataset.x;try{localStorage.setItem('wowEx',S.ex)}catch(_){}S.mk=null;S.tr=null;setEx();load()});
 function setMode(){document.body.classList.toggle('simple',S.simple);$('#mode').textContent=S.simple?'Показати детально':'Показати просто';$('#mode').classList.toggle('on',!S.simple)}
 $('#mode').addEventListener('click',()=>{S.simple=!S.simple;try{localStorage.setItem('wowSimple',S.simple?'1':'0')}catch(_){}setMode();render()});
 const skKey=()=>'wowSkill'+S.prof;function loadSkill(){try{S.skill=+localStorage.getItem(skKey())||0}catch(_){S.skill=0}$('#skill').value=S.skill||''}
@@ -711,7 +884,7 @@ async function load(){try{$('#err').innerHTML='';const [ov]=await Promise.all([r
   try{if(localStorage.getItem('wowEx')==='n')S.ex='n'}catch(_){}
   setEx();setMode();loadMine();loadSkill();loadWatch();
   try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} · ${p.n} рецептів</option>`).join('')+((pr||[]).some(p=>p.id===FISHP)?'':`<option value="${FISHP}" ${S.prof===FISHP?'selected':''}>Рыбная ловля · де ловити й що продавати</option>`)}catch(e){showErr(e)}
-  await load();let stamp=null;const poll=async()=>{try{const j=await rpc('wow_api_stamp');const k=(j?.h||'')+'|'+(j?.n||'');if(stamp===null){stamp=k;return}if(k!==stamp){stamp=k;S.mk=null;S.arb=null;S.rp=null;await load();const t=$('#toast');const sg=S.wd.map(w=>({w,s:wSignal(w)})).filter(o=>o.s.k==='buy'||o.s.k==='sell');t.textContent='Зайшли нові дані аукціону: '+new Date(j.h||j.n).toLocaleTimeString('uk',{hour:'2-digit',minute:'2-digit'})+(sg.length?' · Сигнал: '+sg.map(o=>o.w.name+' — '+(o.s.k==='buy'?'купуй':'продавай')).join('; '):'');t.classList.add('on');setTimeout(()=>t.classList.remove('on'),8000)}}catch(_){}};
+  await load();let stamp=null;const poll=async()=>{try{const j=await rpc('wow_api_stamp');const k=(j?.h||'')+'|'+(j?.n||'');if(stamp===null){stamp=k;return}if(k!==stamp){stamp=k;S.mk=null;S.arb=null;S.rp=null;S.tr=null;await load();const t=$('#toast');const sg=S.wd.map(w=>({w,s:wSignal(w)})).filter(o=>o.s.k==='buy'||o.s.k==='sell');t.textContent='Зайшли нові дані аукціону: '+new Date(j.h||j.n).toLocaleTimeString('uk',{hour:'2-digit',minute:'2-digit'})+(sg.length?' · Сигнал: '+sg.map(o=>o.w.name+' — '+(o.s.k==='buy'?'купуй':'продавай')).join('; '):'');t.classList.add('on');setTimeout(()=>t.classList.remove('on'),8000)}}catch(_){}};
   poll();setInterval(poll,60000)})();
 </script>
 </body>
