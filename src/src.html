@@ -146,6 +146,7 @@ table.srt th{cursor:pointer}table.srt th.sd::after{content:" ▾";color:var(--go
 .wc.buy{border-color:rgba(111,208,140,.55)}.wc.sell{border-color:var(--gold)}
 .wi{width:58px;font:inherit;font-size:12.5px;color:var(--txt);background:rgba(10,16,20,.85);border:1px solid var(--line);border-radius:7px;padding:3px 6px;text-align:right}
 #wbtn{border:1px solid var(--gold);background:rgba(226,182,87,.14);color:var(--gold2);border-radius:8px;padding:5px 12px;cursor:pointer;font:inherit;font-weight:600;float:right;margin-right:8px}
+.src{border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;background:rgba(226,182,87,.08);padding:10px 14px;margin-top:12px;font-size:13.5px}.src b{color:var(--gold2);display:block;margin-bottom:2px;font-family:Forum,Georgia,serif;font-size:17px;font-weight:400}
 .err{background:rgba(239,123,107,.12);border:1px solid var(--dn);border-radius:12px;padding:14px;margin:16px 0}
 .foot{color:var(--mut);font-size:12px;margin-top:22px;text-align:center}
 svg.sp{vertical-align:middle}
@@ -367,7 +368,7 @@ window.openItem=async id=>{
   if(isReag&&!r0)v.push(`Це реагент: використовується у ${(j.used||[]).length} рецептах.`);
   if(dv!=null)v.push(dv<=-10?`Зараз <b>дешево</b>: на ${Math.abs(dv).toFixed(0)}% нижче за середню за 7 днів. ${isReag?'Вдалий момент купити про запас.':'Продавати краще пізніше.'}`:dv>=10?`Зараз <b>дорого</b>: на ${dv.toFixed(0)}% вище за середню за 7 днів. ${isReag?'З купівлею краще зачекати.':'Вдалий момент продати запаси.'}`:`Ціна близька до звичайної (${dv>0?'+':''}${dv.toFixed(0)}% до середньої за 7 днів).`);
   else if(!r0||r0.profit==null)v.push('Історії ще замало, щоб сказати, дешево зараз чи дорого.');
-  const calc=r=>`${r.note?`<div class="note" style="margin:6px 0">${esc(r.note)}</div>`:''}<table class="calc"><thead><tr><th>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</th><th>Кількість</th><th>Ціна за шт</th><th>Сума</th></tr></thead><tbody>
+  const calc=r=>`<table class="calc"><thead><tr><th>${esc(r.name)}${r.cd?'<span class="tag">кулдаун</span>':''}</th><th>Кількість</th><th>Ціна за шт</th><th>Сума</th></tr></thead><tbody>
     ${(r.reag||[]).map(g=>{const p=px(S.items.get(g.item));return `<tr><td>${ico(S.items.get(g.item)?.icon,S.items.get(g.item)?.q)}<a href="#" onclick="openItem(${g.item});return false">${esc(g.name)}</a></td><td>${g.qty}</td><td>${coin(p)}</td><td>${p!=null?coin(-p*g.qty):'<span class="mut">немає на аукціоні</span>'}</td></tr>`}).join('')}
     <tr class="tot"><td>Усього реагенти</td><td></td><td></td><td>${r.cost!=null?coin(-r.cost):'—'}</td></tr>
     <tr><td>Продаж: ${esc(name)}</td><td>${r.n}</td><td>${coin(r.sell)}</td><td>${r.sell!=null?coin(r.sell*r.n):'—'}</td></tr>
@@ -376,6 +377,7 @@ window.openItem=async id=>{
   const used=(j.used||[]);
   $('#dr').innerHTML=`<button class="x" onclick="closeDr()">Закрити ✕</button><button id="wbtn" onclick="toggleWatch(${id})">${S.watch.includes(id)?'★ Стежу':'☆ Стежити'}</button><div style="clear:both"></div><div class="tt"><div class="tth">${ico(it.icon||loc?.icon,it.q||loc?.q,1)}<div><h2 class="q-${it.q||loc?.q||''}">${esc(name)}</h2><div class="dim">${esc(it.cls||'')}</div></div></div>
   ${it.level?`<div class="dim">Рівень предмета ${it.level}</div>`:''}${it.req?`<div>Потрібен рівень ${it.req}</div>`:''}${it.descr?`<div class="use">${esc(it.descr)}</div>`:''}${it.vendor?`<div class="dim">Торговець купує за ${coin(it.vendor)}</div>`:''}</div>
+  ${(()=>{const ns=[...new Set([...recs.map(r=>r.note),...(j.makes||[]).map(m=>m.note)].filter(Boolean))];return ns.length?`<div class="src"><b>Рецепт</b>${ns.map(n=>`<div>${esc(n.replace(/^Де взяти рецепт:\s*/,''))}</div>`).join('')}</div>`:''})()}
   <div class="verdict"><img src="${GOB}" alt=""><div>${v.join(' ')}</div></div>
   <div class="stats"><div class="st"><div class="l">Мінімум${inf(T.min,'r')}</div><div class="v">${coin(last[1])}</div></div><div class="st"><div class="l">Ринкова${inf(T.mkt)}</div><div class="v">${coin(mk)}</div></div><div class="st"><div class="l">На аукціоні${inf(T.qty)}</div><div class="v">${num(last[4])} шт</div></div><div class="st"><div class="l">Продано за добу${inf(T.sold,'l')}</div><div class="v">${sold24>0?num(sold24):'—'}</div></div></div>
   ${recs.length?`<h3>Розрахунок крафту${inf('Що треба купити, за скільки продати і скільки залишиться. Ціни реагентів — ринкові на аукціоні зараз. Клік по реагенту відкриває його картку.','r')}</h3>${recs.map(calc).join('<br>')}`:''}
