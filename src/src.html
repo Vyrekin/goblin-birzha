@@ -150,6 +150,59 @@ table.srt th{cursor:pointer}table.srt th.sd::after{content:" ▾";color:var(--go
 .err{background:rgba(239,123,107,.12);border:1px solid var(--dn);border-radius:12px;padding:14px;margin:16px 0}
 .foot{color:var(--mut);font-size:12px;margin-top:22px;text-align:center}
 svg.sp{vertical-align:middle}
+/* ===== телефон ===== */
+@media(max-width:640px){
+.wrap{max-width:100%;padding:0 8px 48px}
+.nav{height:56px;margin-bottom:-56px;padding:0 10px;gap:6px;overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}
+.nav button{flex:none;white-space:nowrap}
+.nav button.main{font-size:19px;padding:6px 18px}.nav button.sec{font-size:16px;padding:5px 12px}
+.navl{margin:0 0 0 6px;font-size:10.5px;letter-spacing:.06em;flex:none}
+.hero{height:auto!important;min-height:250px;display:flex;align-items:flex-end;border-radius:0 0 14px 14px!important}
+.hero-in{position:relative;left:auto;right:auto;bottom:auto;width:100%;padding:70px 14px 14px;gap:10px}
+.hero h1{font-size:30px}.hero p{font-size:13.5px}
+.chip{font-size:12px;padding:5px 10px}
+.bar{margin:10px 0;gap:8px}
+.tabs{width:100%;flex-wrap:wrap}.tab{flex:1 1 auto;padding:9px 10px;white-space:nowrap}
+.ctl{width:100%;gap:8px 12px;padding:9px 10px}
+.ctl label{flex-wrap:wrap}#prof{max-width:calc(100vw - 130px)}
+select,input[type=search],.wi{font-size:16px}
+.panel{padding:12px 10px;backdrop-filter:none}.panel h2{font-size:20px}
+.grid{gap:10px}.g4{grid-template-columns:1fr 1fr}
+.kpi{padding:10px;min-width:0}.kpi .i{width:17px;height:17px;font-size:11px}.grid>*{min-width:0}.kpi .v{font-size:18px}.kpi .l{font-size:10.5px;letter-spacing:.04em}
+.i{width:22px;height:22px;font-size:12px;margin-left:5px}
+#tip{width:auto;max-width:calc(100vw - 16px);font-size:13.5px}
+.gob{gap:10px;align-items:flex-start;margin-bottom:10px}
+.gob img{width:60px;height:60px;box-shadow:0 0 0 3px rgba(226,182,87,.15),0 4px 12px #000}
+.say{padding:10px 12px;font-size:14px;border-radius:12px}.say::before{top:30px}
+.card{flex-wrap:wrap;padding:9px 10px}.card:hover{transform:none}.card>div:first-child{min-width:0;flex:1 1 60%}
+.card .r{white-space:normal;margin-left:auto}
+.tw{max-height:72vh;-webkit-overflow-scrolling:touch}
+.tw th,.tw td{padding:8px 7px}
+.tw th:first-child,.tw td:first-child{position:sticky;left:0;z-index:1;background:#10191d;min-width:132px;max-width:46vw;box-shadow:1px 0 0 rgba(214,170,84,.18)}
+.tw th:first-child{z-index:3;background:#111c21}
+.tw td.empty{position:static;max-width:none}
+.ic{width:24px;height:24px;margin-right:6px}.ic.big{width:48px;height:48px;margin-right:10px}
+.fl{gap:6px}.fl input[type=search]{min-width:0!important;flex:1 1 140px}.fl .mut,.fl label.ck{margin-left:0!important}
+.pill{padding:7px 12px;font-size:13px}
+.dr{padding:14px 12px;border-left:0}.dr h2{font-size:22px}.dr h3{font-size:18px}
+.x,#wbtn{padding:8px 12px}
+.verdict{padding:10px 12px;font-size:14px;gap:10px}.verdict img{width:44px;height:44px}
+.tt{padding:10px 12px}.tt h2{font-size:21px}
+.calc td,.calc th{padding:7px 5px;white-space:normal;font-size:12.5px}
+.ch{height:190px}
+.cards{grid-template-columns:1fr 1fr!important;gap:8px}
+.rc{padding:9px 10px}.rc h3{font-size:17px!important}.rc h3 .ic{width:26px!important;height:26px!important}.rc .d{font-size:11.5px}.rc .d+.d{display:none}
+.badge{margin-left:0;display:table;margin-top:3px}
+.tree{gap:8px 4px}.tree>*{min-width:0}.tn{overflow-wrap:anywhere;hyphens:auto}.tn{min-height:88px;font-size:10px;padding:6px 2px}.tn img,.tn .noic{width:38px;height:38px}.tn .rk{top:32px}.tn:hover{transform:none}
+.zl{max-height:38vh}
+.scroll{padding:14px 14px;font-size:14px}.scroll h3{font-size:21px}
+.stats{grid-template-columns:1fr 1fr!important}
+.top .t{min-width:0}
+#toast{width:max-content;max-width:92vw;text-align:center;border-radius:16px;padding:10px 16px;bottom:16px}
+.foot{font-size:11.5px}
+}
+@media(max-width:380px){.nav button.main{font-size:17px;padding:6px 13px}.nav button.sec{font-size:15px;padding:5px 9px}.navl{display:none}.cards{grid-template-columns:1fr!important}}
+@media(hover:none){.kpi:hover,.mc:hover{transform:none}}
 </style>
 </head>
 <body>
@@ -395,7 +448,11 @@ window.openItem=async id=>{
   if(dep.length){let cum=0;const cap=dep[0][0]*2.5;const pts=dep.filter(d=>d[0]<=cap).map(d=>{cum+=d[1];return {x:g(d[0]),y:cum}});
     charts.push(new Chart($('#c3'),{type:'line',data:{datasets:[{label:'Штук не дорожче цієї ціни',data:pts,borderColor:'#3fb6a8',backgroundColor:'rgba(63,182,168,.18)',fill:true,stepped:true,pointRadius:0,borderWidth:1.6}]},options:copt({scales:{x:{type:'linear',title:{display:true,text:'ціна, золото',color:'#8b9897'},ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}}}})}))}
 };
-const tip=$('#tip');document.addEventListener('mouseover',e=>{const i=e.target.closest('[data-tip]');if(!i){tip.style.display='none';return}tip.textContent=i.dataset.tip;tip.style.display='block';const r=i.getBoundingClientRect(),w=340,h=tip.offsetHeight;let x=Math.min(Math.max(8,r.left+r.width/2-w/2),innerWidth-w-8),y=r.bottom+8;if(y+h>innerHeight-8)y=r.top-h-8;tip.style.left=x+'px';tip.style.top=y+'px'});document.addEventListener('scroll',()=>tip.style.display='none',true);
+const tip=$('#tip');function showTip(i){tip.textContent=i.dataset.tip;tip.style.display='block';const r=i.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight;let x=Math.min(Math.max(8,r.left+r.width/2-w/2),innerWidth-w-8),y=r.bottom+8;if(y+h>innerHeight-8)y=Math.max(8,r.top-h-8);tip.style.left=x+'px';tip.style.top=y+'px'}
+const TOUCH=matchMedia('(hover:none)').matches;
+document.addEventListener('mouseover',e=>{if(TOUCH)return;const i=e.target.closest('[data-tip]');if(!i){tip.style.display='none';return}showTip(i)});
+document.addEventListener('click',e=>{if(!TOUCH)return;const i=e.target.closest('[data-tip]');if(!i||(tip.style.display==='block'&&tip._for===i)){tip.style.display='none';tip._for=null;return}if(i.classList.contains('i')){e.preventDefault();e.stopPropagation()}tip._for=i;showTip(i)},true);
+document.addEventListener('scroll',()=>{tip.style.display='none';tip._for=null},true);
 const SRT={};
 function cellVal(td){if(!td)return null;if(td.dataset.v!==undefined)return td.dataset.v===''?null:+td.dataset.v;const t=td.textContent.trim();return t===''||t==='—'?null:t}
 function applySort(tb){const st=SRT[tb.dataset.sid];if(!st)return;const [c,d]=st,body=tb.tBodies[0];if(!body)return;const rows=[...body.rows].filter(r=>r.cells.length>1);
