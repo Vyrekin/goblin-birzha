@@ -164,6 +164,7 @@ svg.sp{vertical-align:middle}
       <button class="tab" data-t="itm">Товари професії</button><button class="tab" data-t="arb">Перепродаж</button><button class="tab" data-t="mkt">Весь ринок</button>
     </div>
     <div class="ctl">
+      <label>Аукціон <span id="exs"><button class="pill" data-x="h">Орда</button><button class="pill" data-x="n">Гобліни</button></span><i class="i" data-tip="Який аукціон показувати. «Орда» — Оргриммар, Громовой Утес, Подгород (комісія 5%). «Гобліни» — нейтральний аукціон у Пиратской Бухте, Прибамбасске й Круговзоре (комісія 15%). Діє на всі вкладки Біржі, крім «Перепродажу»: він завжди порівнює обидва.">i</i></label>
       <button class="pill" id="mode"></button>
       <label>Професія <select id="prof"></select></label>
       <label>Мій рівень <input type="search" id="lvl" inputmode="numeric" placeholder="усі" style="width:70px"><i class="i l" data-tip="Впиши рівень свого персонажа, і скрізь на Біржі зникне все, що вимагає вищого рівня: з порад «що варити», з перепродажу й з усіх таблиць. Порожнє поле — показувати все.">i</i></label>
@@ -171,17 +172,17 @@ svg.sp{vertical-align:middle}
   </div>
   <div id="err"></div>
   <div id="view"></div>
-  <div class="foot">Дані: Blizzard API. Blizzard оновлює аукціон приблизно раз на годину; сторінка перемальовується лише тоді, коли зайшли нові дані. «Продано» — оцінка за лотами, що зникли між знімками. Прибуток рахується за ринковою ціною мінус 5% комісії аукціону.</div>
+  <div class="foot">Дані: Blizzard API. Blizzard оновлює аукціон приблизно раз на годину; сторінка перемальовується лише тоді, коли зайшли нові дані. «Продано» — оцінка за лотами, що зникли між знімками. Прибуток рахується за ринковою ціною мінус комісія аукціону: 5% в Орді, 15% у гоблінів.</div>
 </div>
 <div id="tip"></div><div id="toast"></div>
 <div class="drawer" id="drawer"><div class="dr" id="dr"></div></div>
 <script>
 const SB='https://anmzbxgwxxudxwataqio.supabase.co', KEY='sb_publishable_ynsNKcOGrY4u8o_7gtHu2w_yI3lUCXr';
 const GOB='__GOB__', NEED=12;
-const S={wq:'',watch:[],wt:{},wd:[],ad:'nh',am:'tot',bud:'',simple:true,tab:'sig',prof:171,lvl:0,ov:null,mk:null,items:new Map(),recs:[],sort:{rec:['profit',-1],itm:['qty',-1],mkt:[12,-1]},cat:'',q:'',onlyPos:true,onlyMine:false,mine:new Set(),mq:'',mcat:''};
+const S={ex:'h',wq:'',watch:[],wt:{},wd:[],ad:'nh',am:'tot',bud:'',simple:true,tab:'sig',prof:171,lvl:0,ov:null,mk:null,items:new Map(),recs:[],sort:{rec:['profit',-1],itm:['qty',-1],mkt:[12,-1]},cat:'',q:'',onlyPos:true,onlyMine:false,mine:new Set(),mq:'',mcat:''};
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const inf=(t,c='')=>`<i class="i ${c}" data-tip="${esc(t)}">i</i>`;
-const T={mkt:'Ринкова ціна — середня ціна найдешевших 15% товару. Вона стійкіша за мінімальну: один випадковий дешевий лот її не збиває.',min:'Найдешевший лот на аукціоні просто зараз.',sold:'Оцінка: скільки штук купують за добу. Рахується за лотами, що зникли з аукціону за ціною, близькою до мінімальної, і перераховується на добу з уже зібраних годин. Blizzard не показує справжні продажі, тому сюди можуть потрапити й зняті лоти.',qty:'Скільки штук цього товару зараз виставлено на аукціоні.',near:'Скільки штук стоїть у межах +5% від мінімальної ціни. Це твої прямі конкуренти: щоб продати швидко, треба ставити дешевше за них.',d24:'Зміна ринкової ціни порівняно з учорашньою о цій самій порі.',d7:'Наскільки поточна ціна відрізняється від середньої за 7 днів. Мінус — зараз дешево, плюс — дорого.',cost:'Скільки коштують усі реагенти на один крафт, якщо купити їх на аукціоні за ринковою ціною.',profit:'Ціна продажу мінус 5% комісії аукціону мінус собівартість. Це прибуток з одного крафту.',margin:'Прибуток у відсотках від собівартості. Показує, наскільки «жирний» рецепт відносно вкладених грошей.',spark:'Мініграфік ринкової ціни за останні 72 години. Зелений — ціна росте, червоний — падає.',val:'Оцінка: на яку суму цього товару продано за добу.'};
+const T={mkt:'Ринкова ціна — середня ціна найдешевших 15% товару. Вона стійкіша за мінімальну: один випадковий дешевий лот її не збиває.',min:'Найдешевший лот на аукціоні просто зараз.',sold:'Оцінка: скільки штук купують за добу. Рахується за лотами, що зникли з аукціону за ціною, близькою до мінімальної, і перераховується на добу з уже зібраних годин. Blizzard не показує справжні продажі, тому сюди можуть потрапити й зняті лоти.',qty:'Скільки штук цього товару зараз виставлено на аукціоні.',near:'Скільки штук стоїть у межах +5% від мінімальної ціни. Це твої прямі конкуренти: щоб продати швидко, треба ставити дешевше за них.',d24:'Зміна ринкової ціни порівняно з учорашньою о цій самій порі.',d7:'Наскільки поточна ціна відрізняється від середньої за 7 днів. Мінус — зараз дешево, плюс — дорого.',cost:'Скільки коштують усі реагенти на один крафт, якщо купити їх на аукціоні за ринковою ціною.',profit:'Ціна продажу мінус комісія аукціону (5% в Орді, 15% у гоблінів) мінус собівартість. Це прибуток з одного крафту.',margin:'Прибуток у відсотках від собівартості. Показує, наскільки «жирний» рецепт відносно вкладених грошей.',spark:'Мініграфік ринкової ціни за останні 72 години. Зелений — ціна росте, червоний — падає.',val:'Оцінка: на яку суму цього товару продано за добу.'};
 async function rpc(fn,args={}){const r=await fetch(`${SB}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(args)});if(!r.ok)throw new Error(fn+': '+r.status+' '+(await r.text()).slice(0,200));return r.json()}
 function coin(c,sign){if(c==null||isNaN(c))return '<span class="mut">—</span>';const neg=c<0;c=Math.round(Math.abs(c));const g=Math.floor(c/10000),s=Math.floor(c%10000/100),k=c%100;let h='';if(g)h+=`<span class="g">${g.toLocaleString('uk')}<i>з</i></span>`;if(g||s)h+=`<span class="s">${g?String(s).padStart(2,'0'):s}<i>с</i></span>`;if(!g)h+=`<span class="c">${s?String(k).padStart(2,'0'):k}<i>м</i></span>`;return `<span class="coin ${sign?(neg?'dn':'up'):''}">${neg?'−':(sign?'+':'')}${h}</span>`}
 const num=n=>n==null?'<span class="mut">—</span>':Number(n).toLocaleString('uk');
@@ -198,10 +199,11 @@ window.star=(id,e)=>{e.stopPropagation();S.mine.has(id)?S.mine.delete(id):S.mine
 function build(){
   const ov=S.ov;S.items=new Map(ov.items.map(i=>[i.id,i]));
   S.recs=ov.recipes.map(r=>{const prod=S.items.get(r.item);let cost=0,miss=[];for(const g of r.reag||[]){const p=px(S.items.get(g.item));if(p==null)miss.push(g.name);else cost+=p*g.qty}
-    let sell=px(prod),spike=false;const asp=prod&&prod.sold24>0&&prod.val24>0?prod.val24/prod.sold24:null;if(sell!=null&&asp&&sell>asp*1.3){sell=Math.round(asp);spike=true}const known=!miss.length&&(r.reag||[]).length>0;const rev=sell!=null?sell*r.n*0.95:null;
+    let sell=px(prod),spike=false;const asp=prod&&prod.sold24>0&&prod.val24>0?prod.val24/prod.sold24:null;if(sell!=null&&asp&&sell>asp*1.3){sell=Math.round(asp);spike=true}const known=!miss.length&&(r.reag||[]).length>0;const rev=sell!=null?sell*r.n*CUT():null;
     return {...r,prod,spike,req:prod?.req??null,lvl:prod?.lvl??null,cost:known?cost:null,miss,sell,profit:(known&&rev!=null)?rev-cost:null,margin:(known&&rev!=null&&cost>0)?(rev-cost)/cost*100:null,sold24:prod?.sold24??null,qty:prod?.qty??0,cd:/трансмутац|кулдаун/i.test(r.cat||'')||/трансмутац/i.test(r.name)}});
   S.reagIds=new Set(ov.recipes.flatMap(r=>(r.reag||[]).map(g=>g.item)));S.prodIds=new Set(ov.recipes.map(r=>r.item));
 }
+const CUT=()=>S.ex==='n'?0.85:0.95, PN=()=>S.ex==='n';
 const reqOk=q=>!S.lvl||!q||q<=S.lvl;const lvlOk=r=>reqOk(r.prod?.req);
 function status(){const ov=S.ov;if(!ov.updated){$('#cUpd').textContent='даних ще немає';return}
   const old=(Date.now()-new Date(ov.updated))>100*60000;$('#cUpd').innerHTML=`<span class="dot ${old?'old':''}"></span>нові дані зайшли о <b>${new Date(ov.updated).toLocaleTimeString('uk',{hour:'2-digit',minute:'2-digit'})}</b>`;
@@ -210,7 +212,7 @@ const waitBox=(what)=>{const H=S.ov.hours;return `<div class="wait">Тут з'я
 
 function loadWatch(){try{S.watch=JSON.parse(localStorage.getItem('wowWatch')||'[]');S.wt=JSON.parse(localStorage.getItem('wowWatchT')||'{}')}catch(_){S.watch=[];S.wt={}}}
 function saveWatch(){try{localStorage.setItem('wowWatch',JSON.stringify(S.watch));localStorage.setItem('wowWatchT',JSON.stringify(S.wt))}catch(_){}}
-async function fetchWatch(){if(!S.watch.length){S.wd=[];return}try{S.wd=await rpc('wow_api_watch',{p_items:S.watch})||[]}catch(e){showErr(e)}}
+async function fetchWatch(){if(!S.watch.length){S.wd=[];return}try{S.wd=await rpc('wow_api_watch',{p_items:S.watch,p_n:PN()})||[]}catch(e){showErr(e)}}
 window.toggleWatch=async(id,e)=>{if(e)e.stopPropagation();const i=S.watch.indexOf(id);if(i>=0){S.watch.splice(i,1);delete S.wt[id]}else{if(S.watch.length>=10){const t=$('#toast');t.textContent='Стежити можна щонайбільше за 10 товарами';t.classList.add('on');setTimeout(()=>t.classList.remove('on'),4000);return}S.watch.push(id)}saveWatch();const b=$('#wbtn');if(b)b.textContent=S.watch.includes(id)?'★ Стежу':'☆ Стежити';await fetchWatch();render()};
 window.setWT=(id,k,v)=>{S.wt[id]=S.wt[id]||{};const n=parseFloat(String(v).replace(',','.'));if(n>0)S.wt[id][k]=Math.round(n*10000);else delete S.wt[id][k];saveWatch();render(0)};
 function wSignal(w){const p=w.mkt??w.min,t=S.wt[w.id]||{};if(p==null)return {k:'none',t:'немає на аукціоні'};
@@ -220,14 +222,14 @@ function wSignal(w){const p=w.mkt??w.min,t=S.wt[w.id]||{};if(p==null)return {k:'
   const pos=(p-w.lo7)/(w.hi7-w.lo7);return pos<=0.2?{k:'buy',t:'КУПУЙ: ціна біля тижневого мінімуму'}:pos>=0.8?{k:'sell',t:'ПРОДАВАЙ: ціна біля тижневого максимуму'}:{k:'wait',t:'чекай: ціна посередині діапазону'}}
 function wSearch(){
   const q=S.wq.trim().toLowerCase();let sug='';
-  if(q.length>=2){if(!S.mk){rpc('wow_api_market').then(j=>{S.mk=j;render(1)}).catch(showErr);sug='<div class="empty">Шукаю…</div>'}
+  if(q.length>=2){if(!S.mk){rpc('wow_api_market',{p_n:PN()}).then(j=>{S.mk=j;render(1)}).catch(showErr);sug='<div class="empty">Шукаю…</div>'}
     else{const m=(S.mk.rows||[]).filter(r=>String(r[1]).toLowerCase().includes(q)&&!S.watch.includes(r[0])).sort((a,b)=>(b[9]||0)-(a[9]||0)).slice(0,8);
       sug=m.map(r=>`<div class="top" onclick="S.wq='';toggleWatch(${r[0]})"><span class="t q-${r[2]||''}">${ico(r[11],r[2])}${esc(r[1])}</span><span>${coin(r[5]??r[4])}</span><span style="color:var(--gold2);margin-left:10px">+ стежити</span></div>`).join('')||'<div class="empty">Такого товару зараз немає на аукціоні.</div>'}}
   return `<div class="fl" style="margin:8px 0 4px"><input type="search" id="q" placeholder="Знайти товар за назвою, щоб додати" value="${esc(S.wq)}" oninput="S.wq=this.value;render(1)" style="flex:1;min-width:240px"></div>${sug}`}
 function vWatch(){
   if(!S.watch.length)return `<div class="panel" style="margin-bottom:14px"><h2>Мої товари${inf('Список до 10 товарів, за якими ти стежиш. Сайт порівнює поточну ціну з діапазоном за тиждень або з твоїми межами й каже: купуй, продавай чи чекай.','r')}</h2><div class="sub">Стеж за товарами (до 10), і сайт підкаже, коли час купувати або продавати</div>${wSearch()}</div>`;
   const g=v=>v?(v/10000).toString():'';
-  return `<div class="panel" style="margin-bottom:14px"><h2>Мої товари${inf('Сигнал рахується так: якщо ти вписав свої межі, порівнюю з ними. Якщо ні — дивлюся, де ціна в діапазоні за останній тиждень: нижні 20% — купуй, верхні 20% — продавай. Список зберігається в цьому браузері. Сповіщення приходить лише при відкритій сторінці.','r')}</h2><div class="sub">${S.watch.length} із 10 · межі вписуй у золоті, напр. 4.5</div>${S.watch.length<10?wSearch():''}
+  return `<div class="panel" style="margin-bottom:14px"><h2>Мої товари <span class="tag">${S.ex==='n'?'аукціон гоблінів':'аукціон Орди'}</span>${inf('Сигнал рахується так: якщо ти вписав свої межі, порівнюю з ними. Якщо ні — дивлюся, де ціна в діапазоні за останній тиждень: нижні 20% — купуй, верхні 20% — продавай. Список зберігається в цьому браузері. Сповіщення приходить лише при відкритій сторінці.','r')}</h2><div class="sub">${S.watch.length} із 10 · межі вписуй у золоті, напр. 4.5</div>${S.watch.length<10?wSearch():''}
   ${S.wd.map(w=>{const sg=wSignal(w),t=S.wt[w.id]||{},p=w.mkt??w.min;return `<div class="card wc ${sg.k}" onclick="openItem(${w.id})"><div style="flex:1"><div class="t q-${w.q||''}">${ico(w.icon,w.q)}${esc(w.name)} <span class="wsig ${sg.k}">${sg.t}</span></div><div class="d">зараз ${coin(p)}${w.pts>1?` · за тиждень ${coin(w.lo7)} – ${coin(w.hi7)}`:''}${w.p24?` · за добу ${pctH(pct(p,w.p24))}`:''} · на аукціоні ${num(w.qty)} шт</div></div>
     <div class="r" onclick="event.stopPropagation()">${spark(w.spark)}<div class="d" style="margin-top:4px">купити до <input class="wi" value="${g(t.buy)}" placeholder="—" onchange="setWT(${w.id},'buy',this.value)"> продати від <input class="wi" value="${g(t.sell)}" placeholder="—" onchange="setWT(${w.id},'sell',this.value)"> <a href="#" style="color:var(--dn);margin-left:6px" onclick="toggleWatch(${w.id},event);return false" title="Прибрати зі списку">✕</a></div></div></div>`}).join('')}</div>`}
 function vSig(){
@@ -296,7 +298,7 @@ const tl=e=>new Date(e*1000).toLocaleString('uk',{day:'2-digit',month:'2-digit',
 function copt(extra={}){return Object.assign({responsive:true,maintainAspectRatio:false,animation:{duration:800,easing:'easeOutQuart'},interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#c9c3b0',boxWidth:12,font:{size:11}}}},scales:{x:{ticks:{color:'#8b9897',maxTicksLimit:8,maxRotation:0,font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#8b9897',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}}}},extra)}
 let mcharts=[];
 function vMkt(){
-  if(!S.mk){rpc('wow_api_market').then(j=>{S.mk=j;render()}).catch(showErr);return '<div class="panel"><div class="empty">Завантажую весь ринок…</div></div>'}
+  if(!S.mk){rpc('wow_api_market',{p_n:PN()}).then(j=>{S.mk=j;render()}).catch(showErr);return '<div class="panel"><div class="empty">Завантажую весь ринок…</div></div>'}
   const all=(S.mk.rows||[]).map(r=>{const c=r.slice();c[13]=r[11];c[14]=r[12];c[11]=pct(r[5]??r[4],r[10]);c[12]=(r[5]??r[4]??0)*(r[6]||0);return c});
   const q=S.mq.toLowerCase();let rows=all.filter(r=>reqOk(r[14])&&(!q||String(r[1]).toLowerCase().includes(q))&&(!S.mcat||(r[3]||'Інше')===S.mcat));
   const [k,d]=S.sort.mkt;rows=sortBy(rows,r=>r[k],d).slice(0,300);
@@ -353,7 +355,7 @@ function vArb(){
 let charts=[];
 window.openItem=async id=>{
   $('#drawer').classList.add('on');$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div class="empty">Завантаження…</div>';
-  let j;try{j=await rpc('wow_api_item',{p_item:id})}catch(e){$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div class="err">'+esc(e.message)+'</div>';return}
+  let j;try{j=await rpc('wow_api_item',{p_item:id,p_n:PN()})}catch(e){$('#dr').innerHTML='<button class="x" onclick="closeDr()">Закрити ✕</button><div class="err">'+esc(e.message)+'</div>';return}
   const it=j.item||{},loc=S.items.get(id),name=it.name||loc?.name||('#'+id),s=j.series||[],last=s[s.length-1]||[],dep=j.depth||[];
   const sold24=s.slice(-24).reduce((a,r)=>a+(r[6]||0),0),mk=last[2]??last[1],vals=s.map(r=>r[2]).filter(v=>v!=null),lo=Math.min(...vals),hi=Math.max(...vals);
   const recs=S.recs.filter(r=>r.item===id),r0=recs.slice().sort((a,b)=>(b.profit??-1e12)-(a.profit??-1e12))[0];
@@ -369,7 +371,7 @@ window.openItem=async id=>{
     ${(r.reag||[]).map(g=>{const p=px(S.items.get(g.item));return `<tr><td>${ico(S.items.get(g.item)?.icon,S.items.get(g.item)?.q)}<a href="#" onclick="openItem(${g.item});return false">${esc(g.name)}</a></td><td>${g.qty}</td><td>${coin(p)}</td><td>${p!=null?coin(-p*g.qty):'<span class="mut">немає на аукціоні</span>'}</td></tr>`}).join('')}
     <tr class="tot"><td>Усього реагенти</td><td></td><td></td><td>${r.cost!=null?coin(-r.cost):'—'}</td></tr>
     <tr><td>Продаж: ${esc(name)}</td><td>${r.n}</td><td>${coin(r.sell)}</td><td>${r.sell!=null?coin(r.sell*r.n):'—'}</td></tr>
-    <tr><td>Комісія аукціону 5%</td><td></td><td></td><td>${r.sell!=null?coin(-r.sell*r.n*0.05):'—'}</td></tr>
+    <tr><td>Комісія аукціону ${S.ex==='n'?'15':'5'}%</td><td></td><td></td><td>${r.sell!=null?coin(-r.sell*r.n*(1-CUT())):'—'}</td></tr>
     <tr class="tot"><td>Прибуток з одного крафту</td><td></td><td></td><td>${coin(r.profit,1)}</td></tr></tbody></table>`;
   const used=(j.used||[]);
   $('#dr').innerHTML=`<button class="x" onclick="closeDr()">Закрити ✕</button><button id="wbtn" onclick="toggleWatch(${id})">${S.watch.includes(id)?'★ Стежу':'☆ Стежити'}</button><div style="clear:both"></div><div class="tt"><div class="tth">${ico(it.icon||loc?.icon,it.q||loc?.q,1)}<div><h2 class="q-${it.q||loc?.q||''}">${esc(name)}</h2><div class="dim">${esc(it.cls||'')}</div></div></div>
@@ -490,13 +492,16 @@ function vMnt(){
 function render(keepFocus){if(R.sec!=='ah'){$('#view').innerHTML={ref:vCls,qst:vQst}[R.sec]();applyAllSorts();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt,arb:vArb}[S.tab]();$('#view').innerHTML=v;applyAllSorts();if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.t;S.q='';document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b));render()});
 $('#prof').addEventListener('change',e=>{S.prof=+e.target.value;S.cat='';try{localStorage.setItem('wowProf',S.prof)}catch(_){}loadMine();load()});
+function setEx(){document.querySelectorAll('#exs button').forEach(b=>b.classList.toggle('on',b.dataset.x===S.ex));if(R.sec==='ah')$('#hP').textContent=SEC.ah.p=`${S.ex==='n'?'Нейтральний аукціон гоблінів (Черноводье)':'Аукціон Орди'} · WoW Forever · PvP EU. Ціни, обсяги й тренди: що варити, що купувати, що продавати.`;else SEC.ah.p=`${S.ex==='n'?'Нейтральний аукціон гоблінів (Черноводье)':'Аукціон Орди'} · WoW Forever · PvP EU. Ціни, обсяги й тренди: що варити, що купувати, що продавати.`}
+$('#exs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.x===S.ex)return;S.ex=b.dataset.x;try{localStorage.setItem('wowEx',S.ex)}catch(_){}S.mk=null;setEx();load()});
 function setMode(){document.body.classList.toggle('simple',S.simple);$('#mode').textContent=S.simple?'Показати детально':'Показати просто';$('#mode').classList.toggle('on',!S.simple)}
 $('#mode').addEventListener('click',()=>{S.simple=!S.simple;try{localStorage.setItem('wowSimple',S.simple?'1':'0')}catch(_){}setMode();render()});
 $('#lvl').addEventListener('input',e=>{S.lvl=parseInt(e.target.value)||0;try{localStorage.setItem('wowMyLvl',S.lvl)}catch(_){}render()});
-async function load(){try{$('#err').innerHTML='';const [ov]=await Promise.all([rpc('wow_api_overview',{p_prof:S.prof}),fetchWatch()]);S.ov=ov;build();status();render()}catch(e){showErr(e)}}
+async function load(){try{$('#err').innerHTML='';const [ov]=await Promise.all([rpc('wow_api_overview',{p_prof:S.prof,p_n:PN()}),fetchWatch()]);S.ov=ov;build();status();render()}catch(e){showErr(e)}}
 (async()=>{try{const p=+localStorage.getItem('wowProf');if(p)S.prof=p;const l=+localStorage.getItem('wowMyLvl');if(l){S.lvl=l;$('#lvl').value=l}}catch(_){}
   try{if(localStorage.getItem('wowSimple')==='0')S.simple=false}catch(_){}
-  setMode();loadMine();loadWatch();
+  try{if(localStorage.getItem('wowEx')==='n')S.ex='n'}catch(_){}
+  setEx();setMode();loadMine();loadWatch();
   try{const pr=await rpc('wow_api_professions');$('#prof').innerHTML=(pr||[]).map(p=>`<option value="${p.id}" ${p.id===S.prof?'selected':''}>${esc(p.name)} · ${p.n} рецептів</option>`).join('')}catch(e){showErr(e)}
   await load();let stamp=null;const poll=async()=>{try{const j=await rpc('wow_api_stamp');const k=(j?.h||'')+'|'+(j?.n||'');if(stamp===null){stamp=k;return}if(k!==stamp){stamp=k;S.mk=null;S.arb=null;await load();const t=$('#toast');const sg=S.wd.map(w=>({w,s:wSignal(w)})).filter(o=>o.s.k==='buy'||o.s.k==='sell');t.textContent='Зайшли нові дані аукціону: '+new Date(j.h||j.n).toLocaleTimeString('uk',{hour:'2-digit',minute:'2-digit'})+(sg.length?' · Сигнал: '+sg.map(o=>o.w.name+' — '+(o.s.k==='buy'?'купуй':'продавай')).join('; '):'');t.classList.add('on');setTimeout(()=>t.classList.remove('on'),8000)}}catch(_){}};
   poll();setInterval(poll,60000)})();
