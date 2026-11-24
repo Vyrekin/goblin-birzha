@@ -37,7 +37,7 @@ input[type=range]{accent-color:var(--gold);width:170px;vertical-align:middle}
 .tab:hover{color:var(--txt)}
 .tab.on{background:linear-gradient(180deg,#e9c46a,#b98a2f);color:#1b1407}
 .ctl{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 14px}
-.ctl label{color:var(--mut);font-size:13px;display:flex;gap:6px;align-items:center;white-space:nowrap}body[data-tab="rep"] .ctl .np{display:none}body[data-tab="trd"] .ctl .np~.np{display:none}body[data-tab="arb"] .ctl .np:not(:has(#prof)){display:none}
+.ctl label{color:var(--mut);font-size:13px;display:flex;gap:6px;align-items:center;white-space:nowrap}body[data-tab="rep"] .ctl .np{display:none}body[data-tab="trd"] .ctl .np~.np{display:none}body[data-tab="arb"] .ctl .np:not(:has(#prof)){display:none}body[data-tab="do"] .ctl .np{display:none}.deal{margin-bottom:14px}.deal h2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer}.deal .no{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#1b1408;font-weight:800;font-size:18px;flex:none}.deal .st{display:grid;grid-template-columns:110px 1fr;gap:6px 14px;margin-top:10px;font-size:15px}.deal .st>b{color:var(--gold2)}.deal .st .big{font-size:17px}.deal .why{margin-top:10px;font-size:13px;color:#cfc8b4;border-top:1px solid var(--line);padding-top:8px}@media(max-width:640px){.deal .st{grid-template-columns:1fr;gap:2px}.deal .st>b{margin-top:8px}}
 #mode{white-space:nowrap}
 @media(min-width:900px){.ctl{flex-wrap:nowrap;gap:10px;padding:7px 10px}#prof{max-width:170px}}
 .ctl b{color:var(--gold2);min-width:22px;display:inline-block}
@@ -219,7 +219,7 @@ select,input[type=search],.wi{font-size:16px}
   </div></div>
   <div class="bar" id="bar">
     <div class="tabs" id="tabs">
-      <button class="tab on" data-t="sig">Сигнали</button><button class="tab" data-t="trd">Прогнози</button><button class="tab" data-t="rec">Рецепти</button>
+      <button class="tab on" data-t="do">Зроби це</button><button class="tab" data-t="sig">Сигнали</button><button class="tab" data-t="trd">Прогнози</button><button class="tab" data-t="rec">Рецепти</button>
       <button class="tab" data-t="arb">Перепродаж</button><button class="tab" data-t="mkt">Ринок</button><button class="tab" data-t="rep">Репутація</button>
     </div>
     <div class="ctl">
@@ -239,7 +239,7 @@ select,input[type=search],.wi{font-size:16px}
 <script>
 const SB='https://anmzbxgwxxudxwataqio.supabase.co', KEY='sb_publishable_ynsNKcOGrY4u8o_7gtHu2w_yI3lUCXr';
 const GOB='__GOB__', NEED=12;
-const S={trc:{},skill:0,ex:'h',wq:'',watch:[],wt:{},wd:[],ad:'nh',am:'tot',ap:'all',aq:'',bud:'',simple:true,tab:'sig',prof:171,lvl:0,ov:null,mk:null,items:new Map(),recs:[],sort:{rec:['profit',-1],itm:['qty',-1],mkt:[12,-1],trd:['adev',-1]},cat:'',q:'',onlyPos:true,onlyMine:false,mine:new Set(),mq:'',mcat:''};
+const S={trc:{},skill:0,ex:'h',wq:'',watch:[],wt:{},wd:[],ad:'nh',am:'tot',ap:'all',aq:'',bud:'',simple:true,tab:'do',prof:171,lvl:0,ov:null,mk:null,items:new Map(),recs:[],sort:{rec:['profit',-1],itm:['qty',-1],mkt:[12,-1],trd:['adev',-1]},cat:'',q:'',onlyPos:true,onlyMine:false,mine:new Set(),mq:'',mcat:''};
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const inf=(t,c='')=>`<i class="i ${c}" data-tip="${esc(t)}">i</i>`;
 const T={list:'За скільки виставляти, щоб продати за розумний час і не віддати зайвого. Рахується зі стакана: дивлюсь, скільки штук стоїть на кожній ціні, і Зазвичай це на мідну під найнижчий лот: дешеві лоти постійно підкидають, тож до вищої ціни черга не доходить. Вище стаю лише тоді, коли дешевших лотів кілька штук (менше ніж півтори години продажів, з поправкою на те, як швидко виставляють нові) і ціна не вища за ту, де товар справді продається.',queue:'Скільки товару стоїть дешевше за ціну «Виставляти по», у годинах продажів. «Одразу» — ти перший у черзі.',mkt:'Ринкова ціна — середня ціна найдешевших 15% товару. Вона стійкіша за мінімальну: один випадковий дешевий лот її не збиває.',min:'Найдешевший лот на аукціоні просто зараз.',sold:'Оцінка: скільки штук купують за добу. Рахується за лотами, що зникли з аукціону за ціною, близькою до мінімальної, і перераховується на добу з уже зібраних годин. Blizzard не показує справжні продажі, тому сюди можуть потрапити й зняті лоти.',qty:'Скільки штук цього товару зараз виставлено на аукціоні.',near:'Скільки штук стоїть у межах +5% від мінімальної ціни. Це твої прямі конкуренти: щоб продати швидко, треба ставити дешевше за них.',d24:'Зміна ринкової ціни порівняно з учорашньою о цій самій порі.',d7:'Наскільки поточна ціна відрізняється від середньої за 7 днів. Мінус — зараз дешево, плюс — дорого.',cost:'Скільки коштують усі реагенти на один крафт, якщо купити їх на аукціоні за ринковою ціною.',profit:'Ціна продажу мінус комісія аукціону (5% в Орді, 15% у гоблінів) мінус собівартість. Це прибуток з одного крафту.',margin:'Прибуток у відсотках від собівартості. Показує, наскільки «жирний» рецепт відносно вкладених грошей.',spark:'Мініграфік ринкової ціни за останні 72 години. Зелений — ціна росте, червоний — падає.',val:'Оцінка: на яку суму цього товару продано за добу.'};
@@ -657,14 +657,59 @@ window.openTrend=id=>{const r=S.tr?.rows.find(x=>x.id===id);if(!r)return;const a
     charts.push(new Chart($('#t1'),{type:'line',data:{labels:L,datasets:[{label:'Ринкова ціна, з',data:a.x.map(g),borderColor:'#e2b657',backgroundColor:'rgba(226,182,87,.12)',fill:true,tension:.25,pointRadius:pr,borderWidth:2},{label:'Звична',data:(a.b||[]).map(g),borderColor:'#3fb6a8',borderDash:[5,4],pointRadius:0,borderWidth:1.6,tension:.2},{label:'Не рахується',data:a.x.map((v,i)=>v!=null&&a.xc&&a.xc[i]==null?g(v):null),borderColor:'#ef7b6b',backgroundColor:'#ef7b6b',showLine:false,pointRadius:3.5}]},options:copt()}))}
   if(hasP)charts.push(new Chart($('#t2'),{type:'bar',data:{labels:a.day.prof.map((_,h)=>hh(h)),datasets:[{label:'Відхилення від рівня дня, %',data:a.day.prof.map(v=>v==null?null:+((v-1)*100).toFixed(2)),backgroundColor:a.day.prof.map(v=>v!=null&&v<1?'rgba(111,208,140,.8)':'rgba(239,123,107,.8)'),borderRadius:3}]},options:copt({plugins:{legend:{display:false}}})}))};
 /*TREND-BLOCK-END*/
-function vArb(){
+// ---------- Спільне завантаження двох аукціонів (Перепродаж і «Зроби це») ----------
+function arbLoad(){
   if(!S.arb){Promise.all([rpc('wow_api_arb'),rpc('wow_api_recent',{},2).catch(()=>null)]).then(([j,rc])=>{S.arb=j||{rows:[]};S.arb.rc=rc||{};render()}).catch(showErr);return '<div class="panel"><div class="empty">Порівнюю два аукціони…</div></div>'}
+  if(!S.trc.h||!S.trc.n||!S.bkc.h||!S.bkc.n){if(!S.trw){S.trw=1;const em=()=>({map:new Map(),rows:[],items:[]});Promise.all([...['h','n'].filter(x=>!S.trc[x]).map(x=>fetchTr(x).catch(()=>{S.trc[x]=em()})),...['h','n'].filter(x=>!S.bkc[x]).map(x=>fetchBk(x).catch(()=>{S.bkc[x]={items:{},m:new Map()}}))]).then(()=>{S.trw=0;render()})}return '<div class="panel"><div class="empty">Звіряю ціни з тенденціями на обох аукціонах…</div></div>'}
+  return null}
+// ---------- Зроби це: до трьох угод, які пройшли всі перевірки ----------
+// SLIP — запас на те, що ціну доведеться скинути; MARG — мінімальний прибуток понад ціну купівлі навіть після SLIP; SHARE — яку частку добового попиту можна зайняти своїм товаром; MIND — мінімум справжніх продажів за добу; MINP — мінімальний заробіток з угоди, мідяки
+const DO={SLIP:0.07,MARG:0.15,SHARE:0.2,MIND:10,MINP:10000};
+// золото ділиться між угодами по черзі: найкраща бере скільки треба, наступна рахується на решту
+function doDeals(){const all=parseFloat(S.bud)>0?parseFloat(S.bud)*10000:0,res=[],skip=new Set();let left=all;for(let i=0;i<3;i++){if(all&&left<=0)break;const o=doBest(all?left:0,skip);if(!o)break;res.push(o);skip.add(o.id);left-=o.cost}return res}
+function doBest(bud,skip){
+  const rows=S.arb.rows||[],out=[];
+  for(const [sx,dx,cut,di,pi,ri] of [['n','h',0.95,12,15,16],['h','n',0.85,13,16,15]]){
+    if(dx==='n'&&(S.arb.cov_n||0)<2)continue;
+    const rc=(S.arb.rc||{})[dx];
+    for(const r of rows){const id=r[0];if(skip.has(id)||!reqOk(r[17])||!r[pi]||!r[di])continue;
+      const bs=bkA(id,sx),bd=bkA(id,dx);if(!bs||!bd||!bd.D)continue;
+      const t=S.trc[dx].map.get(id);if(tOk(t)&&(t.st==='falling'||t.st==='dip_new'||tSpike(t)))continue;
+      if(bkGlut(bd))continue;
+      const rx=rc&&rc.items?(rc.items[id]||[0,0]):null;if(rx&&!rx[1])continue;
+      // справжній попит: добова оцінка без перевиставлених лотів і не більша за темп останніх годин
+      let dem=r[di]*(bd.N>bd.D?bd.D/bd.N:1);if(rx)dem=Math.min(dem,rx[1]/(rc.n||3)*24);
+      if(dem<DO.MIND)continue;
+      // виставляємо нижче найдешевшого лота і не дорожче, ніж товар справді купували
+      let list=Math.min(bd.min-1,Math.round(r[pi]));const cap=tCap(t);if(cap&&list>cap)list=Math.round(cap);if(list<1)continue;
+      const safe=list*(1-DO.SLIP),maxBuy=Math.floor(safe*cut/(1+DO.MARG)),ref=r[ri]||0,lim=Math.floor(dem*DO.SHARE);
+      // купуємо по реальних лотах знизу вгору, поки кожна штука ще дає прибуток із запасом
+      let n=0,cost=0,top=0;
+      for(const l of bs.L){if(l.p>maxBuy||n>=lim)break;if(ref&&l.p<ref*ODD)continue;let q=Math.min(l.q,lim-n);if(bud)q=Math.min(q,Math.floor((bud-cost)/l.p));if(q<=0)break;n+=q;cost+=q*l.p;top=l.p}
+      if(!n)continue;const lo=safe*cut*n-cost,hi=list*cut*n-cost;if(lo<DO.MINP)continue;
+      out.push({r,id,sx,dx,cut,n,cost,top,list,lo,hi,dem,rx,rcn:rc?rc.n||3:0,D:r[di],stop:Math.ceil(cost/n/cut)})}}
+  out.sort((a,b)=>b.lo-a.lo);return out[0]||null}
+function vDo(){
+  const ld=arbLoad();if(ld)return ld;
+  const PL={h:['на аукціоні Орди','Оргриммар, Подгород, Громовой Утес'],n:['на аукціоні гоблінів','Пиратская Бухта, Прибамбасск, Круговзор']};
+  const noBk=!Object.keys(S.bkc.h.items||{}).length||!Object.keys(S.bkc.n.items||{}).length;
+  const deals=noBk?[]:doDeals();
+  const say=noBk?'Не зміг завантажити список лотів з обох аукціонів, а без нього я нічого не раджу. Онови сторінку за хвилину.':deals.length?`Ось ${deals.length===1?'одна угода, яка пройшла':deals.length+' угоди, які пройшли'} всі мої перевірки. Роби рівно як написано: скільки штук, де купити, по чому виставити. Якщо на аукціоні вже дорожче, ніж я написав, — не купуй, угоду забрали до тебе.`:'Зараз немає жодної угоди, яка пройшла всі перевірки. Нічого не купуй навмання: зазирни після наступного оновлення аукціону (приблизно раз на годину).';
+  const card=(o,i)=>`<div class="panel deal"><h2 onclick="openItem(${o.id})"><span class="no">${i+1}</span><span class="nm q-${o.r[2]||''}">${ico(o.r[3],o.r[2])}${esc(o.r[1])}</span><span style="margin-left:auto">${coin(o.lo,1)}</span></h2>
+    <div class="st"><b>1. Купи</b><div><span class="big"><b>${num(o.n)} шт</b> ${PL[o.sx][0]}</span> <span class="mut">(${PL[o.sx][1]})</span>. Кожну штуку — <b>не дорожче ${coinX(o.top)}</b>. Разом витратиш близько ${coin(o.cost)}.</div>
+    <b>2. Вистав</b><div><span class="big">${PL[o.dx][0]} по <b>${coinX(o.list)}</b> за штуку</span> <span class="mut">(${PL[o.dx][1]})</span>. Це нижче за найдешевший лот там, тож твій товар куплять першим.</div>
+    <b>3. Отримаєш</b><div><span class="big">щонайменше <b>${coin(o.lo,1)}</b></span> чистими: комісію ${o.cut<0.9?15:5}% уже віднято, і я заклав, що ціну доведеться скинути на ${Math.round(DO.SLIP*100)}%. Якщо ціна втримається — ${coin(o.hi,1)}.</div></div>
+    <div class="why"><b>Що перевірено:</b> там, де продаємо, цей товар купили ${o.rx?`${num(o.rx[1])} шт за останні ${o.rcn} год і `:''}близько ${num(o.D)} шт за добу; твої ${num(o.n)} шт — це ${Math.max(1,Math.round(o.n/o.dem*100))}% справжнього денного попиту; ціна там не падає і її не задирали; запасу дешевших лотів немає; кількість і ціна купівлі пораховані по реальних лотах, які зараз стоять. <b>Стоп:</b> якщо, поки ти їхав, найдешевший лот там упав нижче ${coinX(o.stop)} — не виставляй дешевше, зачекай: нижче цієї ціни буде збиток.</div></div>`;
+  return `<div class="gob"><img src="${GOB}" alt=""><div class="say">${say}</div></div>
+  <div class="fl" style="margin-bottom:12px"><span class="mut">У мене є золота:</span><input type="search" id="q" inputmode="decimal" placeholder="напр. 20" value="${esc(S.bud)}" oninput="S.bud=this.value;render(1)" style="width:110px">${inf('Впиши, скільки золота готовий витратити: угоди перерахуються під цю суму. Порожнє поле — без обмеження. Сюди потрапляють лише угоди між двома аукціонами, які пройшли всі перевірки: товар купували останні години; попит пораховано без перевиставлених лотів; беремо не більше '+Math.round(DO.SHARE*100)+'% денного попиту; ціна там, де продаємо, не падає і не задерта; продаємо нижче найдешевшого лота; прибуток лишається навіть після падіння ціни на '+Math.round(DO.SLIP*100)+'%. Депозит за виставлення не враховано: він повертається, якщо лот продався. Дані оновлюються приблизно раз на годину, тому ціну купівлі завжди звіряй із написаною.')}</div>
+  ${deals.map(card).join('')||''}`}
+function vArb(){
+  const ld=arbLoad();if(ld)return ld;
   if(S.pall===undefined){S.pall=null;rpc('wow_api_prof_items').then(j=>{S.pall=new Set(j||[]);if(S.tab==='arb')render(1)}).catch(()=>{S.pall=new Set()})}
   if(S.ap==='out'&&(!S.pall||!S.pall.size))S.ap='all';
   const qq=String(S.aq||'').trim().toLowerCase(),scope=id=>S.ap==='mine'?S.items.has(id):S.ap==='out'?!S.pall.has(id):true;
   const rows=S.arb.rows||[],bud=parseFloat(S.bud)>0?parseFloat(S.bud)*10000:0,unit=S.am==='unit';
   // dir: buy idx, sell idx, cut, avail idx, demand idx, competitor stock idx, real sale price idx, min margin
-  if(!S.trc.h||!S.trc.n||!S.bkc.h||!S.bkc.n){if(!S.trw){S.trw=1;const em=()=>({map:new Map(),rows:[],items:[]});Promise.all([...['h','n'].filter(x=>!S.trc[x]).map(x=>fetchTr(x).catch(()=>{S.trc[x]=em()})),...['h','n'].filter(x=>!S.bkc[x]).map(x=>fetchBk(x).catch(()=>{S.bkc[x]={items:{},m:new Map()}}))]).then(()=>{S.trw=0;render()})}return '<div class="panel"><div class="empty">Звіряю ціни з тенденціями на обох аукціонах…</div></div>'}
   const mk=(bi,si,cut,ai,di,ci,pi,mm,dk)=>rows.map(r=>{const buy=r[bi];let sell=r[si];if(!buy||!sell||!r[pi]||!reqOk(r[17])||!scope(r[0])||(qq&&!String(r[1]||'').toLowerCase().includes(qq)))return null;const cur=sell;if(sell>r[pi])sell=r[pi];const dj=S.trc[dk].map.get(r[0]),cap=tCap(dj);if(cap&&sell>cap)sell=Math.round(cap);const bj=bkA(r[0],dk);if(bj&&bj.D&&sell>bj.sell)sell=bj.sell;const fall=tOk(dj)&&dj.st==='falling';const spike=cur>sell*SPIKE,ref=r[bi===9?16:15]||sell,odd=buy<ref*ODD;
       const p=sell*cut-buy,av=r[ai]||0,dm=r[di]||0;let can=Math.min(av,Math.round(dm*0.3));if(bud)can=Math.min(can,Math.floor(bud/buy));const days=dm?r[ci]/dm:99;const rc=(S.arb.rc||{})[dk],rx=rc&&rc.items?(rc.items[r[0]]||[0,0]):null,s1=rx?rx[0]:null,s3=rx?rx[1]:null,ex=rc?dm/24*(rc.n||3):0,rt=rx&&ex>=3?(s3>ex*1.3?1:s3<ex*0.7?-1:0):0;
       return {r,buy,sell,cur,spike,odd,fall,s1,s3,rt,p,m:p/buy*100,av,dm,can,days,pot:p*can*(days>3?0.3:1)*(odd?0.01:1)*(fall?0.3:1)}})
@@ -965,7 +1010,7 @@ function vMnt(){
   <div class="panel"><h2>Маунти${inf('Усі їздові тварини з довідника Blizzard для WoW Forever, із зображенням моделі та фракцією. Ціни, торговця й характеристик окремого маунта Blizzard у цих даних не віддає.','r')}</h2><div class="sub">Показано ${ms.length} із ${m.length}</div>
   <div class="fl"><input type="search" id="q" placeholder="Пошук маунта" value="${esc(R.mq)}" oninput="R.mq=this.value;render(1)">${[['','Усі'],['HORDE','Орда'],['ALLIANCE','Альянс']].map(f=>`<button class="pill ${R.mf===f[0]?'on':''}" onclick="R.mf='${f[0]}';render()">${f[1]}</button>`).join('')}</div>
   <div class="cards">${ms.map(x=>`<div class="mc">${x.img?`<img src="${esc(x.img)}" loading="lazy" alt="">`:'<img alt="">'}<div class="n">${esc(x.name)}${x.f?`<span class="badge ${x.f}">${x.f==='HORDE'?'Орда':'Альянс'}</span>`:''}</div></div>`).join('')}</div></div>`}
-function render(keepFocus){const fid=(keepFocus&&document.activeElement&&document.activeElement.id)||'q';document.body.dataset.tab=R.sec==='ah'?S.tab:'';if(R.sec!=='ah'){$('#view').innerHTML={ref:vCls,qst:vQst}[R.sec]();applyAllSorts();if(keepFocus){const q=document.getElementById(fid);if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt,arb:vArb,rep:vRep,trd:vTrd}[S.tab]();$('#view').innerHTML=v;applyAllSorts();if(keepFocus){const q=document.getElementById(fid);if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
+function render(keepFocus){const fid=(keepFocus&&document.activeElement&&document.activeElement.id)||'q';document.body.dataset.tab=R.sec==='ah'?S.tab:'';if(R.sec!=='ah'){$('#view').innerHTML={ref:vCls,qst:vQst}[R.sec]();applyAllSorts();if(keepFocus){const q=document.getElementById(fid);if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}return}if(!S.ov)return;const v={sig:vSig,rec:vRec,itm:vItm,mkt:vMkt,arb:vArb,do:vDo,rep:vRep,trd:vTrd}[S.tab]();$('#view').innerHTML=v;applyAllSorts();if(keepFocus){const q=document.getElementById(fid);if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;S.tab=b.dataset.t;S.q='';document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b));render()});
 $('#prof').addEventListener('change',e=>{S.prof=+e.target.value;S.cat='';try{localStorage.setItem('wowProf',S.prof)}catch(_){}loadMine();loadSkill();load()});
 function setEx(){document.querySelectorAll('#exs button').forEach(b=>b.classList.toggle('on',b.dataset.x===S.ex));if(R.sec==='ah')$('#hP').textContent=SEC.ah.p=`${S.ex==='n'?'Нейтральний аукціон гоблінів (Черноводье)':'Аукціон Орди'} · WoW Forever · PvP EU. Ціни, обсяги й тренди: що варити, що купувати, що продавати.`;else SEC.ah.p=`${S.ex==='n'?'Нейтральний аукціон гоблінів (Черноводье)':'Аукціон Орди'} · WoW Forever · PvP EU. Ціни, обсяги й тренди: що варити, що купувати, що продавати.`}
