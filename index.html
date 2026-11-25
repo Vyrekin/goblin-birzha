@@ -273,7 +273,16 @@ const tRow=id=>S.trMap?S.trMap.get(id)||null:null;
 const tOk=r=>!!(r&&r.base!=null&&!r.a.early);
 const tSpike=r=>tOk(r)&&(r.st==='spike_new'||r.st==='spike_fake');
 // Стеля ціни продажу: якщо ціну задерли без продажів — звична; поки історії мало — не більш ніж на 30% вище медіани за зібраний час.
-const tCap=r=>!r?null:tOk(r)?(tSpike(r)?r.base:null):(r.a.med?r.a.med*1.3:null);
+// tTail — останні k надійних годин ряду (найновіша перша); tMed48 — медіана за ~2 доби: ціна, яка справді трималась
+const tTail=(r,k)=>{const x=r&&r.a&&r.a.x,o=[];if(!x)return o;for(let i=x.length-1;i>=0&&o.length<k;i--)if(x[i]!=null)o.push(x[i]);return o};
+const tMed48=r=>{const w=tTail(r,48);return w.length>=12?trMed(w):null};
+// сповзає: зараз дешевше, ніж 3 години тому; стрибок: за останню добу ціна була в 1,5 раза вища за медіану двох діб (ринок викупили або задерли — ціна ще не встоялась)
+const tSlide=r=>{const w=tTail(r,4);return w.length>=4&&w[0]<w[3]*0.97};
+const tJump=r=>{const m=tMed48(r),w=tTail(r,24);return !!(m&&w.length&&Math.max(...w)>m*1.5)};
+// виміряна частка: якби в минулому виставив лот не дорожче поточної ціни й медіани попередніх 12 год — у скількох випадках за 12 год ринок піднявся вище твоєї ціни (усе дешевше, і твій лот теж, розкупили)
+const tSellP=r=>{const x=r&&r.a&&r.a.x;if(!x)return null;if(r._sp!==undefined)return r._sp;let n=0,ok=0;for(let i=12;i<x.length-12;i++){if(x[i]==null)continue;const pv=[];for(let j=i-12;j<=i;j++)if(x[j]!=null)pv.push(x[j]);if(pv.length<8)continue;const L=Math.min(x[i],trMed(pv));let mx=0;for(let j=i+1;j<=i+12;j++)if(x[j]!=null&&x[j]>mx)mx=x[j];if(!mx)continue;n++;if(mx>L*1.001)ok++}return r._sp=n>=24?{p:ok/n,n}:null};
+// Стеля ціни продажу (діє завжди й для всіх вкладок): не більш ніж на 10% вище медіани двох діб; якщо ціну задерли без продажів — звична.
+const tCap=r=>{if(!r)return null;const m=tMed48(r),c=tOk(r)?(tSpike(r)?r.base:null):(r.a.med?r.a.med*1.3:null),a=[m?m*1.1:null,c].filter(v=>v);return a.length?Math.min(...a):null};
 /*BOOK-BEGIN: стакан цін — скільки штук стоїть на кожній ціні й де лот реально продасться*/
 // T — «тонкий низ»: дешевші лоти можна пропустити вперед, лише якщо це не більше T годин продажів (з поправкою на те, як швидко підкидають нові); CAP — не ставити дорожче, ніж на стільки вище за ціну, де товар справді продається; WALLH — рівень є стіною, якщо на ньому товару на стільки годин продажів; GLUT — діб продажів біля мінімуму, після яких ринок затоварений
 const BK={T:1.5,CAP:1.05,WALLH:1.5,GLUT:2,BAND:1.001};
@@ -678,17 +687,21 @@ function arbLoad(){
   return null}
 // ---------- Зроби це: до трьох угод, які пройшли всі перевірки ----------
 // SLIP — запас на те, що ціну доведеться скинути; MARG — мінімальний прибуток понад ціну купівлі навіть після SLIP; SHARE — яку частку добового попиту можна зайняти своїм товаром; MIND — мінімум справжніх продажів за добу; MINP — мінімальний заробіток з угоди, мідяки
-const DO={SLIP:0.07,MARG:0.15,SHARE:0.2,MIND:10,MINP:10000,HRS:8};
+// PROB — мінімальна виміряна частка проданих за 12 год лотів; NEUT — чи радити продаж у гоблінів (ні, доки немає обліку справжніх продажів: там мало лотів і «продано» здебільшого перевиставлення)
+const DO={SLIP:0.07,MARG:0.15,SHARE:0.1,MIND:10,MINP:10000,HRS:8,PROB:0.75,NEUT:false};
 // золото ділиться між угодами по черзі: найкраща бере скільки треба, наступна рахується на решту
 function doDeals(){const all=parseFloat(S.bud)>0?parseFloat(S.bud)*10000:0,res=[],skip=new Set();let left=all;for(let i=0;i<3;i++){if(all&&left<=0)break;const o=doBest(all?left:0,skip);if(!o)break;res.push(o);skip.add(o.id);left-=o.cost}return res}
 function doBest(bud,skip){
   const rows=S.arb.rows||[],out=[];
   for(const [sx,dx,cut,di,pi,ri] of [['n','h',0.95,12,15,16],['h','n',0.85,13,16,15]]){
-    if(dx==='n'&&(S.arb.cov_n||0)<2)continue;
+    if(dx==='n'&&(!DO.NEUT||(S.arb.cov_n||0)<2))continue;
     const rc=(S.arb.rc||{})[dx];
     for(const r of rows){const id=r[0];if(skip.has(id)||!reqOk(r[17])||!r[pi]||!r[di])continue;
       const bs=bkA(id,sx),bd=bkA(id,dx);if(!bs||!bd||!bd.D)continue;
       const t=S.trc[dx].map.get(id);if(tOk(t)&&(t.st==='falling'||t.st==='dip_new'||tSpike(t)))continue;
+      // без історії ціни не раджу; ціна не має сповзати й не має бути після стрибка; лот за такою ціною в минулому мав продаватись
+      const m48=tMed48(t);if(!m48||tTail(t,48).length<36||tSlide(t)||tJump(t))continue;
+      const sp=tSellP(t);if(!sp||sp.p<DO.PROB)continue;
       if(bkGlut(bd))continue;
       const rx=rc&&rc.items?(rc.items[id]||[0,0]):null;if(rx&&!rx[1])continue;
       // продажі мають бути розмазані по добі: щонайменше 8 різних годин; разові великі партії (викуп або зняті лоти) у попит не йдуть
@@ -697,13 +710,13 @@ function doBest(bud,skip){
       let dem=day*(bd.N>bd.D?bd.D/bd.N:1);if(rx)dem=Math.min(dem,rx[1]/(rc.n||3)*24);
       if(dem<DO.MIND)continue;
       // виставляємо нижче найдешевшого лота і не дорожче, ніж товар справді купували
-      let list=Math.min(bd.min-1,Math.round(r[pi]));const cap=tCap(t);if(cap&&list>cap)list=Math.round(cap);if(list<1)continue;
+      let list=Math.min(bd.min-1,Math.round(r[pi]));const cap=tCap(t);if(cap&&list>cap)list=Math.round(cap);if(list>m48)list=Math.round(m48);if(list<1)continue;
       const safe=list*(1-DO.SLIP),maxBuy=Math.floor(safe*cut/(1+DO.MARG)),ref=r[ri]||0,lim=Math.min(Math.floor(dem*(dx==='n'?DO.SHARE/2:DO.SHARE)),parseInt(S.cap)>0?parseInt(S.cap):1e9);
       // купуємо по реальних лотах знизу вгору, поки кожна штука ще дає прибуток із запасом
       let n=0,cost=0,top=0;
       for(const l of bs.L){if(l.p>maxBuy||n>=lim)break;if(ref&&l.p<ref*ODD)continue;let q=Math.min(l.q,lim-n);if(bud)q=Math.min(q,Math.floor((bud-cost)/l.p));if(q<=0)break;n+=q;cost+=q*l.p;top=l.p}
       if(!n)continue;const lo=safe*cut*n-cost,hi=list*cut*n-cost;if(lo<DO.MINP)continue;
-      out.push({r,id,sx,dx,cut,n,cost,top,list,lo,hi,dem,rx,rcn:rc?rc.n||3:0,D:day,hrs:rob?rx[3]:0,stop:Math.ceil(cost/n/cut)})}}
+      out.push({r,id,sx,dx,cut,n,cost,top,list,lo,hi,dem,rx,rcn:rc?rc.n||3:0,D:day,hrs:rob?rx[3]:0,sp,m48,under:list<bd.min-1,stop:Math.ceil(cost/n/cut)})}}
   out.sort((a,b)=>b.lo-a.lo);return out[0]||null}
 function vDo(){
   const ld=arbLoad();if(ld)return ld;
@@ -713,11 +726,11 @@ function vDo(){
   const say=noBk?'Не зміг завантажити список лотів з обох аукціонів, а без нього я нічого не раджу. Онови сторінку за хвилину.':deals.length?`Ось ${deals.length===1?'одна угода, яка пройшла':deals.length+' угоди, які пройшли'} всі мої перевірки. Роби рівно як написано: скільки штук, де купити, по чому виставити. Якщо на аукціоні вже дорожче, ніж я написав, — не купуй, угоду забрали до тебе.`:'Зараз немає жодної угоди, яка пройшла всі перевірки. Нічого не купуй навмання: зазирни після наступного оновлення аукціону (приблизно раз на годину).';
   const card=(o,i)=>`<div class="panel deal"><h2 onclick="openItem(${o.id})"><span class="no">${i+1}</span><span class="nm q-${o.r[2]||''}">${ico(o.r[3],o.r[2])}${esc(o.r[1])}</span><span style="margin-left:auto">${coin(o.lo,1)}</span></h2>
     <div class="st"><b>1. Купи</b><div><span class="big"><b>${num(o.n)} шт</b> ${PL[o.sx][0]}</span> <span class="mut">(${PL[o.sx][1]})</span>. Кожну штуку — <b>не дорожче ${coinX(o.top)}</b>. Разом витратиш близько ${coin(o.cost)}.</div>
-    <b>2. Вистав</b><div><span class="big">${PL[o.dx][0]} по <b>${coinX(o.list)}</b> за штуку</span> <span class="mut">(${PL[o.dx][1]})</span>. Це нижче за найдешевший лот там, тож твій товар куплять першим.</div>
-    <b>3. Отримаєш</b><div><span class="big">щонайменше <b>${coin(o.lo,1)}</b></span> чистими: комісію ${o.cut<0.9?15:5}% уже віднято, і я заклав, що ціну доведеться скинути на ${Math.round(DO.SLIP*100)}%. Якщо ціна втримається — ${coin(o.hi,1)}.</div></div>
-    <div class="why"><b>Що перевірено:</b> там, де продаємо, цей товар купили ${o.rx?`${num(o.rx[1])} шт за останні ${o.rcn} год і `:''}близько ${num(o.D)} шт за добу${o.hrs?` (продажі йшли в ${o.hrs} різних годинах, разові великі партії не рахую)`:''}; твої ${num(o.n)} шт — це ${Math.max(1,Math.round(o.n/o.dem*100))}% справжнього денного попиту; ціна там не падає і її не задирали; запасу дешевших лотів немає; кількість і ціна купівлі пораховані по реальних лотах, які зараз стоять. <b>Стоп:</b> якщо, поки ти їхав, найдешевший лот там упав нижче ${coinX(o.stop)} — не виставляй дешевше, зачекай: нижче цієї ціни буде збиток.</div></div>`;
+    <b>2. Вистав</b><div><span class="big">${PL[o.dx][0]} по <b>${coinX(o.list)}</b> за штуку</span> <span class="mut">(${PL[o.dx][1]})</span>. ${o.under?`Це помітно нижче за найдешевший лот там (${coinX(o.list+1)} і вище я не раджу: довше двох діб ціна там не трималась вище ${coinX(Math.round(o.m48))}).`:'Це на мідяк нижче за найдешевший лот там.'} Дешевші лоти підкидають постійно: якщо за 12 годин не купили — перевистав під новий мінімум, але не нижче ціни «Стоп».</div>
+    <b>3. Отримаєш</b><div><span class="big">близько <b>${coin(o.lo,1)}</b></span> чистими, якщо все продасться: комісію ${o.cut<0.9?15:5}% уже віднято, і я заклав, що ціну доведеться скинути на ${Math.round(DO.SLIP*100)}%. Якщо ціна втримається — ${coin(o.hi,1)}.</div></div>
+    <div class="why"><b>Що перевірено:</b> там, де продаємо, цей товар купили ${o.rx?`${num(o.rx[1])} шт за останні ${o.rcn} год і `:''}близько ${num(o.D)} шт за добу${o.hrs?` (продажі йшли в ${o.hrs} різних годинах, разові великі партії не рахую)`:''}; твої ${num(o.n)} шт — це ${Math.max(1,Math.round(o.n/o.dem*100))}% справжнього денного попиту; за останні три години ціна там не сповзає, за добу не було стрибка чи викупу ринку, і вона не вища за медіану двох діб; <b>перевірка на історії: лот за таким правилом продавався протягом 12 годин у ${Math.round(o.sp.p*100)}% випадків (${o.sp.n} перевірених годин)</b>; запасу дешевших лотів немає; кількість і ціна купівлі пораховані по реальних лотах, які зараз стоять. <b>Стоп:</b> якщо, поки ти їхав, найдешевший лот там упав нижче ${coinX(o.stop)} — не виставляй дешевше, зачекай: нижче цієї ціни буде збиток.</div></div>`;
   return `<div class="gob"><img src="${GOB}" alt=""><div class="say">${say}</div></div>
-  <div class="fl" style="margin-bottom:12px"><span class="mut">У мене є золота:</span><input type="search" id="q" inputmode="decimal" placeholder="напр. 20" value="${esc(S.bud)}" oninput="S.bud=this.value;render(1)" style="width:110px"><span class="mut" style="margin-left:14px">Везу не більше, шт:</span><input type="search" id="dc" inputmode="numeric" placeholder="без межі" value="${esc(S.cap)}" oninput="S.cap=this.value;render(1)" style="width:100px">${inf('Впиши, скільки золота готовий витратити: угоди перерахуються під цю суму. Порожнє поле — без обмеження. «Везу не більше» — скільки штук одного товару готовий везти в сумках. Сюди потрапляють лише угоди між двома аукціонами, які пройшли всі перевірки: товар купували останні години і щонайменше у '+DO.HRS+' різних годинах доби; разові великі партії (хтось викупив усе або зняв свої лоти) у попит не йдуть; попит пораховано без перевиставлених лотів; беремо не більше '+Math.round(DO.SHARE*100)+'% денного попиту (у гоблінів — '+Math.round(DO.SHARE*50)+'%); ціна там, де продаємо, не падає і не задерта; продаємо нижче найдешевшого лота; прибуток лишається навіть після падіння ціни на '+Math.round(DO.SLIP*100)+'%. Депозит за виставлення не враховано: він повертається, якщо лот продався. Дані оновлюються приблизно раз на годину, тому ціну купівлі завжди звіряй із написаною.')}</div>
+  <div class="fl" style="margin-bottom:12px"><span class="mut">У мене є золота:</span><input type="search" id="q" inputmode="decimal" placeholder="напр. 20" value="${esc(S.bud)}" oninput="S.bud=this.value;render(1)" style="width:110px"><span class="mut" style="margin-left:14px">Везу не більше, шт:</span><input type="search" id="dc" inputmode="numeric" placeholder="без межі" value="${esc(S.cap)}" oninput="S.cap=this.value;render(1)" style="width:100px">${inf('Впиши, скільки золота готовий витратити: угоди перерахуються під цю суму. Порожнє поле — без обмеження. «Везу не більше» — скільки штук одного товару готовий везти в сумках. Сюди потрапляють лише угоди між двома аукціонами, які пройшли всі перевірки: товар купували останні години і щонайменше у '+DO.HRS+' різних годинах доби; разові великі партії (хтось викупив усе або зняв свої лоти) у попит не йдуть; попит пораховано без перевиставлених лотів; беремо не більше '+Math.round(DO.SHARE*100)+'% денного попиту ; ціна там, де продаємо, не сповзає останні три години, за добу не було стрибка чи викупу ринку; ціна виставлення не вища за медіану двох діб; на історії цього товару такий лот продавався за 12 годин щонайменше у '+Math.round(DO.PROB*100)+'% випадків; товар без двох діб історії ціни сюди не потрапляє; продаж у гоблінів поки не раджу взагалі — там мало лотів і продажі не відрізнити від перевиставлення; прибуток лишається навіть після падіння ціни на '+Math.round(DO.SLIP*100)+'%. Депозит за виставлення не враховано: він повертається, якщо лот продався. Дані оновлюються приблизно раз на годину, тому ціну купівлі завжди звіряй із написаною.')}</div>
   ${deals.map(card).join('')||''}`}
 function vArb(){
   const ld=arbLoad();if(ld)return ld;
@@ -726,7 +739,7 @@ function vArb(){
   const qq=String(S.aq||'').trim().toLowerCase(),scope=id=>S.ap==='mine'?S.items.has(id):S.ap==='out'?!S.pall.has(id):true;
   const rows=S.arb.rows||[],bud=parseFloat(S.bud)>0?parseFloat(S.bud)*10000:0,unit=S.am==='unit';
   // dir: buy idx, sell idx, cut, avail idx, demand idx, competitor stock idx, real sale price idx, min margin
-  const mk=(bi,si,cut,ai,di,ci,pi,mm,dk)=>rows.map(r=>{const buy=r[bi];let sell=r[si];if(!buy||!sell||!r[pi]||!reqOk(r[17])||!scope(r[0])||(qq&&!String(r[1]||'').toLowerCase().includes(qq)))return null;const cur=sell;if(sell>r[pi])sell=r[pi];const dj=S.trc[dk].map.get(r[0]),cap=tCap(dj);if(cap&&sell>cap)sell=Math.round(cap);const bj=bkA(r[0],dk);if(bj&&bj.D&&sell>bj.sell)sell=bj.sell;const fall=tOk(dj)&&dj.st==='falling';const spike=cur>sell*SPIKE,ref=r[bi===9?16:15]||sell,odd=buy<ref*ODD;
+  const mk=(bi,si,cut,ai,di,ci,pi,mm,dk)=>rows.map(r=>{const buy=r[bi];let sell=r[si];if(!buy||!sell||!r[pi]||!reqOk(r[17])||!scope(r[0])||(qq&&!String(r[1]||'').toLowerCase().includes(qq)))return null;const cur=sell;if(sell>r[pi])sell=r[pi];const dj=S.trc[dk].map.get(r[0]),cap=tCap(dj);if(cap&&sell>cap)sell=Math.round(cap);const bj=bkA(r[0],dk);if(bj&&bj.D&&sell>bj.sell)sell=bj.sell;const fall=(tOk(dj)&&dj.st==='falling')||tSlide(dj)||tJump(dj);const spike=cur>sell*SPIKE,ref=r[bi===9?16:15]||sell,odd=buy<ref*ODD;
       const p=sell*cut-buy,av=r[ai]||0,rq=((S.arb.rc||{})[dk]||{}).items,rr=rq&&rq[r[0]],dm=rr&&rr.length>2?Math.min(r[di]||0,rr[2]):(r[di]||0);let can=Math.min(av,Math.round(dm*0.3));if(bud)can=Math.min(can,Math.floor(bud/buy));const days=dm?r[ci]/dm:99;const rc=(S.arb.rc||{})[dk],rx=rc&&rc.items?(rc.items[r[0]]||[0,0]):null,s1=rx?rx[0]:null,s3=rx?rx[1]:null,ex=rc?dm/24*(rc.n||3):0,rt=rx&&ex>=3?(s3>ex*1.3?1:s3<ex*0.7?-1:0):0;
       return {r,buy,sell,cur,spike,odd,fall,s1,s3,rt,p,m:p/buy*100,av,dm,can,days,pot:p*can*(days>3?0.3:1)*(odd?0.01:1)*(fall?0.3:1)}})
     .filter(o=>o&&(qq||(o.p>0&&o.m>=mm&&o.can>=(unit||bud?1:3)))).sort((a,b)=>unit?b.p-a.p:b.pot-a.pot).slice(0,qq?100:40);
